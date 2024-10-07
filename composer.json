@@ -1,0 +1,58 @@
+{
+  "name": "katorymnd/pawa-pay-integration",
+  "description": "A PHP SDK for seamless integration with the pawaPay API, supporting payment processing and transaction management.",
+  "type": "library",
+  "version": "1.0.0",
+  "keywords": [
+    "pawaPay",
+    "payment",
+    "API",
+    "payment gateway",
+    "PHP SDK",
+    "transaction",
+    "refund",
+    "payout",
+    "mobile money",
+    "payment processing",
+    "integration"
+  ],
+  "homepage": "https://github.com/katorymnd/pawa-pay-integration",
+  "require": {
+    "php": ">=8.0.0",
+    "guzzlehttp/guzzle": "^7.9",
+    "monolog/monolog": "^3.7",
+    "symfony/validator": "^7.1",
+    "jms/serializer": "^3.30",
+    "phpunit/phpunit": "^11.3",
+    "filp/whoops": "^2.15",
+    "vlucas/phpdotenv": "^5.6",
+    "league/iso3166": "^4.3",
+    "symfony/intl": "^7.1"
+  },
+  "require-dev": {
+    "phpstan/phpstan": "^1.12",
+    "friendsofphp/php-cs-fixer": "^3.64"
+  },
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Katorymnd\\PawaPayIntegration\\": "src/"
+    },
+    "classmap": [
+      "src/"
+    ]
+  },
+  "authors": [
+    {
+      "name": "Kato Raymond",
+      "email": "katorymnd@gmail.com",
+      "homepage": "https://katorymnd.com",
+      "role": "Lead Developer"
+    }
+  ],
+  "minimum-stability": "stable",
+  "support": {
+    "issues": "https://github.com/katorymnd/pawa-pay-integration/issues",
+    "source": "https://github.com/katorymnd/pawa-pay-integration"
+  }
+}

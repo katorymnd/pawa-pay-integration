@@ -1,0 +1,1669 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Payout Form</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background-color: #bac0c5;
+        opacity: 0; /* Initially hide the body */
+        transition: opacity 0.5s ease-in-out; /* Smooth transition when showing */
+      }
+      /* Operator card styles */
+      .operator-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .operator-card {
+        padding: 1rem;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        text-align: center;
+        width: 120px;
+        position: relative;
+        transition: transform 0.3s ease, border-color 0.3s ease;
+        background-color: white;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        flex: 1 1 120px;
+        max-width: 150px;
+        cursor: pointer;
+      }
+
+      .operator-card img {
+        width: 80px;
+        height: auto;
+        margin-bottom: 10px;
+      }
+
+      .operator-card:hover {
+        transform: translateY(-5px);
+        border-color: #007bff;
+      }
+
+      .operator-card.selected {
+        border-color: #007bff;
+        background-color: rgba(0, 123, 255, 0.1);
+      }
+
+      .operator-card.disabled {
+        border-color: #ddd;
+        opacity: 0.6;
+        pointer-events: none;
+      }
+
+      .unavailable-text {
+        color: red;
+        font-size: 0.9em;
+      }
+
+      /* Responsive behavior */
+      @media (max-width: 800px) {
+        .operator-card {
+          width: calc(50% - 20px);
+        }
+      }
+
+      @media (max-width: 500px) {
+        .operator-card {
+          width: calc(100% - 20px);
+        }
+      }
+
+      #alert-placeholder {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+        z-index: 1050; /* Higher index to overlay content */
+        display: none; /* Hidden by default */
+      }
+
+      #alert-placeholder .alert {
+        cursor: pointer; /* Change cursor to indicate it can be clicked */
+      }
+
+      .powered-by-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .powered-by-text {
+        font-size: 1rem;
+        color: #555;
+        margin-right: 8px;
+        opacity: 0.8;
+        transition: opacity 0.3s;
+      }
+
+      .pawapay-logo {
+        max-width: 120px;
+        height: auto;
+        opacity: 0.8;
+        transition: opacity 0.3s;
+      }
+
+      /* Hover effect to enhance the "ghosty" feel */
+      .powered-by-text,
+      .pawapay-logo {
+        opacity: 0.5;
+      }
+
+      .powered-by-container:hover .powered-by-text,
+      .powered-by-container:hover .pawapay-logo {
+        filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.2));
+      }
+
+      .powered-by-container {
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(230, 230, 230, 0.5) 50%,
+          rgba(255, 255, 255, 0) 100%
+        );
+        padding: 10px;
+        border-radius: 5px;
+      }
+
+      .powered-by-text {
+        font-size: 1rem;
+        color: #333;
+        margin-right: 8px;
+
+        letter-spacing: 1px;
+      }
+
+      @media (max-width: 600px) {
+        .pawapay-logo {
+          max-width: 100px;
+        }
+      }
+
+      #loader {
+        display: flex; /* Show the loader initially */
+        justify-content: center;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+        z-index: 1050; /* Ensures the loader is on top of other content */
+      }
+
+      .hidden {
+        display: none !important;
+      }
+
+      .visible {
+        display: flex;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container mt-5 mb-5">
+      <h1 class="mb-4 text-center">Initiate Payout</h1>
+      <form id="payout-form">
+        <!-- Recipient Details -->
+        <div id="recipients">
+          <div class="recipient card mb-4 p-3">
+            <div class="card-body">
+              <h4 class="card-title">Recipient 1</h4>
+              <!-- Country Selection -->
+              <div class="mb-3">
+                <label for="country-1" class="form-label">Country:</label>
+                <select
+                  id="country-1"
+                  name="recipients[0][country]"
+                  class="form-select country-select"
+                >
+                  <option value="" disabled selected>Choose Country</option>
+                  <!-- Add countries here -->
+                  <option value="Benin" data-currency="XOF">Benin</option>
+                  <option value="Burkina Faso" data-currency="XOF">
+                    Burkina Faso
+                  </option>
+                  <option value="Cameroon" data-currency="XAF">Cameroon</option>
+                  <option value="Congo" data-currency="XAF">
+                    Congo-Brazzaville
+                  </option>
+                  <option value="Congo (DRC)" data-currency="CDF">
+                    Congo-Kinshasa (CDF)
+                  </option>
+                  <option value="Congo (DRC)" data-currency="USD">
+                    Congo-Kinshasa (USD)
+                  </option>
+                  <option value="Cote D'Ivoire" data-currency="XOF">
+                    Cote D'Ivoire
+                  </option>
+                  <option value="Gabon" data-currency="XAF">Gabon</option>
+                  <option value="Ghana" data-currency="GHS">Ghana</option>
+                  <option value="Kenya" data-currency="KES">Kenya</option>
+                  <option value="Malawi" data-currency="MWK">Malawi</option>
+                  <option value="Mozambique" data-currency="MZN">
+                    Mozambique
+                  </option>
+                  <option value="Nigeria" data-currency="NGN">Nigeria</option>
+                  <option value="Rwanda" data-currency="RWF">Rwanda</option>
+                  <option value="Senegal" data-currency="XOF">Senegal</option>
+                  <option value="Sierra Leone" data-currency="SLE">
+                    Sierra Leone
+                  </option>
+                  <option value="Uganda" data-currency="UGX">Uganda</option>
+                  <option value="Zambia" data-currency="ZMW">Zambia</option>
+                  <!-- Add other countries as needed -->
+                </select>
+              </div>
+              <!-- MNO Selection -->
+              <div class="mb-3">
+                <label class="form-label mb-3">Operator</label>
+                <div id="mno-cards-container-1" class="operator-container">
+                  <!-- MNO cards dynamically generated here -->
+                </div>
+                <input
+                  type="hidden"
+                  id="selectedMno-1"
+                  name="recipients[0][correspondent]"
+                  class="selected-mno-input"
+                />
+              </div>
+              <!-- Amount with Currency Prefix -->
+              <div class="mb-3">
+                <label for="amount-1" class="form-label">Amount:</label>
+                <div class="input-group has-validation">
+                  <span class="input-group-text" id="currency-symbol-1"
+                    >UGX</span
+                  >
+                  <input
+                    type="text"
+                    class="form-control amount-input"
+                    id="amount-1"
+                    name="recipients[0][amount]"
+                    placeholder="Amount"
+                    aria-label="Amount"
+                  />
+                </div>
+              </div>
+              <!-- Recipient's Phone Number -->
+              <div class="mb-3">
+                <label for="recipientMsisdn-1" class="form-label"
+                  >Recipient's Phone Number</label
+                >
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <img
+                      id="countryFlag-1"
+                      src="flags/ug.png"
+                      alt="Flag"
+                      width="24"
+                      height="16"
+                      class="me-2"
+                    />
+                    <span id="countryCode-1">+</span>
+                  </span>
+                  <input
+                    type="tel"
+                    class="form-control"
+                    id="recipientMsisdn-1"
+                    name="recipients[0][recipientMsisdn]"
+                  />
+                </div>
+              </div>
+              <!-- Statement Description -->
+              <div class="mb-3">
+                <label for="statementDescription-1" class="form-label"
+                  >Statement Description</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="statementDescription-1"
+                  name="recipients[0][statementDescription]"
+                />
+              </div>
+
+              <!-- Metadata (Optional) -->
+              <div class="mb-3">
+                <label class="form-label">Metadata (Optional)</label>
+                <div id="metadata-1">
+                  <div class="row mb-2 metadata-item">
+                    <div class="col-md-5">
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="recipients[0][metadata][0][fieldName]"
+                        placeholder="Field Name"
+                      />
+                    </div>
+                    <div class="col-md-5">
+                      <input
+                        type="text"
+                        class="form-control"
+                        name="recipients[0][metadata][0][fieldValue]"
+                        placeholder="Field Value"
+                      />
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                      <button
+                        type="button"
+                        class="btn btn-outline-danger remove-metadata w-100"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary add-metadata"
+                  data-recipient-index="1"
+                >
+                  Add Metadata
+                </button>
+              </div>
+              <!-- <button
+                type="button"
+                class="btn btn-outline-danger remove-recipient"
+              >
+                Remove Recipient
+              </button> -->
+            </div>
+          </div>
+        </div>
+        <div class="d-flex justify-content-between">
+          <button type="button" class="btn btn-primary" id="add-recipient">
+            Add Another Recipient
+          </button>
+          <button type="submit" class="btn btn-success">Initiate Payout</button>
+        </div>
+      </form>
+      <!-- Powered by Pawapay Logo -->
+      <div class="powered-by-container text-center mt-4">
+        <span class="powered-by-text">Powered by</span>
+        <img
+          src="images/powered_by_pawapay.png"
+          alt="Pawapay Logo"
+          class="pawapay-logo"
+        />
+      </div>
+      <div id="alert-placeholder"></div>
+      <div
+        id="loader"
+        class="d-flex justify-content-center align-items-center visible"
+      >
+        <div class="spinner-border text-light" role="status">
+          <span class="visually-hidden">Processing...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Include libphonenumber-js for phone number validation if needed -->
+    <script src="https://unpkg.com/libphonenumber-js@1.10.22/bundle/libphonenumber-max.js"></script>
+
+    <script>
+      window.addEventListener("load", function () {
+        document.body.style.opacity = "1";
+        document.getElementById("loader").classList.add("hidden"); // Use class to hide the loader
+      });
+
+      // JavaScript to handle adding/removing recipients and metadata
+      document.addEventListener("DOMContentLoaded", function () {
+        let recipientIndex = 1; // Start from 1 since we already have recipient 1
+        let maxRecipients = 5; // Maximum number of recipients
+        let maxMetadata = 5; // Maximum number of metadata entries per recipient
+
+        // MNO Correspondents Data
+        const mnoCorrespondents = {
+          Benin: [
+            {
+              name: "MTN Benin",
+              apiCode: "MTN_MOMO_BEN",
+              countryCode: "+229",
+              flag: "bj.png",
+              available: true,
+              img: "mtn.png", // Image name for MTN Benin
+            },
+            {
+              name: "Moov Benin",
+              apiCode: "MOOV_BEN",
+              countryCode: "+229",
+              flag: "bj.png",
+              available: false, // Set this to false for down networks
+              img: "moov.png", // Image name for Moov Benin
+            },
+          ],
+          "Burkina Faso": [
+            {
+              name: "Orange Burkina Faso",
+              apiCode: "ORANGE_BFA",
+              countryCode: "+226",
+              flag: "bf.png",
+              available: true,
+              img: "orange-money-logo.jpg", // Image name for Orange Burkina Faso
+            },
+            {
+              name: "Moov Burkina Faso",
+              apiCode: "MOOV_BFA",
+              countryCode: "+226",
+              flag: "bf.png",
+              available: true,
+              img: "moov.png", // Image name for Moov Burkina Faso
+            },
+          ],
+          Cameroon: [
+            {
+              name: "MTN Cameroon",
+              apiCode: "MTN_MOMO_CMR",
+              countryCode: "+237",
+              flag: "cm.png",
+              available: true,
+              img: "mtn.png", // Image name for MTN Cameroon
+            },
+            {
+              name: "Orange Cameroon",
+              apiCode: "ORANGE_CMR",
+              countryCode: "+237",
+              flag: "cm.png",
+              available: true,
+              img: "orange-money-logo.jpg", // Image name for Orange Cameroon
+            },
+          ],
+          Congo: [
+            // {
+            //   name: "MTN Congo",
+            //   apiCode: "MTN_MOMO_COG",
+            //   countryCode: "+242",
+            //   flag: "cg.png",
+            //   available: true,
+            //   img: "mtn.png", // Image name for MTN Congo
+            // },
+            {
+              name: "Airtel Congo",
+              apiCode: "AIRTEL_COG",
+              countryCode: "+242",
+              flag: "cg.png",
+              available: false,
+              img: "airtel.png", // Image name for Airtel Congo
+            },
+          ],
+          "Congo (DRC)": [
+            {
+              name: "Vodacom DRC",
+              apiCode: "VODACOM_MPESA_COD",
+              countryCode: "+243",
+              flag: "cd.png",
+              available: true,
+              img: "vodacom.jpg", // Image name for Vodacom DRC
+            },
+            {
+              name: "Airtel DRC",
+              apiCode: "AIRTEL_COD",
+              countryCode: "+243",
+              flag: "cd.png",
+              available: true,
+              img: "airtel.png", // Image name for Airtel DRC
+            },
+            {
+              name: "Orange DRC",
+              apiCode: "ORANGE_COD",
+              countryCode: "+243",
+              flag: "cd.png",
+              available: false,
+              img: "orange-money-logo.jpg", // Image name for Orange DRC
+            },
+          ],
+          "Cote D'Ivoire": [
+            {
+              name: "MTN Cote d'Ivoire",
+              apiCode: "MTN_MOMO_CIV",
+              countryCode: "+225",
+              flag: "ci.png",
+              available: true,
+              img: "mtn.png", // Image name for MTN Cote d'Ivoire
+            },
+            {
+              name: "Orange Cote d'Ivoire",
+              apiCode: "ORANGE_CIV",
+              countryCode: "+225",
+              flag: "ci.png",
+              available: true,
+              img: "orange-money-logo.jpg", // Image name for Orange Cote d'Ivoire
+            },
+            {
+              name: "Moov Cote d'Ivoire",
+              apiCode: "MOOV_CIV",
+              countryCode: "+225",
+              flag: "ci.png",
+              available: true,
+              img: "moov.png", // Image name for Moov Cote d'Ivoire
+            },
+            {
+              name: "Wave Cote d'Ivoire",
+              apiCode: "WAVE_CIV",
+              countryCode: "+225",
+              flag: "ci.png",
+              available: true,
+              img: "wave-logo.png",
+            },
+          ],
+          Gabon: [
+            {
+              name: "Airtel Gabon",
+              apiCode: "AIRTEL_GAB",
+              countryCode: "+241",
+              flag: "ga.png",
+              available: true,
+              img: "airtel.png", // Image name for Airtel Gabon
+            },
+            {
+              name: "Moov Gabon",
+              apiCode: "MOOV_GAB",
+              countryCode: "+241",
+              flag: "ga.png",
+              available: true,
+              img: "moov.png", // Image name for Moov Gabon
+            },
+          ],
+          Ghana: [
+            {
+              name: "MTN Ghana",
+              apiCode: "MTN_MOMO_GHA",
+              countryCode: "+233",
+              flag: "gh.png",
+              available: true,
+              img: "mtn.png", // Image name for MTN Ghana
+            },
+            {
+              name: "AirtelTigo Ghana",
+              apiCode: "AIRTELTIGO_GHA",
+              countryCode: "+233",
+              flag: "gh.png",
+              available: true,
+              img: "airtel-tigo.png", // Image name for AirtelTigo Ghana
+            },
+            {
+              name: "Vodafone Ghana",
+              apiCode: "VODAFONE_GHA",
+              countryCode: "+233",
+              flag: "gh.png",
+              available: true,
+              img: "vodacom.jpg", // Image name for Vodafone Ghana
+            },
+          ],
+          Kenya: [
+            {
+              name: "Safaricom Kenya",
+              apiCode: "MPESA_KEN",
+              countryCode: "+254",
+              flag: "ke.png",
+              available: true,
+              img: "safaricom-logo.png", // Image name for Safaricom Kenya
+            },
+            {
+              name: "Airtel Kenya",
+              apiCode: "AIRTEL_KEN",
+              countryCode: "+254",
+              flag: "ke.png",
+              available: true,
+              img: "airtel.png", // Image name for Airtel Kenya
+            },
+          ],
+          Malawi: [
+            {
+              name: "Airtel Malawi",
+              apiCode: "AIRTEL_MWI",
+              countryCode: "+265",
+              flag: "mw.png",
+              available: true,
+              img: "airtel.png", // Image name for Airtel Malawi
+            },
+            {
+              name: "TNM Malawi",
+              apiCode: "TNM_MWI",
+              countryCode: "+265",
+              flag: "mw.png",
+              available: true,
+              img: "mw-tnm-logo.png", // Image name for TNM Malawi
+            },
+          ],
+          Mozambique: [
+            {
+              name: "Vodacom Mozambique",
+              apiCode: "VODACOM_MOZ",
+              countryCode: "+258",
+              flag: "mz.png",
+              available: true,
+              img: "vodacom.jpg", // Image name for Vodacom Mozambique
+            },
+            {
+              name: "Movitel Mozambique",
+              apiCode: "MOVITEL_MOZ",
+              countryCode: "+258",
+              flag: "mz.png",
+              available: true,
+              img: "movitel.png", // Image name for Movitel Mozambique
+            },
+          ],
+
+          Nigeria: [
+            {
+              name: "MTN Nigeria",
+              apiCode: "MTN_MOMO_NGA",
+              countryCode: "+234",
+              flag: "ng.png",
+              available: true,
+              img: "mtn.png", // Image name for MTN Nigeria
+            },
+            {
+              name: "Airtel Nigeria",
+              apiCode: "AIRTEL_NGA",
+              countryCode: "+234",
+              flag: "ng.png",
+              available: true,
+              img: "airtel.png", // Image name for Airtel Nigeria
+            },
+          ],
+          Rwanda: [
+            {
+              name: "MTN Rwanda",
+              apiCode: "MTN_MOMO_RWA",
+              countryCode: "+250",
+              flag: "rw.png",
+              available: true,
+              img: "mtn.png", // Image name for MTN Rwanda
+            },
+            {
+              name: "Airtel Rwanda",
+              apiCode: "AIRTEL_RWA",
+              countryCode: "+250",
+              flag: "rw.png",
+              available: true,
+              img: "airtel.png", // Image name for Airtel Rwanda
+            },
+          ],
+          Senegal: [
+            {
+              name: "Orange Senegal",
+              apiCode: "ORANGE_SEN",
+              countryCode: "+221",
+              flag: "sn.png",
+              available: true,
+              img: "orange-money-logo.jpg", // Image name for Orange Senegal
+            },
+            {
+              name: "Free Senegal",
+              apiCode: "FREE_SEN",
+              countryCode: "+221",
+              flag: "sn.png",
+              available: true,
+              img: "free.png", // Image name for Free Senegal
+            },
+          ],
+          "Sierra Leone": [
+            {
+              name: "Orange Sierra Leone",
+              apiCode: "ORANGE_SLE",
+              countryCode: "+232",
+              flag: "sl.png",
+              available: true,
+              img: "orange-money-logo.jpg", // Image name for Orange Sierra Leone
+            },
+            {
+              name: "Africell Sierra Leone",
+              apiCode: "AFRICELL_SLE",
+              countryCode: "+232",
+              flag: "sl.png",
+              available: true,
+              img: "africell.png", // Image name for Africell Sierra Leone
+            },
+          ],
+          Tanzania: [
+            {
+              name: "Vodacom Tanzania",
+              apiCode: "VODACOM_TZA",
+              countryCode: "+255",
+              flag: "tz.png",
+              available: true,
+              img: "vodacom.jpg", // Image name for Vodacom Tanzania
+            },
+            {
+              name: "Airtel Tanzania",
+              apiCode: "AIRTEL_TZA",
+              countryCode: "+255",
+              flag: "tz.png",
+              available: true,
+              img: "airtel.png", // Image name for Airtel Tanzania
+            },
+            {
+              name: "Tigo Tanzania",
+              apiCode: "TIGO_TZA",
+              countryCode: "+255",
+              flag: "tz.png",
+              available: true,
+              img: "tigo-pesa-tanzania.png", // Image name for Tigo Tanzania
+            },
+            {
+              name: "Halotel Tanzania",
+              apiCode: "HALOTEL_TZA",
+              countryCode: "+255",
+              flag: "tz.png",
+              available: true,
+              img: "halotel-tz.png", // Image name for Halotel Tanzania
+            },
+          ],
+          Uganda: [
+            {
+              name: "MTN Uganda",
+              apiCode: "MTN_MOMO_UGA",
+              countryCode: "+256",
+              flag: "ug.png",
+              available: true,
+              img: "mtn.png", // Image name for MTN Uganda
+            },
+            {
+              name: "Airtel Uganda",
+              apiCode: "AIRTEL_OAPI_UGA",
+              countryCode: "+256",
+              flag: "ug.png",
+              available: true,
+              img: "airtel.png", // Image name for Airtel Uganda
+            },
+          ],
+          Zambia: [
+            {
+              name: "MTN Zambia",
+              apiCode: "MTN_MOMO_ZMB",
+              countryCode: "+260",
+              flag: "zm.png",
+              available: true,
+              img: "mtn.png", // Image name for MTN Zambia
+            },
+            {
+              name: "Airtel Zambia",
+              apiCode: "AIRTEL_OAPI_ZMB",
+              countryCode: "+260",
+              flag: "zm.png",
+              available: true,
+              img: "airtel.png", // Image name for Airtel Zambia
+            },
+            {
+              name: "Zamtel Zambia",
+              apiCode: "ZAMTEL_ZMB",
+              countryCode: "+260",
+              flag: "zm.png",
+              available: false, // This network is down
+              img: "zamtel-za.png", // Image name for Zamtel Zambia
+            },
+          ],
+        };
+
+        // Map country names to country codes
+        const countryNameToCode = {
+          Benin: "BEN",
+          "Burkina Faso": "BFA",
+          Cameroon: "CMR",
+          Congo: "COG",
+          "Congo (DRC)": "COD",
+          "Cote D'Ivoire": "CIV",
+          Gabon: "GAB",
+          Ghana: "GHA",
+          Kenya: "KEN",
+          Malawi: "MWI",
+          Mozambique: "MOZ",
+          Nigeria: "NGA",
+          Rwanda: "RWA",
+          Senegal: "SEN",
+          "Sierra Leone": "SLE",
+          Tanzania: "TZA",
+          Uganda: "UGA",
+          Zambia: "ZMB",
+        };
+
+        // Fetch the MNO availability data
+        fetch("../data/mno_availability.json")
+          .then((response) => response.json())
+          .then((data) => {
+            // Create a mapping from country codes to their data
+            const countryDataMap = {};
+            data.forEach((countryObj) => {
+              countryDataMap[countryObj.country] = countryObj;
+            });
+
+            // Update the 'available' field for each MNO
+            Object.keys(mnoCorrespondents).forEach((countryName) => {
+              const countryCode = countryNameToCode[countryName];
+
+              const countryData = countryDataMap[countryCode];
+
+              if (countryData) {
+                const correspondents = countryData.correspondents;
+
+                mnoCorrespondents[countryName].forEach((mno) => {
+                  const apiCode = mno.apiCode;
+
+                  // Find the corresponding MNO in the JSON data
+                  const correspondentData = correspondents.find(
+                    (correspondent) => correspondent.correspondent === apiCode
+                  );
+
+                  if (correspondentData) {
+                    // Check the 'PAYOUT' operation status
+                    const payoutOperation =
+                      correspondentData.operationTypes.find(
+                        (operation) => operation.operationType === "PAYOUT"
+                      );
+
+                    if (payoutOperation) {
+                      mno.available = payoutOperation.status === "OPERATIONAL";
+                    } else {
+                      mno.available = false; // No 'PAYOUT' operation found
+                    }
+                  } else {
+                    mno.available = false; // Correspondent not found
+                  }
+                });
+              } else {
+                // Country data not found in JSON, set all MNOs to unavailable
+                mnoCorrespondents[countryName].forEach((mno) => {
+                  mno.available = false;
+                });
+              }
+            });
+
+            // Now the mnoCorrespondents object has updated 'available' fields
+          })
+          .catch((error) => {
+            console.error("Error fetching MNO availability data:", error);
+            // Handle errors if necessary
+          });
+
+        // Function to add a new recipient
+        document
+          .getElementById("add-recipient")
+          .addEventListener("click", function () {
+            if (recipientIndex >= maxRecipients) {
+              showBootstrapAlert(
+                "You can only add up to 5 recipients.",
+                "danger"
+              );
+              return; // Stop the function if the maximum is reached
+            }
+            recipientIndex++;
+            const recipientsDiv = document.getElementById("recipients");
+
+            const recipientDiv = document.createElement("div");
+            recipientDiv.classList.add("recipient", "card", "mb-4", "p-3");
+
+            recipientDiv.innerHTML = `
+              <div class="card-body">
+                  <h4 class="card-title">Recipient ${recipientIndex}</h4>
+                  <!-- Country Selection -->
+                  <div class="mb-3">
+                      <label for="country-${recipientIndex}" class="form-label">Country:</label>
+                      <select id="country-${recipientIndex}" name="recipients[${
+              recipientIndex - 1
+            }][country]" class="form-select country-select">
+                          <option value="" disabled selected>Choose Country</option>
+                          <!-- Add countries here -->
+                         <option value="Benin" data-currency="XOF">Benin</option>
+                <option value="Burkina Faso" data-currency="XOF">
+                  Burkina Faso
+                </option>
+                <option value="Cameroon" data-currency="XAF">Cameroon</option>
+                <option value="Congo" data-currency="XAF">
+                    Congo-Brazzaville
+                  </option>
+                  <option value="Congo (DRC)" data-currency="CDF">
+                    Congo-Kinshasa (CDF)
+                  </option>
+                  <option value="Congo (DRC)" data-currency="USD">
+                    Congo-Kinshasa (USD)
+                  </option>
+                <option value="Cote D'Ivoire" data-currency="XOF">
+                  Cote D'Ivoire
+                </option>
+                <option value="Gabon" data-currency="XAF">Gabon</option>
+                <option value="Ghana" data-currency="GHS">Ghana</option>
+                <option value="Kenya" data-currency="KES">Kenya</option>
+                <option value="Malawi" data-currency="MWK">Malawi</option>
+                <option value="Mozambique" data-currency="MZN">Mozambique</option>
+                <option value="Nigeria" data-currency="NGN">Nigeria</option>
+                <option value="Rwanda" data-currency="RWF">Rwanda</option>
+                <option value="Senegal" data-currency="XOF">Senegal</option>
+                <option value="Sierra Leone" data-currency="SLE">
+                  Sierra Leone
+                </option>
+                <option value="Uganda" data-currency="UGX">Uganda</option>
+                <option value="Zambia" data-currency="ZMW">Zambia</option>
+                          <!-- Add other countries as needed -->
+                      </select>
+                  </div>
+                  <!-- MNO Selection -->
+                  <div class="mb-3">
+                      <label class="form-label mb-3">Operator</label>
+                      <div id="mno-cards-container-${recipientIndex}" class="operator-container">
+                          <!-- MNO cards dynamically generated here -->
+                      </div>
+                      <input type="hidden" id="selectedMno-${recipientIndex}" name="recipients[${
+              recipientIndex - 1
+            }][correspondent]" class="selected-mno-input" />
+                  </div>
+                  <!-- Amount with Currency Prefix -->
+                  <div class="mb-3">
+                      <label for="amount-${recipientIndex}" class="form-label">Amount:</label>
+                      <div class="input-group has-validation">
+                          <span class="input-group-text" id="currency-symbol-${recipientIndex}"></span>
+                          <input
+                              type="text"
+                              class="form-control amount-input"
+                              id="amount-${recipientIndex}"
+                              name="recipients[${recipientIndex - 1}][amount]"
+                              placeholder="Amount"
+                              aria-label="Amount"
+                              
+                          />
+                      </div>
+                  </div>
+                  <!-- Recipient's Phone Number -->
+                  <div class="mb-3">
+                      <label for="recipientMsisdn-${recipientIndex}" class="form-label">Recipient's Phone Number</label>
+                      <div class="input-group">
+                          <span class="input-group-text">
+                              <img id="countryFlag-${recipientIndex}" src="" alt="Flag" width="24" height="16" class="me-2" />
+                              <span id="countryCode-${recipientIndex}">+</span>
+                          </span>
+                          <input type="tel" class="form-control" id="recipientMsisdn-${recipientIndex}" name="recipients[${
+              recipientIndex - 1
+            }][recipientMsisdn]" >
+                      </div>
+                  </div>
+                 <!-- Statement Description -->
+                  <div class="mb-3">
+                      <label for="statementDescription-${recipientIndex}" class="form-label">Statement Description</label>
+                      <input 
+                          type="text" 
+                          class="form-control" 
+                          id="statementDescription-${recipientIndex}" 
+                          name="recipients[${
+                            recipientIndex - 1
+                          }][statementDescription]" 
+                          >
+                  </div>
+
+                  <!-- Metadata (Optional) -->
+                  <div class="mb-3">
+                      <label class="form-label">Metadata (Optional)</label>
+                      <div id="metadata-${recipientIndex}">
+                          <div class="row mb-2 metadata-item">
+                              <div class="col-md-5">
+                                  <input type="text" class="form-control" name="recipients[${
+                                    recipientIndex - 1
+                                  }][metadata][0][fieldName]" placeholder="Field Name">
+                              </div>
+                              <div class="col-md-5">
+                                  <input type="text" class="form-control" name="recipients[${
+                                    recipientIndex - 1
+                                  }][metadata][0][fieldValue]" placeholder="Field Value">
+                              </div>
+                              <div class="col-md-2 d-flex align-items-end">
+                                  <button type="button" class="btn btn-outline-danger remove-metadata w-100">Remove</button>
+                              </div>
+                          </div>
+                      </div>
+                      <button type="button" class="btn btn-outline-secondary add-metadata" data-recipient-index="${recipientIndex}">Add Metadata</button>
+                  </div>
+                  <button type="button" class="btn btn-outline-danger remove-recipient">Remove Recipient</button>
+              </div>
+          `;
+
+            recipientsDiv.appendChild(recipientDiv);
+          });
+
+        function showBootstrapAlert(message, type = "warning") {
+          const alertPlaceholder = document.getElementById("alert-placeholder");
+          alertPlaceholder.style.display = "flex"; // Make the alert placeholder visible
+          alertPlaceholder.style.justifyContent = "center"; // Center horizontally
+          alertPlaceholder.style.alignItems = "center"; // Center vertically
+          alertPlaceholder.style.padding = "20px"; // Add padding to give space around the alert
+
+          const wrapper = document.createElement("div");
+          wrapper.style.maxWidth = "800px"; // Increased width for better readability with multiple recipients
+          wrapper.style.width = "100%"; // Make sure it doesn't exceed the container's width
+          wrapper.style.margin = "0 auto"; // Center it
+          wrapper.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)"; // Add a subtle box-shadow for a modern look
+          wrapper.style.borderRadius = "8px"; // Round the corners for a smooth appearance
+          wrapper.style.overflowY = "auto"; // Allow scrolling if content is too long
+          wrapper.style.maxHeight = "80vh"; // Limit the height to prevent overflow
+
+          wrapper.innerHTML = [
+            `<div class="alert alert-${type} alert-dismissible fade show" role="alert">`,
+            `   <span>${message}</span>`, // Use span to allow HTML content
+            `   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`,
+            `</div>`,
+          ].join("");
+
+          wrapper.addEventListener("click", function () {
+            alertPlaceholder.style.display = "none"; // Hide the alert on click
+          });
+
+          alertPlaceholder.innerHTML = ""; // Clear previous alerts
+          alertPlaceholder.append(wrapper);
+        }
+
+        function showSuccessAlert(message) {
+          showBootstrapAlert(message, "success");
+        }
+
+        function showSuccessAlert(message) {
+          const alertPlaceholder = document.getElementById("alert-placeholder");
+          alertPlaceholder.style.display = "flex"; // Make the alert placeholder visible
+          alertPlaceholder.style.justifyContent = "center"; // Center horizontally
+          alertPlaceholder.style.alignItems = "center"; // Center vertically
+          alertPlaceholder.style.padding = "20px"; // Add padding to give space around the alert
+
+          const wrapper = document.createElement("div");
+          wrapper.style.maxWidth = "500px"; // Set a maximum width for the alert
+          wrapper.style.width = "100%"; // Make sure it doesn't exceed the container's width
+          wrapper.style.margin = "0 auto"; // Center it
+          wrapper.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)"; // Add a subtle box-shadow for a modern look
+          wrapper.style.borderRadius = "8px"; // Round the corners for a smooth appearance
+
+          wrapper.innerHTML = [
+            `<div class="alert alert-success alert-dismissible fade show" role="alert">`,
+            `   <strong>Success!</strong> ${message}`,
+            `   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`,
+            `</div>`,
+          ].join("");
+
+          wrapper.addEventListener("click", function () {
+            alertPlaceholder.style.display = "none"; // Hide the alert on click
+          });
+
+          alertPlaceholder.innerHTML = ""; // Clear previous alerts
+          alertPlaceholder.append(wrapper);
+        }
+
+        // Function to remove a recipient
+        document
+          .getElementById("recipients")
+          .addEventListener("click", function (event) {
+            if (
+              event.target &&
+              event.target.classList.contains("remove-recipient")
+            ) {
+              const recipientCard = event.target.closest(".recipient");
+              recipientCard.parentNode.removeChild(recipientCard);
+            }
+          });
+
+        // Function to add metadata to a recipient
+        document
+          .getElementById("recipients")
+          .addEventListener("click", function (event) {
+            if (
+              event.target &&
+              event.target.classList.contains("add-metadata")
+            ) {
+              const recipientIndex = event.target.getAttribute(
+                "data-recipient-index"
+              );
+              const metadataContainer = document.getElementById(
+                "metadata-" + recipientIndex
+              );
+              const metadataItems =
+                metadataContainer.querySelectorAll(".metadata-item");
+              if (metadataItems.length >= maxMetadata) {
+                document.getElementById("loader").classList.add("hidden");
+                showBootstrapAlert(
+                  "You can only add up to 5 metadata entries per recipient.",
+                  "danger"
+                );
+                return; // Stop the function if the maximum is reached
+              }
+              const metadataIndex = metadataItems.length;
+
+              const metadataRow = document.createElement("div");
+              metadataRow.classList.add("row", "mb-2", "metadata-item");
+              metadataRow.innerHTML = `
+                  <div class="col-md-5">
+                      <input type="text" class="form-control" name="recipients[${
+                        recipientIndex - 1
+                      }][metadata][${metadataIndex}][fieldName]" placeholder="Field Name">
+                  </div>
+                  <div class="col-md-5">
+                      <input type="text" class="form-control" name="recipients[${
+                        recipientIndex - 1
+                      }][metadata][${metadataIndex}][fieldValue]" placeholder="Field Value">
+                  </div>
+                  <div class="col-md-2 d-flex align-items-end">
+                      <button type="button" class="btn btn-outline-danger remove-metadata w-100">Remove</button>
+                  </div>
+              `;
+              metadataContainer.appendChild(metadataRow);
+            }
+          });
+
+        // Function to remove metadata item
+        document
+          .getElementById("recipients")
+          .addEventListener("click", function (event) {
+            if (
+              event.target &&
+              event.target.classList.contains("remove-metadata")
+            ) {
+              const metadataItem = event.target.closest(".metadata-item");
+              metadataItem.parentNode.removeChild(metadataItem);
+            }
+          });
+
+        // Function to handle country change for each recipient
+        document
+          .getElementById("recipients")
+          .addEventListener("change", function (event) {
+            if (
+              event.target &&
+              event.target.classList.contains("country-select")
+            ) {
+              const recipientCard = event.target.closest(".recipient");
+              const recipientIndex = getRecipientIndex(recipientCard);
+              const selectedCountry = event.target.value;
+              const selectedOption =
+                event.target.options[event.target.selectedIndex];
+              const currency = selectedOption.getAttribute("data-currency");
+
+              // Update currency symbol in the amount input group
+              const currencySymbolSpan = recipientCard.querySelector(
+                "#currency-symbol-" + recipientIndex
+              );
+              currencySymbolSpan.textContent = currency;
+
+              // Update country code and flag
+              updateCountryDetails(recipientIndex, selectedCountry);
+
+              // Display MNO cards
+              displayMnoCards(recipientIndex, selectedCountry);
+            }
+          });
+
+        // Function to get the recipient index from the recipient card
+        function getRecipientIndex(recipientCard) {
+          const title = recipientCard.querySelector(".card-title").textContent;
+          const indexMatch = title.match(/Recipient (\d+)/);
+          return indexMatch ? parseInt(indexMatch[1]) : 1;
+        }
+
+        // Function to update country code and flag
+        function updateCountryDetails(recipientIndex, country) {
+          const correspondents = mnoCorrespondents[country];
+          if (correspondents && correspondents.length > 0) {
+            const countryCode = correspondents[0].countryCode;
+            const flag = correspondents[0].flag;
+
+            // Update the phone number country code and flag
+            document.getElementById(
+              "countryCode-" + recipientIndex
+            ).textContent = countryCode;
+            document.getElementById("countryFlag-" + recipientIndex).src =
+              "flags/" + flag;
+            document.getElementById("countryFlag-" + recipientIndex).alt =
+              country + " flag";
+          } else {
+            // Default values if no correspondents found
+            document.getElementById(
+              "countryCode-" + recipientIndex
+            ).textContent = "+";
+            document.getElementById("countryFlag-" + recipientIndex).src = "";
+            document.getElementById("countryFlag-" + recipientIndex).alt = "";
+          }
+        }
+
+        // Function to display MNO cards
+        function displayMnoCards(recipientIndex, country) {
+          const container = document.getElementById(
+            "mno-cards-container-" + recipientIndex
+          );
+          container.innerHTML = "";
+
+          const correspondents = mnoCorrespondents[country];
+          if (correspondents) {
+            correspondents.forEach((mno) => {
+              const card = document.createElement("div");
+
+              // Add 'disabled' class if the network is down
+              card.className = `operator-card ${
+                mno.available ? "" : "disabled"
+              }`;
+
+              // Use mno.img to load the operator image and mno.flag for the country flag
+              card.innerHTML = `
+                      <img src="mno-img/${mno.img}" alt="${mno.name}" />
+                      <p>${mno.name}</p>
+                      ${
+                        mno.available
+                          ? ""
+                          : '<span class="unavailable-text">Not available</span>'
+                      }
+                  `;
+
+              card.onclick = function () {
+                if (mno.available) {
+                  // Only proceed if the network is available
+                  container
+                    .querySelectorAll(".operator-card")
+                    .forEach((c) => c.classList.remove("selected"));
+                  card.classList.add("selected");
+
+                  // Store the selected MNO value in the hidden input
+                  document.getElementById(
+                    "selectedMno-" + recipientIndex
+                  ).value = mno.apiCode;
+
+                  // Update country code and flag (in case different MNOs have different codes)
+                  document.getElementById(
+                    "countryCode-" + recipientIndex
+                  ).textContent = mno.countryCode;
+                  document.getElementById("countryFlag-" + recipientIndex).src =
+                    "flags/" + mno.flag;
+                  document.getElementById("countryFlag-" + recipientIndex).alt =
+                    country + " flag";
+                }
+              };
+
+              container.appendChild(card);
+            });
+          } else {
+            container.innerHTML = "No MNO available for this country";
+          }
+        }
+
+        // Handle form submission
+
+        document
+          .getElementById("payout-form")
+          .addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            // Show the loader when the form is submitted
+            const loader = document.getElementById("loader");
+            loader.style.display = "flex";
+            loader.classList.remove("hidden");
+            loader.classList.add("visible");
+
+            // Perform validation and get the list of invalid recipients or fields
+            const validationErrors = validateForm();
+
+            if (validationErrors.length > 0) {
+              // Show dynamic error message with specific field issues
+              const errorMessage = createDynamicErrorMessage(validationErrors);
+              showBootstrapAlert(errorMessage, "warning");
+              loader.style.display = "none";
+              loader.classList.add("hidden");
+              return; // Stop form submission if validation fails
+            }
+
+            // Collect the form data
+            const formData = new FormData(this);
+
+            // Convert FormData to JSON
+            const formJSON = {};
+            formData.forEach((value, key) => {
+              const keys = key.match(/[^\[\]]+/g);
+              let ref = formJSON;
+              keys.forEach((k, i) => {
+                if (i < keys.length - 1) {
+                  if (!ref[k]) {
+                    ref[k] = isNaN(keys[i + 1]) ? {} : [];
+                  }
+                  ref = ref[k];
+                } else {
+                  if (k === "recipientMsisdn") {
+                    const recipientIndex = parseInt(keys[1]) + 1;
+                    const countryCodeSpan = document.getElementById(
+                      `countryCode-${recipientIndex}`
+                    );
+                    let cleanedPhoneNumber = value.replace(/\D/g, ""); // Clean phone number by removing non-numeric characters
+                    if (countryCodeSpan) {
+                      let countryCode = countryCodeSpan.textContent
+                        .trim()
+                        .replace("+", "");
+                      ref[k] = countryCode + cleanedPhoneNumber;
+                    } else {
+                      ref[k] = cleanedPhoneNumber; // Just clean and store if no country code found
+                    }
+                  } else if (k === "amount") {
+                    const recipientIndex = parseInt(keys[1]) + 1;
+                    const currencySymbolSpan = document.getElementById(
+                      `currency-symbol-${recipientIndex}`
+                    );
+                    if (currencySymbolSpan) {
+                      const currency = currencySymbolSpan.textContent.trim();
+                      ref["currency"] = currency;
+                    }
+                    ref[k] = value;
+                  } else {
+                    ref[k] = value;
+                  }
+                }
+              });
+            });
+
+            console.log(formJSON);
+            // Send the form data to the PHP file using fetch
+            fetch("payouts.php", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(formJSON), // Convert the JSON object to a string
+            })
+              .then((response) => response.json()) // Handle response from the server
+              .then((data) => {
+                // Hide the loader when the response is received
+                loader.style.display = "none";
+                loader.classList.add("hidden");
+                console.log(data); // Log the response (You can handle success or errors here)
+
+                // Initialize message containers
+                let successMessages = "";
+                let failureMessages = "";
+
+                // Check for 'successful_payouts' and 'failed_payouts'
+                if (
+                  data.successful_payouts &&
+                  Array.isArray(data.successful_payouts) &&
+                  data.successful_payouts.length > 0
+                ) {
+                  successMessages += `<h5>Successful Payouts:</h5><ul>`;
+                  data.successful_payouts.forEach((payout) => {
+                    successMessages += `
+              <li>
+                <strong>Recipient:</strong> ${payout.recipientMsisdn}<br>
+                <strong>Amount:</strong> ${payout.amount} ${payout.currency}<br>
+                <strong>Payout ID:</strong> ${payout.payoutId}<br>
+                <strong>Details:</strong> ${payout.details}
+              </li>
+            `;
+                  });
+                  successMessages += `</ul>`;
+                }
+
+                if (
+                  data.failed_payouts &&
+                  Array.isArray(data.failed_payouts) &&
+                  data.failed_payouts.length > 0
+                ) {
+                  failureMessages += `<h5>Failed Payouts:</h5><ul>`;
+                  data.failed_payouts.forEach((payout) => {
+                    failureMessages += `
+              <li>
+                <strong>Recipient:</strong> ${payout.recipientMsisdn}<br>
+                <strong>Amount:</strong> ${payout.amount} ${payout.currency}<br>
+                <strong>Payout ID:</strong> ${payout.payoutId || "N/A"}<br>
+                <strong>Reason:</strong> ${payout.error}<br>
+                <strong>Details:</strong> ${payout.details}
+              </li>
+            `;
+                  });
+                  failureMessages += `</ul>`;
+                }
+
+                // If 'successful_payouts' and 'failed_payouts' are not present, fall back to 'responses' array
+                if (
+                  (!data.successful_payouts ||
+                    data.successful_payouts.length === 0) &&
+                  data.responses &&
+                  Array.isArray(data.responses) &&
+                  data.responses.length > 0
+                ) {
+                  data.responses.forEach((payout) => {
+                    if (payout.success) {
+                      // Extract payout details from the nested 'response' array
+                      const responseData =
+                        payout.response && payout.response.length > 0
+                          ? payout.response[0]
+                          : {};
+
+                      successMessages += `
+                <h5>Successful Payout:</h5>
+                <ul>
+                  <li>
+                    <strong>Recipient:</strong> ${payout.recipientMsisdn}<br>
+                    <strong>Amount:</strong> ${responseData.amount || "N/A"} ${
+                        responseData.currency || ""
+                      }<br>
+                    <strong>Payout ID:</strong> ${
+                      responseData.payoutId || "N/A"
+                    }<br>
+                    <strong>Details:</strong> ${payout.details}
+                  </li>
+                </ul>
+              `;
+                    } else {
+                      // Extract payout details from the nested 'response' array if available
+                      const responseData =
+                        payout.response && payout.response.length > 0
+                          ? payout.response[0]
+                          : {};
+
+                      failureMessages += `
+                <h5>Failed Payout:</h5>
+                <ul>
+                  <li>
+                    <strong>Recipient:</strong> ${payout.recipientMsisdn}<br>
+                    <strong>Amount:</strong> ${payout.amount || "N/A"} ${
+                        payout.currency || ""
+                      }<br>
+                    <strong>Payout ID:</strong> ${
+                      responseData.payoutId || "N/A"
+                    }<br>
+                    <strong>Reason:</strong> ${payout.error || "N/A"}<br>
+                    <strong>Details:</strong> ${payout.details}
+                  </li>
+                </ul>
+              `;
+                    }
+                  });
+                }
+
+                // Combine messages
+                let combinedMessage = "";
+                if (successMessages) {
+                  combinedMessage += successMessages;
+                }
+                if (failureMessages) {
+                  combinedMessage += failureMessages;
+                }
+
+                // Display the combined messages
+                if (combinedMessage) {
+                  if (data.success) {
+                    // All payouts succeeded
+                    showSuccessAlert(combinedMessage);
+                  } else {
+                    // Some payouts failed
+                    showBootstrapAlert(combinedMessage); // by default its warning
+                  }
+                } else {
+                  // No payouts processed
+                  showBootstrapAlert(
+                    "No payouts were processed. Please check your input.",
+                    "warning"
+                  );
+                }
+              })
+              .catch((error) => {
+                // Hide the loader when the response is received
+                loader.style.display = "none";
+                loader.classList.add("hidden");
+                console.error("Error:", error);
+                showBootstrapAlert(
+                  "There was an error sending the request.",
+                  "danger"
+                );
+              });
+          });
+
+        function displayDetailedErrors(responses) {
+          document.getElementById("loader").classList.add("hidden");
+          let message = "Please review the following issues:<ul>";
+          responses.forEach((response, index) => {
+            message += `<li>Recipient ${index + 1}: ${response.details}</li>`;
+          });
+          message += "</ul>";
+          showBootstrapAlert(message, "warning");
+        }
+
+        function validateForm() {
+          let valid = true;
+          const recipients = document.querySelectorAll(".recipient");
+          const errors = []; // Store errors for each recipient
+
+          recipients.forEach((recipient, index) => {
+            const countrySelect = recipient.querySelector(".country-select");
+            const selectedMnoInput = recipient.querySelector(
+              ".selected-mno-input"
+            );
+            const amountInput = recipient.querySelector(".amount-input");
+            const phoneNumberInput = recipient.querySelector(
+              "[name^='recipients'][name$='[recipientMsisdn]']"
+            );
+            const statementDescriptionInput = recipient.querySelector(
+              "[name^='recipients'][name$='[statementDescription]']"
+            );
+            const metadataItems = recipient.querySelectorAll(".metadata-item"); // Select metadata items
+
+            const recipientErrors = [];
+
+            // Validate country selection
+            if (!countrySelect.value) {
+              recipientErrors.push("Country");
+              countrySelect.classList.add("is-invalid");
+            } else {
+              countrySelect.classList.remove("is-invalid");
+            }
+
+            // Validate MNO selection
+            if (!selectedMnoInput.value) {
+              recipientErrors.push("Operator");
+              recipient
+                .querySelector(".operator-container")
+                .classList.add("border-danger");
+            } else {
+              recipient
+                .querySelector(".operator-container")
+                .classList.remove("border-danger");
+            }
+
+            // Validate amount (should be a positive number)
+            if (
+              !amountInput.value ||
+              isNaN(amountInput.value) ||
+              parseFloat(amountInput.value) <= 0
+            ) {
+              recipientErrors.push("Amount");
+              amountInput.classList.add("is-invalid");
+            } else {
+              amountInput.classList.remove("is-invalid");
+            }
+
+            // Validate phone number (must only contain numbers, including country code)
+            const countryCodeSpan = recipient.querySelector(
+              `#countryCode-${index + 1}`
+            );
+            let fullPhoneNumber = phoneNumberInput.value.trim();
+            let countryCode = "";
+
+            if (countryCodeSpan) {
+              countryCode = countryCodeSpan.textContent.trim().replace("+", "");
+              fullPhoneNumber = countryCode + fullPhoneNumber;
+            }
+
+            // Remove all non-numeric characters from the phone number
+            const cleanedPhoneNumber = fullPhoneNumber.replace(/\D/g, "");
+
+            if (!cleanedPhoneNumber || !/^\d+$/.test(cleanedPhoneNumber)) {
+              recipientErrors.push(
+                "Invalid Phone Number (should contain only numbers)"
+              );
+              phoneNumberInput.classList.add("is-invalid");
+            } else {
+              // Use libphonenumber-js to validate the cleaned phone number
+              const phoneNumber = libphonenumber.parsePhoneNumberFromString(
+                `+${cleanedPhoneNumber}`
+              );
+
+              if (!phoneNumber || !phoneNumber.isValid()) {
+                recipientErrors.push("Invalid Phone Number");
+                phoneNumberInput.classList.add("is-invalid");
+              } else {
+                phoneNumberInput.classList.remove("is-invalid");
+              }
+            }
+
+            // Validate statement description (ensure it's not empty, max 22 chars, and no special characters)
+            if (!statementDescriptionInput.value.trim()) {
+              recipientErrors.push("Statement Description is required");
+              statementDescriptionInput.classList.add("is-invalid");
+            } else if (statementDescriptionInput.value.length > 22) {
+              recipientErrors.push(
+                "Statement Description must be 22 characters or less"
+              );
+              statementDescriptionInput.classList.add("is-invalid");
+            } else if (
+              !/^[a-zA-Z0-9\s]+$/.test(statementDescriptionInput.value)
+            ) {
+              recipientErrors.push(
+                "Statement Description must not contain special characters"
+              );
+              statementDescriptionInput.classList.add("is-invalid");
+            } else {
+              statementDescriptionInput.classList.remove("is-invalid");
+            }
+
+            // Validate metadata (if any)
+            metadataItems.forEach((metadataItem, metadataIndex) => {
+              const fieldNameInput = metadataItem.querySelector(
+                "[name^='recipients'][name$='[fieldName]']"
+              );
+              const fieldValueInput = metadataItem.querySelector(
+                "[name^='recipients'][name$='[fieldValue]']"
+              );
+
+              if (!fieldNameInput.value.trim()) {
+                recipientErrors.push(
+                  `Metadata Field Name ${metadataIndex + 1}`
+                );
+                fieldNameInput.classList.add("is-invalid");
+              } else {
+                fieldNameInput.classList.remove("is-invalid");
+              }
+
+              if (!fieldValueInput.value.trim()) {
+                recipientErrors.push(
+                  `Metadata Field Value ${metadataIndex + 1}`
+                );
+                fieldValueInput.classList.add("is-invalid");
+              } else {
+                fieldValueInput.classList.remove("is-invalid");
+              }
+            });
+
+            // If there are errors for this recipient, add them to the error list
+            if (recipientErrors.length > 0) {
+              valid = false;
+              errors.push({
+                recipientIndex: index + 1,
+                fields: recipientErrors,
+              });
+            }
+          });
+
+          return errors; // Return the list of errors instead of just true/false
+        }
+
+        function createDynamicErrorMessage(errors) {
+          document.getElementById("loader").classList.add("hidden");
+          let errorMessage = `
+      <p><strong>Please address the following issues before proceeding:</strong></p>
+      <ul>
+    `; // Begin with a message and start the list
+
+          errors.forEach((error) => {
+            const recipientNumber = error.recipientIndex;
+            const invalidFields = error.fields
+              .map((field) => `<li>${field}</li>`)
+              .join("");
+
+            // Create a list item for each recipient with nested fields
+            errorMessage += `
+          <li>
+            <strong>Recipient ${recipientNumber}:</strong>
+            <ul>${invalidFields}</ul>
+          </li>
+        `;
+          });
+
+          errorMessage += "</ul>"; // Close the unordered list
+          return errorMessage;
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1829 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Initiate Deposit</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f4f9;
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        opacity: 0;
+        /* Initially hide the body */
+        transition: opacity 0.5s ease-in-out;
+        /* Smooth transition when showing */
+      }
+
+      .container {
+        padding-top: 50px;
+        transition: all 0.5s ease-in-out;
+        /* Smooth transition */
+      }
+
+      h1 {
+        color: #333;
+        position: relative;
+        font-size: 2.5rem;
+        animation: fadeInDown 1s ease;
+      }
+
+      form {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        /* Center the form */
+        transition: transform 0.3s ease;
+      }
+
+      .progress-bar {
+        counter-reset: step;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        padding-left: 0;
+      }
+
+      .progress-bar li {
+        list-style: none;
+        text-align: center;
+        position: relative;
+        flex-grow: 1;
+        padding: 10px;
+        color: #999;
+        border-bottom: 3px solid #ccc;
+        transition: color 0.4s ease, border-bottom-color 0.4s ease;
+      }
+
+      .progress-bar li::before {
+        content: counter(step);
+        counter-increment: step;
+        width: 30px;
+        height: 30px;
+        display: block;
+        background-color: #ccc;
+        border-radius: 50%;
+        margin: 0 auto 10px;
+        line-height: 30px;
+        transition: background-color 0.4s ease;
+      }
+
+      .progress-bar li.active {
+        color: #28a745;
+        border-bottom-color: #28a745;
+      }
+
+      .progress-bar li.active::before {
+        background-color: #28a745;
+      }
+
+      .step {
+        display: none;
+        transform: scale(0.9);
+        opacity: 0;
+        transition: transform 0.4s ease, opacity 0.4s ease;
+      }
+
+      .step.active {
+        display: block;
+        transform: scale(1);
+        opacity: 1;
+      }
+
+      /* Operator card container to prevent overflow */
+      .operator-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+        gap: 10px;
+      }
+
+      .operator-card {
+        padding: 1rem;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        text-align: center;
+        width: 120px;
+        /* Ensuring that the cards stay a consistent size */
+        position: relative;
+        transition: transform 0.3s ease, border-color 0.3s ease;
+        background-color: white;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        flex: 1 1 120px;
+        /* Flex-grow and flex-basis for responsiveness */
+        max-width: 150px;
+      }
+
+      .operator-card img {
+        width: 80px;
+        height: auto;
+        margin-bottom: 10px;
+      }
+
+      .operator-card:hover {
+        cursor: pointer;
+        transform: translateY(-5px);
+        border-color: #007bff;
+      }
+
+      .operator-card.selected {
+        border-color: #007bff;
+        background-color: rgba(0, 123, 255, 0.1);
+      }
+
+      .operator-card.disabled {
+        border-color: #ddd;
+        opacity: 0.6;
+        pointer-events: none;
+      }
+
+      .operator-card.disabled::before {
+        content: "Not available";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.9rem;
+        color: #888;
+      }
+
+      .operator-card.disabled {
+        pointer-events: none;
+        /* Make the card unclickable */
+        opacity: 0.6;
+        /* Dim the appearance */
+      }
+
+      .unavailable-text {
+        color: red;
+        font-size: 0.9em;
+      }
+
+      button {
+        background-color: #0056b3;
+        border: none;
+        position: relative;
+        overflow: hidden;
+        transition: background-color 0.3s ease;
+      }
+
+      button:hover {
+        background-color: #004085;
+      }
+
+      button::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 300%;
+        height: 300%;
+        background: rgba(255, 255, 255, 0.3);
+        transform: translate(-50%, -50%) scale(0);
+        transition: transform 0.5s ease;
+        border-radius: 50%;
+      }
+
+      button:active::after {
+        transform: translate(-50%, -50%) scale(1);
+      }
+
+      .form-control:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 5px rgba(40, 167, 69, 0.4);
+      }
+
+      .form-control.is-invalid {
+        border-color: #dc3545;
+        animation: shake 0.3s ease;
+      }
+
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translateX(0);
+        }
+
+        25% {
+          transform: translateX(-10px);
+        }
+
+        50% {
+          transform: translateX(10px);
+        }
+
+        75% {
+          transform: translateX(-10px);
+        }
+      }
+
+      .navigation-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+      }
+
+      .form-control.is-invalid {
+        border-color: #dc3545;
+        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+      }
+
+      .form-control.is-valid {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+      }
+
+      .form-error {
+        display: none;
+        color: red;
+      }
+
+      /* Responsive behavior */
+      @media (max-width: 800px) {
+        .operator-card {
+          width: calc(50% - 20px);
+          /* Two cards per row on smaller screens */
+        }
+      }
+
+      @media (max-width: 500px) {
+        .operator-card {
+          width: calc(100% - 20px);
+          /* One card per row on extra-small screens */
+        }
+      }
+
+      @keyframes fadeInDown {
+        0% {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .list-group-item {
+        font-size: 1.1rem;
+      }
+
+      .list-group-item strong {
+        display: inline-block;
+        width: 150px;
+      }
+
+      .powered-by-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .powered-by-text {
+        font-size: 1rem;
+        color: #555;
+        margin-right: 8px;
+        opacity: 0.8;
+        transition: opacity 0.3s;
+      }
+
+      .pawapay-logo {
+        max-width: 120px;
+        height: auto;
+        opacity: 0.8;
+        transition: opacity 0.3s;
+      }
+
+      /* Hover effect to enhance the "ghosty" feel */
+      .powered-by-text,
+      .pawapay-logo {
+        opacity: 0.5;
+      }
+
+      .powered-by-container:hover .powered-by-text,
+      .powered-by-container:hover .pawapay-logo {
+        filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.2));
+      }
+
+      .powered-by-container {
+        background: linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0) 0%,
+          rgba(230, 230, 230, 0.5) 50%,
+          rgba(255, 255, 255, 0) 100%
+        );
+        padding: 10px;
+        border-radius: 5px;
+      }
+
+      .powered-by-text {
+        font-size: 1rem;
+        color: #333;
+        margin-right: 8px;
+
+        letter-spacing: 1px;
+      }
+
+      @media (max-width: 600px) {
+        .pawapay-logo {
+          max-width: 100px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Preloader -->
+    <div class="preloader">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+
+    <div
+      class="container d-flex flex-column align-items-center justify-content-center"
+    >
+      <h1>Initiate Deposit</h1>
+      <ul class="progress-bar">
+        <li class="active">Country</li>
+        <li>Mobile Network Operator</li>
+        <li>Your Details</li>
+        <li>Confirmation</li>
+      </ul>
+
+      <form id="depositForm" class="w-100">
+        <!-- Step 1: Select Country -->
+        <div class="step active" id="step-1">
+          <div class="mb-3">
+            <label for="country" class="form-label">Country:</label>
+            <select id="country" name="country" required class="form-select">
+              <option value="" disabled selected>Choose Country</option>
+              <option value="Benin" data-currency="XOF">Benin</option>
+              <option value="Burkina Faso" data-currency="XOF">
+                Burkina Faso
+              </option>
+              <option value="Cameroon" data-currency="XAF">Cameroon</option>
+              <option value="Congo" data-currency="XAF">
+                Congo-Brazzaville
+              </option>
+              <option value="Congo (DRC)" data-currency="CDF">
+                Congo-Kinshasa (CDF)
+              </option>
+              <option value="Congo (DRC)" data-currency="USD">
+                Congo-Kinshasa (USD)
+              </option>
+              <option value="Cote D'Ivoire" data-currency="XOF">
+                Cote D'Ivoire
+              </option>
+              <option value="Gabon" data-currency="XAF">Gabon</option>
+              <option value="Ghana" data-currency="GHS">Ghana</option>
+              <option value="Kenya" data-currency="KES">Kenya</option>
+              <option value="Malawi" data-currency="MWK">Malawi</option>
+              <option value="Mozambique" data-currency="MZN">Mozambique</option>
+              <option value="Nigeria" data-currency="NGN">Nigeria</option>
+              <option value="Rwanda" data-currency="RWF">Rwanda</option>
+              <option value="Senegal" data-currency="XOF">Senegal</option>
+              <option value="Sierra Leone" data-currency="SLE">
+                Sierra Leone
+              </option>
+              <option value="Uganda" data-currency="UGX">Uganda</option>
+              <option value="Zambia" data-currency="ZMW">Zambia</option>
+            </select>
+
+            <div class="form-error" id="countryError">
+              Please select a country.
+            </div>
+          </div>
+
+          <div class="navigation-buttons">
+            <button
+              type="button"
+              id="nextBtn"
+              class="btn btn-primary w-100"
+              onclick="validateCountry()"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 2: Select MNO -->
+        <div class="step" id="step-2">
+          <label for="operator" class="form-label mb-3">Operator</label>
+          <!-- Error message div, initially hidden -->
+          <!-- Bootstrap styled error message div, initially hidden -->
+          <div
+            id="mnoError"
+            class="alert alert-danger"
+            role="alert"
+            style="display: none"
+          >
+            Please select a mobile network operator.
+          </div>
+          <div
+            id="mno-cards-container"
+            class="operator-container d-flex justify-content-between"
+          >
+            <!-- MNO cards dynamically generated here -->
+          </div>
+          <input type="hidden" id="selectedMno" name="mno" />
+
+          <div class="navigation-buttons">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              onclick="prevStep()"
+            >
+              Previous
+            </button>
+            <button type="button" class="btn btn-primary" onclick="nextStep()">
+              Next
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 3: Enter Details -->
+        <div class="step" id="step-3">
+          <div class="mb-3">
+            <label for="amount" class="form-label">Amount:</label>
+            <div class="input-group has-validation">
+              <span class="input-group-text" id="currency"></span>
+              <input
+                type="text"
+                id="amount"
+                name="amount"
+                class="form-control"
+                placeholder="Amount"
+                aria-label="Amount"
+                aria-describedby="currency"
+                required
+              />
+              <div id="amountError" class="invalid-feedback">
+                Please enter a valid amount.
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="payerMsisdn" class="form-label"
+              >Payer's Phone Number:</label
+            >
+            <div class="input-group has-validation">
+              <span class="input-group-text">
+                <img
+                  id="countryFlag"
+                  src="flags/ug.png"
+                  alt="Flag"
+                  width="24"
+                  height="16"
+                  class="me-2"
+                />
+                <span id="countryCode">+256</span>
+              </span>
+              <input
+                type="text"
+                id="payerMsisdn"
+                name="payerMsisdn"
+                class="form-control"
+                placeholder="Phone Number"
+                aria-label="Phone Number"
+                aria-describedby="countryCode"
+                required
+              />
+              <div id="payerMsisdnError" class="invalid-feedback">
+                Please enter a valid phone number.
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="description" class="form-label">Description:</label>
+            <input
+              type="text"
+              id="description"
+              name="description"
+              class="form-control"
+              placeholder="Enter description"
+              maxlength="22"
+              required
+            />
+            <div id="descriptionError" class="invalid-feedback">
+              Description must be up to 22 alphanumeric characters and spaces.
+            </div>
+          </div>
+
+          <div class="navigation-buttons">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              onclick="prevStep()"
+            >
+              Previous
+            </button>
+            <button type="button" class="btn btn-primary" onclick="nextStep()">
+              Next
+            </button>
+          </div>
+        </div>
+
+        <!-- Step 4: Confirmation -->
+        <div class="step" id="step-4">
+          <p>Review your details and confirm.</p>
+          <!-- Display summary of the entered data -->
+          <div id="confirmationSummary" class="mb-4">
+            <!-- We'll populate this div with the summary -->
+          </div>
+
+          <div class="navigation-buttons">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              onclick="prevStep()"
+            >
+              Previous
+            </button>
+            <!-- Change the button type to 'button' and remove the onclick attribute -->
+            <button
+              type="button"
+              id="submitBtn"
+              class="btn btn-success"
+              onclick="openPaymentModal()"
+            >
+              Confirm
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <!-- Powered by Pawapay Logo -->
+      <div class="powered-by-container text-center mt-4">
+        <span class="powered-by-text">Powered by</span>
+        <img
+          src="images/powered_by_pawapay.png"
+          alt="Pawapay Logo"
+          class="pawapay-logo"
+        />
+      </div>
+
+      <!-- Bootstrap Modal -->
+      <div
+        class="modal fade"
+        id="paymentModal"
+        tabindex="-1"
+        aria-labelledby="paymentModalLabel"
+        aria-hidden="true"
+      >
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="paymentModalLabel">
+                Confirm Payment
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                data-bs-dismiss="modal"
+                aria-label="Close"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <!-- Payment details will be inserted here -->
+              <div id="paymentDetails">
+                <p>
+                  You are about to pay <strong id="modalAmount"></strong> using
+                  your phone number <strong id="modalPhoneNumber"></strong>.
+                </p>
+                <p>
+                  Please complete the payment by authorizing the transaction on
+                  your phone. Enter your PIN code when prompted to finalize the
+                  payment.
+                </p>
+                <p>Do you wish to proceed?</p>
+              </div>
+
+              <div
+                id="loadingSpinner"
+                class="text-center"
+                style="display: none"
+              >
+                <div class="spinner-border text-primary" role="status">
+                  <span class="visually-hidden">Processing...</span>
+                </div>
+                <p>Processing your payment...</p>
+              </div>
+              <!-- Error Message -->
+              <div id="errorMessage" style="display: none">
+                <!-- Error messages will be displayed here -->
+              </div>
+
+              <!-- Success Message -->
+              <div id="successMessage" style="display: none">
+                <!-- Success messages will be displayed here -->
+              </div>
+            </div>
+
+            <div
+              class="modal-footer d-flex justify-content-between align-items-center"
+            >
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <button type="button" class="btn btn-success" id="payBtn">
+                Pay
+              </button>
+            </div>
+            <!-- Powered by Pawapay Logo -->
+            <div class="powered-by-container text-center mt-3">
+              <span class="powered-by-text">Powered by</span>
+              <img
+                src="images/powered_by_pawapay.png"
+                alt="Pawapay Logo"
+                class="pawapay-logo"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="result" class="mt-3 text-center"></div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/libphonenumber-js@1.10.22/bundle/libphonenumber-max.js"></script>
+
+    <script>
+      const mnoCorrespondents = {
+        Benin: [
+          {
+            name: "MTN Benin",
+            apiCode: "MTN_MOMO_BEN",
+            countryCode: "+229",
+            flag: "bj.png",
+            available: true,
+            img: "mtn.png", // Image name for MTN Benin
+          },
+          {
+            name: "Moov Benin",
+            apiCode: "MOOV_BEN",
+            countryCode: "+229",
+            flag: "bj.png",
+            available: false, // Set this to false for down networks
+            img: "moov.png", // Image name for Moov Benin
+          },
+        ],
+        "Burkina Faso": [
+          {
+            name: "Orange Burkina Faso",
+            apiCode: "ORANGE_BFA",
+            countryCode: "+226",
+            flag: "bf.png",
+            available: true,
+            img: "orange-money-logo.jpg", // Image name for Orange Burkina Faso
+          },
+          {
+            name: "Moov Burkina Faso",
+            apiCode: "MOOV_BFA",
+            countryCode: "+226",
+            flag: "bf.png",
+            available: true,
+            img: "moov.png", // Image name for Moov Burkina Faso
+          },
+        ],
+        Cameroon: [
+          {
+            name: "MTN Cameroon",
+            apiCode: "MTN_MOMO_CMR",
+            countryCode: "+237",
+            flag: "cm.png",
+            available: true,
+            img: "mtn.png", // Image name for MTN Cameroon
+          },
+          {
+            name: "Orange Cameroon",
+            apiCode: "ORANGE_CMR",
+            countryCode: "+237",
+            flag: "cm.png",
+            available: true,
+            img: "orange-money-logo.jpg", // Image name for Orange Cameroon
+          },
+        ],
+        Congo: [
+          // {
+          //   name: "MTN Congo",
+          //   apiCode: "MTN_MOMO_COG",
+          //   countryCode: "+242",
+          //   flag: "cg.png",
+          //   available: true,
+          //   img: "mtn.png", // Image name for MTN Congo
+          // },
+          {
+            name: "Airtel Congo",
+            apiCode: "AIRTEL_COG",
+            countryCode: "+242",
+            flag: "cg.png",
+            available: false,
+            img: "airtel.png", // Image name for Airtel Congo
+          },
+        ],
+        "Congo (DRC)": [
+          {
+            name: "Vodacom DRC",
+            apiCode: "VODACOM_MPESA_COD",
+            countryCode: "+243",
+            flag: "cd.png",
+            available: true,
+            img: "vodacom.jpg", // Image name for Vodacom DRC
+          },
+          {
+            name: "Airtel DRC",
+            apiCode: "AIRTEL_COD",
+            countryCode: "+243",
+            flag: "cd.png",
+            available: true,
+            img: "airtel.png", // Image name for Airtel DRC
+          },
+          {
+            name: "Orange DRC",
+            apiCode: "ORANGE_COD",
+            countryCode: "+243",
+            flag: "cd.png",
+            available: false,
+            img: "orange-money-logo.jpg", // Image name for Orange DRC
+          },
+        ],
+        "Cote D'Ivoire": [
+          {
+            name: "MTN Cote d'Ivoire",
+            apiCode: "MTN_MOMO_CIV",
+            countryCode: "+225",
+            flag: "ci.png",
+            available: true,
+            img: "mtn.png", // Image name for MTN Cote d'Ivoire
+          },
+          {
+            name: "Orange Cote d'Ivoire",
+            apiCode: "ORANGE_CIV",
+            countryCode: "+225",
+            flag: "ci.png",
+            available: true,
+            img: "orange-money-logo.jpg", // Image name for Orange Cote d'Ivoire
+          },
+          {
+            name: "Moov Cote d'Ivoire",
+            apiCode: "MOOV_CIV",
+            countryCode: "+225",
+            flag: "ci.png",
+            available: true,
+            img: "moov.png", // Image name for Moov Cote d'Ivoire
+          },
+          {
+            name: "Wave Cote d'Ivoire",
+            apiCode: "WAVE_CIV",
+            countryCode: "+225",
+            flag: "ci.png",
+            available: true,
+            img: "wave-logo.png",
+          },
+        ],
+        Gabon: [
+          {
+            name: "Airtel Gabon",
+            apiCode: "AIRTEL_GAB",
+            countryCode: "+241",
+            flag: "ga.png",
+            available: true,
+            img: "airtel.png", // Image name for Airtel Gabon
+          },
+          {
+            name: "Moov Gabon",
+            apiCode: "MOOV_GAB",
+            countryCode: "+241",
+            flag: "ga.png",
+            available: true,
+            img: "moov.png", // Image name for Moov Gabon
+          },
+        ],
+        Ghana: [
+          {
+            name: "MTN Ghana",
+            apiCode: "MTN_MOMO_GHA",
+            countryCode: "+233",
+            flag: "gh.png",
+            available: true,
+            img: "mtn.png", // Image name for MTN Ghana
+          },
+          {
+            name: "AirtelTigo Ghana",
+            apiCode: "AIRTELTIGO_GHA",
+            countryCode: "+233",
+            flag: "gh.png",
+            available: true,
+            img: "airtel-tigo.png", // Image name for AirtelTigo Ghana
+          },
+          {
+            name: "Vodafone Ghana",
+            apiCode: "VODAFONE_GHA",
+            countryCode: "+233",
+            flag: "gh.png",
+            available: true,
+            img: "vodacom.jpg", // Image name for Vodafone Ghana
+          },
+        ],
+        Kenya: [
+          {
+            name: "Safaricom Kenya",
+            apiCode: "MPESA_KEN",
+            countryCode: "+254",
+            flag: "ke.png",
+            available: true,
+            img: "safaricom-logo.png", // Image name for Safaricom Kenya
+          },
+          {
+            name: "Airtel Kenya",
+            apiCode: "AIRTEL_KEN",
+            countryCode: "+254",
+            flag: "ke.png",
+            available: true,
+            img: "airtel.png", // Image name for Airtel Kenya
+          },
+        ],
+        Malawi: [
+          {
+            name: "Airtel Malawi",
+            apiCode: "AIRTEL_MWI",
+            countryCode: "+265",
+            flag: "mw.png",
+            available: true,
+            img: "airtel.png", // Image name for Airtel Malawi
+          },
+          {
+            name: "TNM Malawi",
+            apiCode: "TNM_MWI",
+            countryCode: "+265",
+            flag: "mw.png",
+            available: true,
+            img: "mw-tnm-logo.png", // Image name for TNM Malawi
+          },
+        ],
+        Mozambique: [
+          {
+            name: "Vodacom Mozambique",
+            apiCode: "VODACOM_MOZ",
+            countryCode: "+258",
+            flag: "mz.png",
+            available: true,
+            img: "vodacom.jpg", // Image name for Vodacom Mozambique
+          },
+          {
+            name: "Movitel Mozambique",
+            apiCode: "MOVITEL_MOZ",
+            countryCode: "+258",
+            flag: "mz.png",
+            available: true,
+            img: "movitel.png", // Image name for Movitel Mozambique
+          },
+        ],
+
+        Nigeria: [
+          {
+            name: "MTN Nigeria",
+            apiCode: "MTN_MOMO_NGA",
+            countryCode: "+234",
+            flag: "ng.png",
+            available: true,
+            img: "mtn.png", // Image name for MTN Nigeria
+          },
+          {
+            name: "Airtel Nigeria",
+            apiCode: "AIRTEL_NGA",
+            countryCode: "+234",
+            flag: "ng.png",
+            available: true,
+            img: "airtel.png", // Image name for Airtel Nigeria
+          },
+        ],
+        Rwanda: [
+          {
+            name: "MTN Rwanda",
+            apiCode: "MTN_MOMO_RWA",
+            countryCode: "+250",
+            flag: "rw.png",
+            available: true,
+            img: "mtn.png", // Image name for MTN Rwanda
+          },
+          {
+            name: "Airtel Rwanda",
+            apiCode: "AIRTEL_RWA",
+            countryCode: "+250",
+            flag: "rw.png",
+            available: true,
+            img: "airtel.png", // Image name for Airtel Rwanda
+          },
+        ],
+        Senegal: [
+          {
+            name: "Orange Senegal",
+            apiCode: "ORANGE_SEN",
+            countryCode: "+221",
+            flag: "sn.png",
+            available: true,
+            img: "orange-money-logo.jpg", // Image name for Orange Senegal
+          },
+          {
+            name: "Free Senegal",
+            apiCode: "FREE_SEN",
+            countryCode: "+221",
+            flag: "sn.png",
+            available: true,
+            img: "free.png", // Image name for Free Senegal
+          },
+        ],
+        "Sierra Leone": [
+          {
+            name: "Orange Sierra Leone",
+            apiCode: "ORANGE_SLE",
+            countryCode: "+232",
+            flag: "sl.png",
+            available: true,
+            img: "orange-money-logo.jpg", // Image name for Orange Sierra Leone
+          },
+          {
+            name: "Africell Sierra Leone",
+            apiCode: "AFRICELL_SLE",
+            countryCode: "+232",
+            flag: "sl.png",
+            available: true,
+            img: "africell.png", // Image name for Africell Sierra Leone
+          },
+        ],
+        Tanzania: [
+          {
+            name: "Vodacom Tanzania",
+            apiCode: "VODACOM_TZA",
+            countryCode: "+255",
+            flag: "tz.png",
+            available: true,
+            img: "vodacom.jpg", // Image name for Vodacom Tanzania
+          },
+          {
+            name: "Airtel Tanzania",
+            apiCode: "AIRTEL_TZA",
+            countryCode: "+255",
+            flag: "tz.png",
+            available: true,
+            img: "airtel.png", // Image name for Airtel Tanzania
+          },
+          {
+            name: "Tigo Tanzania",
+            apiCode: "TIGO_TZA",
+            countryCode: "+255",
+            flag: "tz.png",
+            available: true,
+            img: "tigo-pesa-tanzania.png", // Image name for Tigo Tanzania
+          },
+          {
+            name: "Halotel Tanzania",
+            apiCode: "HALOTEL_TZA",
+            countryCode: "+255",
+            flag: "tz.png",
+            available: true,
+            img: "halotel-tz.png", // Image name for Halotel Tanzania
+          },
+        ],
+        Uganda: [
+          {
+            name: "MTN Uganda",
+            apiCode: "MTN_MOMO_UGA",
+            countryCode: "+256",
+            flag: "ug.png",
+            available: true,
+            img: "mtn.png", // Image name for MTN Uganda
+          },
+          {
+            name: "Airtel Uganda",
+            apiCode: "AIRTEL_OAPI_UGA",
+            countryCode: "+256",
+            flag: "ug.png",
+            available: true,
+            img: "airtel.png", // Image name for Airtel Uganda
+          },
+        ],
+        Zambia: [
+          {
+            name: "MTN Zambia",
+            apiCode: "MTN_MOMO_ZMB",
+            countryCode: "+260",
+            flag: "zm.png",
+            available: true,
+            img: "mtn.png", // Image name for MTN Zambia
+          },
+          {
+            name: "Airtel Zambia",
+            apiCode: "AIRTEL_OAPI_ZMB",
+            countryCode: "+260",
+            flag: "zm.png",
+            available: true,
+            img: "airtel.png", // Image name for Airtel Zambia
+          },
+          {
+            name: "Zamtel Zambia",
+            apiCode: "ZAMTEL_ZMB",
+            countryCode: "+260",
+            flag: "zm.png",
+            available: false, // This network is down
+            img: "zamtel-za.png", // Image name for Zamtel Zambia
+          },
+        ],
+      };
+
+      // Function to load the availability data
+      async function loadAvailabilityData() {
+        try {
+          const response = await fetch("../data/mno_availability.json");
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          const availabilityData = await response.json();
+          return availabilityData;
+        } catch (error) {
+          console.error("Error loading availability data:", error);
+          return null;
+        }
+      }
+
+      // Function to update the availability in mnoCorrespondents
+      function updateMnoAvailability(availabilityData) {
+        if (!availabilityData) {
+          console.error("No availability data to process.");
+          return;
+        }
+
+        // Create a mapping from MNO apiCode/correspondent to their availability status
+        const availabilityMap = {};
+
+        availabilityData.forEach((countryData) => {
+          countryData.correspondents.forEach((correspondentData) => {
+            const apiCode = correspondentData.correspondent;
+
+            // Check if all operationTypes are OPERATIONAL
+            const allOperational = correspondentData.operationTypes.every(
+              (op) => op.status === "OPERATIONAL"
+            );
+
+            // Map the apiCode to its availability status
+            availabilityMap[apiCode] = allOperational;
+          });
+        });
+
+        // Now update the mnoCorrespondents object
+        for (const country in mnoCorrespondents) {
+          mnoCorrespondents[country].forEach((mno) => {
+            if (availabilityMap.hasOwnProperty(mno.apiCode)) {
+              mno.available = availabilityMap[mno.apiCode];
+            } else {
+              // If the MNO is not found in the availability data, you can decide to set it to false or true
+              mno.available = false; // Or true, depending on your preference
+            }
+          });
+        }
+      }
+
+      let currentStep = 0;
+      showStep(currentStep);
+
+      // Function to show the current step
+      function showStep(n) {
+        const steps = document.getElementsByClassName("step");
+        steps[n].classList.add("active");
+
+        // Update progress bar
+        const progressBar = document.querySelectorAll(".progress-bar li");
+        progressBar.forEach((li, index) => {
+          if (index <= n) {
+            li.classList.add("active");
+          } else {
+            li.classList.remove("active");
+          }
+        });
+        // If we are on the confirmation step, update the summary
+        if (n === 3) {
+          // Step index starts at 0
+          updateConfirmation();
+        }
+      }
+
+      // Function to update the confirmation summary
+      function updateConfirmation() {
+        // Get the selected country
+        const countrySelect = document.getElementById("country");
+        const country =
+          countrySelect.options[countrySelect.selectedIndex].value;
+
+        // Get the selected MNO code
+        const selectedMnoCode = document.getElementById("selectedMno").value;
+
+        // Get the MNO name
+        let selectedMnoName = "";
+        // We need to find the MNO name from the mnoCorrespondents data
+        const mnos = mnoCorrespondents[country];
+        if (mnos) {
+          for (let i = 0; i < mnos.length; i++) {
+            if (mnos[i].apiCode === selectedMnoCode) {
+              selectedMnoName = mnos[i].name;
+              break;
+            }
+          }
+        }
+
+        // Get the amount
+        const amount = document.getElementById("amount").value;
+
+        // Get the currency
+        const currency =
+          countrySelect.options[countrySelect.selectedIndex].getAttribute(
+            "data-currency"
+          );
+
+        // Get the country code
+        const countryCode = document.getElementById("countryCode").textContent;
+
+        // Get the phone number
+        const phoneNumber = document.getElementById("payerMsisdn").value;
+
+        // Get the description
+        const description = document.getElementById("description").value;
+
+        // Build the summary HTML
+        const summaryHTML = `
+    <ul class="list-group">
+      <li class="list-group-item"><strong>Country:</strong> ${country}</li>
+      <li class="list-group-item"><strong>Operator:</strong> ${selectedMnoName}</li>
+      <li class="list-group-item"><strong>Amount:</strong> ${currency} ${amount}</li>
+      <li class="list-group-item"><strong>Phone Number:</strong> ${countryCode}${phoneNumber}</li>
+      <li class="list-group-item"><strong>Description:</strong> ${description}</li>
+    </ul>
+  `;
+
+        // Set the innerHTML of the confirmationSummary div
+        document.getElementById("confirmationSummary").innerHTML = summaryHTML;
+      }
+
+      // Updated nextStep function to include MNO selection validation
+      function nextStep() {
+        const steps = document.getElementsByClassName("step");
+
+        // For Step 2 (MNO Selection), check if an MNO is selected before proceeding
+        // Validate MNO selection on Step 2 before proceeding
+
+        if (currentStep === 1) {
+          const selectedMno = document.getElementById("selectedMno").value;
+          const errorDiv = document.getElementById("mnoError");
+          if (!selectedMno) {
+            // Show the error message if no MNO is selected
+            errorDiv.style.display = "block";
+            return; // Stop here if no MNO is selected
+          } else {
+            // Hide the error message if an MNO is selected
+            errorDiv.style.display = "none";
+          }
+        }
+
+        // Validation for Amount Input (Step 3)
+        // Validation for 'Your Details' (Step 3)
+        if (currentStep === 2) {
+          // Validate amount
+          validateAmountInput();
+          const amountInput = document.getElementById("amount");
+
+          // Validate payer's phone number
+          validatePhoneNumber();
+          const msisdnInput = document.getElementById("payerMsisdn");
+
+          // Validate description
+          validateDescriptionInput();
+          const descriptionInput = document.getElementById("description");
+          // Check if inputs are valid before proceeding
+          if (
+            amountInput.classList.contains("is-invalid") ||
+            msisdnInput.classList.contains("is-invalid") ||
+            descriptionInput.classList.contains("is-invalid")
+          ) {
+            // Prevent proceeding to the next step if any input is invalid
+            return;
+          }
+
+          // Additional validation for other fields can go here
+        }
+
+        if (currentStep < steps.length - 1) {
+          steps[currentStep].classList.remove("active");
+          currentStep++;
+          showStep(currentStep);
+        }
+      }
+
+      function validateAmountInput() {
+        const amountInput = document.getElementById("amount");
+        const amountErrorDiv = document.getElementById("amountError");
+        let amountValue = amountInput.value.trim();
+
+        // Remove any non-digit characters except for the decimal point
+        amountValue = amountValue.replace(/[^\d.]/g, "");
+
+        // Update the input field with the cleaned value
+        amountInput.value = amountValue;
+
+        // Check if the amount is a valid number greater than zero
+        let amountNumber = parseFloat(amountValue);
+
+        if (isNaN(amountNumber) || amountNumber <= 0) {
+          // Invalid amount, show error
+          amountInput.classList.add("is-invalid");
+          amountInput.classList.remove("is-valid");
+        } else {
+          // Valid amount, round off to nearest whole number if decimal
+          amountNumber = Math.round(amountNumber);
+          // Update the amount input field with rounded value
+          amountInput.value = amountNumber;
+          // Hide error message
+          amountInput.classList.remove("is-invalid");
+          amountInput.classList.add("is-valid");
+        }
+      }
+
+      function validatePhoneNumber() {
+        const phoneInput = document.getElementById("payerMsisdn");
+        const phoneErrorDiv = document.getElementById("payerMsisdnError");
+        const countryCodeSpan = document.getElementById("countryCode");
+        let phoneNumber = phoneInput.value.trim();
+
+        // Get the country code without the '+' sign
+        const countryCode = countryCodeSpan.textContent.trim().replace("+", "");
+
+        // Remove any formatting or spaces from the input
+        phoneNumber = phoneNumber.replace(/\s+/g, "");
+
+        // Combine country code and phone number
+        const fullNumber = `+${countryCode}${phoneNumber}`;
+
+        try {
+          // Parse and validate the phone number
+          const phoneNumberInstance =
+            libphonenumber.parsePhoneNumber(fullNumber);
+
+          if (phoneNumberInstance.isValid()) {
+            // Valid phone number
+            phoneInput.classList.remove("is-invalid");
+            phoneInput.classList.add("is-valid");
+            phoneErrorDiv.style.display = "none";
+          } else {
+            // Invalid phone number
+            phoneInput.classList.add("is-invalid");
+            phoneInput.classList.remove("is-valid");
+            phoneErrorDiv.textContent = "Please enter a valid phone number.";
+            phoneErrorDiv.style.display = "block";
+          }
+        } catch (error) {
+          // Parsing error
+          phoneInput.classList.add("is-invalid");
+          phoneInput.classList.remove("is-valid");
+          phoneErrorDiv.textContent = "Please enter a valid phone number.";
+          phoneErrorDiv.style.display = "block";
+        }
+      }
+
+      // Validate Description Input
+      function validateDescriptionInput() {
+        const descriptionInput = document.getElementById("description");
+        const descriptionErrorDiv = document.getElementById("descriptionError");
+        let descriptionValue = descriptionInput.value;
+
+        // Remove any invalid characters (non-alphanumeric and non-space)
+        const validDescription = descriptionValue.replace(/[^a-zA-Z0-9 ]/g, "");
+
+        if (descriptionValue !== validDescription) {
+          // If there were invalid characters, update the input value
+          descriptionInput.value = validDescription;
+          descriptionValue = validDescription;
+        }
+
+        // No need to check length here, as maxlength attribute handles it
+
+        // Validate that it is not empty
+        if (descriptionValue.trim() === "") {
+          descriptionInput.classList.add("is-invalid");
+          descriptionInput.classList.remove("is-valid");
+          descriptionErrorDiv.style.display = "block";
+          descriptionErrorDiv.textContent = "Description cannot be empty.";
+        } else {
+          descriptionInput.classList.remove("is-invalid");
+          descriptionInput.classList.add("is-valid");
+          descriptionErrorDiv.style.display = "none";
+        }
+      }
+
+      // Attach the event listener to the description input field
+      document
+        .getElementById("description")
+        .addEventListener("input", validateDescriptionInput);
+
+      // Attach the event listener
+      document
+        .getElementById("payerMsisdn")
+        .addEventListener("input", validatePhoneNumber);
+
+      // Attach the event listener to the amount input field
+      document
+        .getElementById("amount")
+        .addEventListener("input", validateAmountInput);
+
+      // Function to go to the previous step
+      function prevStep() {
+        const steps = document.getElementsByClassName("step");
+        if (currentStep > 0) {
+          steps[currentStep].classList.remove("active");
+          currentStep--;
+          showStep(currentStep);
+        }
+      }
+
+      // Event listener for country change
+      document
+        .getElementById("country")
+        .addEventListener("change", function () {
+          const selectedOption = this.options[this.selectedIndex];
+          const country = selectedOption.value;
+          const currency = selectedOption.getAttribute("data-currency");
+          // Clear the selected MNO when the country changes
+          document.getElementById("selectedMno").value = "";
+          localStorage.removeItem("selectedMno"); // Clear stored MNO
+
+          // Store the selected country in localStorage
+          localStorage.setItem("selectedCountry", country);
+
+          // Update the currency span with the selected currency
+          document.getElementById("currency").textContent = currency;
+
+          // Get the selected country's MNO correspondents, country code, and flag
+          const correspondents = mnoCorrespondents[country];
+          if (correspondents && correspondents.length > 0) {
+            const countryCode = correspondents[0].countryCode;
+            const flag = correspondents[0].flag;
+
+            // Update the payer's phone number field with the country code and flag
+            document.getElementById("countryCode").textContent = countryCode;
+            document.getElementById("countryFlag").src = "flags/" + flag;
+            document.getElementById("countryFlag").alt = country + " flag";
+          } else {
+            document.getElementById("countryCode").textContent = "+000"; // Default if no country code available
+            document.getElementById("countryFlag").src = "flags/default.png"; // Default flag if not available
+            document.getElementById("countryFlag").alt = "default flag";
+          }
+
+          // Check and display the MNO cards based on the selected country
+          if (correspondents) {
+            displayMnoCards(correspondents);
+          } else {
+            document.getElementById("mno-cards-container").innerHTML =
+              "No MNO available for this country";
+          }
+
+          // Update Step 3 details (currency and phone number country code)
+          updateStep3Details(country, currency, correspondents);
+        });
+
+      // Function to update Step 3 details based on the selected country
+      function updateStep3Details(country, currency, correspondents) {
+        // Update currency span
+        document.getElementById("currency").textContent = currency;
+
+        if (correspondents && correspondents.length > 0) {
+          const countryCode = correspondents[0].countryCode;
+          const flag = correspondents[0].flag;
+
+          // Update the phone number country code and flag
+          document.getElementById("countryCode").textContent = countryCode;
+          document.getElementById("countryFlag").src = "flags/" + flag;
+          document.getElementById("countryFlag").alt = country + " flag";
+        }
+      }
+
+      // Updated displayMnoCards function to ensure proper selection handling
+      function displayMnoCards(mnos) {
+        const container = document.getElementById("mno-cards-container");
+        container.innerHTML = "";
+
+        // Clear the selected MNO input value
+        document.getElementById("selectedMno").value = "";
+
+        mnos.forEach((mno) => {
+          const card = document.createElement("div");
+
+          // Add 'disabled' class if the network is down
+          card.className = `operator-card ${mno.available ? "" : "disabled"}`;
+
+          // Use mno.img to load the operator image and mno.flag for the country flag
+          card.innerHTML = `
+      <img src="mno-img/${mno.img}" alt="${mno.name}" />
+      <p>${mno.name}</p>
+      ${
+        mno.available
+          ? ""
+          : '<span class="unavailable-text">Not available</span>'
+      }
+    `;
+
+          card.onclick = function () {
+            if (mno.available) {
+              // Only proceed if the network is available
+              document
+                .querySelectorAll(".operator-card")
+                .forEach((c) => c.classList.remove("selected"));
+              card.classList.add("selected");
+
+              // Store the selected MNO value in the hidden input and localStorage
+              document.getElementById("selectedMno").value = mno.apiCode;
+              localStorage.setItem("selectedMno", mno.apiCode); // Store selected MNO
+
+              console.log(
+                "Selected MNO:",
+                document.getElementById("selectedMno").value
+              );
+
+              // Hide the error message when an MNO is selected
+              const errorDiv = document.getElementById("mnoError");
+              if (errorDiv) {
+                errorDiv.style.display = "none";
+              }
+
+              // Log the selected MNO to the console for debugging
+              console.log("MNO Selected and Stored:", mno.name);
+            }
+          };
+
+          container.appendChild(card);
+        });
+
+        // Preselect the MNO card if a selection was previously made
+        const preselectedMno = localStorage.getItem("selectedMno");
+        if (preselectedMno) {
+          document.querySelectorAll(".operator-card").forEach((c) => {
+            if (c.querySelector("p").textContent.includes(preselectedMno)) {
+              c.classList.add("selected");
+              document.getElementById("selectedMno").value = preselectedMno;
+              console.log(
+                "Preselected MNO Restored:",
+                c.querySelector("p").textContent
+              );
+            }
+          });
+        } else {
+          // No MNO was preselected; ensure the input is empty
+          document.getElementById("selectedMno").value = "";
+        }
+      }
+
+      // Function to open the payment modal
+      function openPaymentModal() {
+        // Get the amount and phone number from the form
+        const amount = document.getElementById("amount").value;
+        const countrySelect = document.getElementById("country");
+        const currency =
+          countrySelect.options[countrySelect.selectedIndex].getAttribute(
+            "data-currency"
+          );
+        const countryCode = document.getElementById("countryCode").textContent;
+        const phoneNumber = document.getElementById("payerMsisdn").value;
+
+        // Update the modal content
+        document.getElementById(
+          "modalAmount"
+        ).textContent = `${currency} ${amount}`;
+        document.getElementById(
+          "modalPhoneNumber"
+        ).textContent = `${countryCode}${phoneNumber}`;
+
+        // Reset the modal in case it was modified previously
+        document.getElementById("paymentDetails").style.display = "block";
+        document.getElementById("loadingSpinner").style.display = "none";
+        const payButton = document.getElementById("payBtn");
+        payButton.disabled = false;
+        payButton.textContent = "Pay";
+
+        // Reset error messages
+        const errorMessageDiv = document.getElementById("errorMessage");
+        errorMessageDiv.style.display = "none";
+        errorMessageDiv.innerHTML = "";
+
+        // Reset modal footer if it was changed
+        document.querySelector("#paymentModal .modal-footer").innerHTML = `
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+    <button type="button" class="btn btn-success" id="payBtn">Pay</button>
+  `;
+
+        // Re-attach the event listener to the new Pay button
+        document
+          .getElementById("payBtn")
+          .addEventListener("click", payButtonHandler);
+
+        // Show the modal
+        const paymentModal = new bootstrap.Modal(
+          document.getElementById("paymentModal")
+        );
+        paymentModal.show();
+      }
+      // Pay button event handler
+      function payButtonHandler() {
+        const payButton = this;
+        const loadingSpinner = document.getElementById("loadingSpinner");
+        const paymentDetails = document.getElementById("paymentDetails");
+        const errorMessageDiv = document.getElementById("errorMessage");
+        const successMessageDiv = document.getElementById("successMessage");
+
+        // Hide any previous error messages
+        errorMessageDiv.style.display = "none";
+        errorMessageDiv.innerHTML = "";
+        successMessageDiv.style.display = "none";
+        successMessageDiv.innerHTML = "";
+
+        // Disable the Pay button to prevent multiple clicks
+        payButton.disabled = true;
+
+        // Change the text to indicate processing
+        payButton.textContent = "Processing...";
+
+        // Hide payment details and show loading spinner
+        paymentDetails.style.display = "none";
+        loadingSpinner.style.display = "block";
+
+        // Proceed to submit the form
+        submitForm();
+      }
+
+      // Attach the event listener to the Pay button
+      document
+        .getElementById("payBtn")
+        .addEventListener("click", payButtonHandler);
+
+      function submitForm() {
+        const form = document.getElementById("depositForm");
+        const formData = new FormData(form);
+
+        // Get the country code
+        const countryCode = document
+          .getElementById("countryCode")
+          .textContent.trim()
+          .replace("+", "");
+
+        // Prepend country code to payerMsisdn
+        const payerMsisdnInput = document.getElementById("payerMsisdn");
+        const payerMsisdn = countryCode + payerMsisdnInput.value.trim();
+
+        // Update formData with new payerMsisdn
+        formData.set("payerMsisdn", payerMsisdn);
+
+        // Get the selected currency from the country dropdown
+        const countrySelect = document.getElementById("country");
+        const selectedOption =
+          countrySelect.options[countrySelect.selectedIndex];
+        const currency = selectedOption.getAttribute("data-currency");
+
+        // Update formData with the selected currency
+        formData.set("currency", currency);
+
+        // Optional: Log formData entries for debugging
+        for (var pair of formData.entries()) {
+          console.log(pair[0] + ": " + pair[1]);
+        }
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", "initiate_deposit.php", true);
+
+        xhr.onload = function () {
+          const modalBody = document.querySelector("#paymentModal .modal-body");
+          const modalFooter = document.querySelector(
+            "#paymentModal .modal-footer"
+          );
+          const payButton = document.getElementById("payBtn");
+          const loadingSpinner = document.getElementById("loadingSpinner");
+          const paymentDetails = document.getElementById("paymentDetails");
+          const errorMessageDiv = document.getElementById("errorMessage");
+          const successMessageDiv = document.getElementById("successMessage");
+
+          // Hide the loading spinner
+          loadingSpinner.style.display = "none";
+
+          if (xhr.status === 200) {
+            let response;
+            try {
+              response = JSON.parse(xhr.responseText);
+            } catch (e) {
+              errorMessageDiv.innerHTML = `
+                    <div class="alert alert-danger" role="alert">
+                        <p>An error occurred: ${xhr.responseText}</p>
+                        <p>Please try again.</p>
+                    </div>`;
+              errorMessageDiv.style.display = "block";
+              payButton.disabled = false;
+              payButton.textContent = "Pay";
+              return;
+            }
+
+            if (response.success) {
+              successMessageDiv.innerHTML = `
+    <div class="alert alert-success" role="alert">
+        <h3 class="mb-3">Payment Successful!</h3>
+        <p>Thank you for your payment. It has been processed successfully.</p>
+        <p>Your transaction ID is: <strong>${response.transactionId}</strong>.</p>
+        <p>If you need any further assistance, please feel free to contact our support team.</p>
+    </div>`;
+
+              successMessageDiv.style.display = "block";
+              modalFooter.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>`;
+              const confirmButton = document.getElementById("submitBtn");
+              confirmButton.disabled = true;
+              confirmButton.textContent = "Paid";
+              const prevButton = document.querySelector(
+                "#step-4 .btn-secondary"
+              );
+              if (prevButton) {
+                prevButton.disabled = true;
+              }
+              setTimeout(() => {
+                form.reset();
+                //window.location.href = 'thank_you.html';
+              }, 3000);
+            } else {
+              errorMessageDiv.innerHTML = `
+                    <div class="alert alert-danger" role="alert">
+                        <p>An error occurred: ${response.errorMessage}</p>
+                        <p>Please try again.</p>
+                    </div>`;
+              errorMessageDiv.style.display = "block";
+              successMessageDiv.style.display = "none";
+              payButton.disabled = false;
+              payButton.textContent = "Pay";
+              paymentDetails.style.display = "block";
+            }
+          } else {
+            errorMessageDiv.innerHTML = `
+                <div class="alert alert-danger" role="alert">
+                    <p>An error occurred while processing your payment.</p>
+                    <p>Please check your internet connection and try again.</p>
+                </div>`;
+            errorMessageDiv.style.display = "block";
+            successMessageDiv.style.display = "none";
+            payButton.disabled = false;
+            payButton.textContent = "Pay";
+            paymentDetails.style.display = "block";
+          }
+        };
+
+        xhr.onerror = function () {
+          const errorMessageDiv = document.getElementById("errorMessage");
+          const payButton = document.getElementById("payBtn");
+          const loadingSpinner = document.getElementById("loadingSpinner");
+          const paymentDetails = document.getElementById("paymentDetails");
+
+          loadingSpinner.style.display = "none";
+
+          errorMessageDiv.innerHTML = `
+            <p>An error occurred while processing your payment.</p>
+            <p>Please check your internet connection and try again.</p>`;
+          errorMessageDiv.style.display = "block";
+
+          payButton.disabled = false;
+          payButton.textContent = "Pay";
+          paymentDetails.style.display = "block";
+        };
+
+        xhr.send(formData);
+      }
+
+      // On page load, check if a country and MNO are preselected
+
+      window.onload = function () {
+        (async function () {
+          // Load availability data
+          const availabilityData = await loadAvailabilityData();
+
+          // Update the mnoCorrespondents object based on availability data
+          updateMnoAvailability(availabilityData);
+
+          const selectedCountry = localStorage.getItem("selectedCountry");
+          const selectedMno = localStorage.getItem("selectedMno");
+
+          if (selectedCountry) {
+            const countrySelect = document.getElementById("country");
+            const options = countrySelect.options;
+
+            // Preselect the country
+            for (let i = 0; i < options.length; i++) {
+              if (options[i].value === selectedCountry) {
+                options[i].selected = true;
+
+                // Trigger the change event manually to load MNO cards and Step 3 details
+                const event = new Event("change");
+                countrySelect.dispatchEvent(event);
+                break;
+              }
+            }
+
+            // Preload the MNO cards and preselect the MNO if available
+            const correspondents = mnoCorrespondents[selectedCountry];
+            if (correspondents) {
+              displayMnoCards(correspondents);
+
+              // Validate the MNO selection and preselect the card if it exists
+              if (selectedMno) {
+                const mnoCards = document.querySelectorAll(".operator-card");
+                mnoCards.forEach((card) => {
+                  // Preselect the correct MNO card based on stored selection
+                  if (
+                    card.querySelector("p").textContent.includes(selectedMno)
+                  ) {
+                    card.classList.add("selected");
+                    document.getElementById("selectedMno").value = selectedMno;
+
+                    // Log the preselected card to the console
+                    console.log(
+                      "Preselected MNO:",
+                      card.querySelector("p").textContent
+                    );
+                  }
+                });
+
+                // Hide the error message if MNO is preselected
+                const errorDiv = document.getElementById("mnoError");
+                if (errorDiv) {
+                  errorDiv.style.display = "none";
+                }
+              } else {
+                // No MNO was preselected; ensure the input is empty
+                document.getElementById("selectedMno").value = "";
+              }
+            }
+          }
+
+          // Make sure the page elements are visible after preloading
+          document.body.style.opacity = "1";
+          document.querySelector(".preloader").style.display = "none";
+        })();
+      };
+
+      // Update the next button logic to handle the preselected country scenario
+      function validateCountry() {
+        const countrySelect = document.getElementById("country");
+        const selectedCountry = countrySelect.value;
+        const errorDiv = document.getElementById("countryError");
+
+        if (!selectedCountry) {
+          countrySelect.classList.add("is-invalid");
+          errorDiv.style.display = "block"; // Show error message
+        } else {
+          countrySelect.classList.remove("is-invalid");
+          countrySelect.classList.add("is-valid");
+          errorDiv.style.display = "none"; // Hide error message
+
+          // Ensure MNO cards are displayed even on reload or manual selection
+          const correspondents = mnoCorrespondents[selectedCountry];
+          if (correspondents) {
+            displayMnoCards(correspondents);
+          }
+
+          // Update Step 3 details (currency and phone number country code)
+          const currency =
+            countrySelect.options[countrySelect.selectedIndex].getAttribute(
+              "data-currency"
+            );
+          updateStep3Details(selectedCountry, currency, correspondents);
+
+          nextStep(); // Proceed to the next step if validation passes
+        }
+      }
+    </script>
+  </body>
+</html>
