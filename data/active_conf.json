@@ -1,739 +1,739 @@
 {
-    "merchantId": "SS",
-    "merchantName": "ss",
-    "countries": [
+  "merchantId": "SS",
+  "merchantName": "ss",
+  "countries": [
+    {
+      "country": "BEN",
+      "correspondents": [
         {
-            "country": "BEN",
-            "correspondents": [
-                {
-                    "correspondent": "MOOV_BEN",
-                    "currency": "XOF",
-                    "ownerName": "PAWAPAY",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "100",
-                            "maxTransactionLimit": "2000000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "100",
-                            "maxTransactionLimit": "2000000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "100",
-                            "maxTransactionLimit": "2000000"
-                        }
-                    ]
-                },
-                {
-                    "correspondent": "MTN_MOMO_BEN",
-                    "currency": "XOF",
-                    "ownerName": "PAWAPAY",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "2000000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "2000000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "2000000"
-                        }
-                    ]
-                }
-            ]
+          "correspondent": "MOOV_BEN",
+          "currency": "XOF",
+          "ownerName": "PAWAPAY",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "100",
+              "maxTransactionLimit": "2000000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "100",
+              "maxTransactionLimit": "2000000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "100",
+              "maxTransactionLimit": "2000000"
+            }
+          ]
         },
         {
-            "country": "BFA",
-            "correspondents": [
-                {
-                    "correspondent": "MOOV_BFA",
-                    "currency": "XOF",
-                    "ownerName": "PAWAPAY SARL",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "100",
-                            "maxTransactionLimit": "2000000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "100",
-                            "maxTransactionLimit": "2000000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "100",
-                            "maxTransactionLimit": "2000000"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "country": "CIV",
-            "correspondents": [
-                {
-                    "correspondent": "MTN_MOMO_CIV",
-                    "currency": "XOF",
-                    "ownerName": "PAWAPAY CDI",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "2000000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "2000000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "2000000"
-                        }
-                    ]
-                },
-                {
-                    "correspondent": "ORANGE_CIV",
-                    "currency": "XOF",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "2000000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "2000000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "2000000"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "country": "CMR",
-            "correspondents": [
-                {
-                    "correspondent": "MTN_MOMO_CMR",
-                    "currency": "XAF",
-                    "ownerName": "Pawapay (Kerry Payment)",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "1000000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "1000000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "1000000"
-                        }
-                    ]
-                },
-                {
-                    "correspondent": "ORANGE_CMR",
-                    "currency": "XAF",
-                    "ownerName": "KERRY PAY MERE",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "500000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "500000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "500000"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "country": "COD",
-            "correspondents": [
-                {
-                    "correspondent": "AIRTEL_COD",
-                    "currency": "CDF",
-                    "ownerName": "PAWAPAY",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "100",
-                            "maxTransactionLimit": "6250000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "100",
-                            "maxTransactionLimit": "6250000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "100",
-                            "maxTransactionLimit": "6250000"
-                        }
-                    ]
-                },
-                {
-                    "correspondent": "ORANGE_COD",
-                    "currency": "CDF",
-                    "ownerName": "PAWAPAY",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "10",
-                            "maxTransactionLimit": "1000000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "10",
-                            "maxTransactionLimit": "1000000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "10",
-                            "maxTransactionLimit": "1000000"
-                        }
-                    ]
-                },
-                {
-                    "correspondent": "VODACOM_MPESA_COD",
-                    "currency": "CDF",
-                    "ownerName": "Name of merchant",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "500",
-                            "maxTransactionLimit": "1000000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "1000",
-                            "maxTransactionLimit": "1000000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "1000",
-                            "maxTransactionLimit": "1000000"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "country": "COG",
-            "correspondents": [
-                {
-                    "correspondent": "AIRTEL_COG",
-                    "currency": "XAF",
-                    "ownerName": "PAWAPAY",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "10",
-                            "maxTransactionLimit": "1500000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "10",
-                            "maxTransactionLimit": "1500000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "10",
-                            "maxTransactionLimit": "1500000"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "country": "GHA",
-            "correspondents": [
-                {
-                    "correspondent": "AIRTELTIGO_GHA",
-                    "currency": "GHS",
-                    "ownerName": "Pawapay",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "10000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "10000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "10000"
-                        }
-                    ]
-                },
-                {
-                    "correspondent": "MTN_MOMO_GHA",
-                    "currency": "GHS",
-                    "ownerName": "pawaPay",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "15000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "15000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "15000"
-                        }
-                    ]
-                },
-                {
-                    "correspondent": "VODAFONE_GHA",
-                    "currency": "GHS",
-                    "ownerName": "PawaPay",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "15000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "15000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "15000"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "country": "KEN",
-            "correspondents": [
-                {
-                    "correspondent": "MPESA_KEN",
-                    "currency": "KES",
-                    "ownerName": "CYN PAWAPAY",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "250000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "10",
-                            "maxTransactionLimit": "250000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "10",
-                            "maxTransactionLimit": "250000"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "country": "MWI",
-            "correspondents": [
-                {
-                    "correspondent": "AIRTEL_MWI",
-                    "currency": "MWK",
-                    "ownerName": "PAWAPAY PAYMENTS",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "50",
-                            "maxTransactionLimit": "750000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "50",
-                            "maxTransactionLimit": "750000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "50",
-                            "maxTransactionLimit": "750000"
-                        }
-                    ]
-                },
-                {
-                    "correspondent": "TNM_MWI",
-                    "currency": "MWK",
-                    "ownerName": "PAWAPAY MALAWI",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "50",
-                            "maxTransactionLimit": "750000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "50",
-                            "maxTransactionLimit": "750000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "50",
-                            "maxTransactionLimit": "750000"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "country": "RWA",
-            "correspondents": [
-                {
-                    "correspondent": "AIRTEL_RWA",
-                    "currency": "RWF",
-                    "ownerName": "pawaPay RW",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "100",
-                            "maxTransactionLimit": "1500000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "100",
-                            "maxTransactionLimit": "1500000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "100",
-                            "maxTransactionLimit": "1500000"
-                        }
-                    ]
-                },
-                {
-                    "correspondent": "MTN_MOMO_RWA",
-                    "currency": "RWF",
-                    "ownerName": "pawaPay",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "5",
-                            "maxTransactionLimit": "2000000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "5",
-                            "maxTransactionLimit": "2000000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "5",
-                            "maxTransactionLimit": "2000000"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "country": "SEN",
-            "correspondents": [
-                {
-                    "correspondent": "FREE_SEN",
-                    "currency": "XOF",
-                    "ownerName": "KERRY PAYMENT",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "5",
-                            "maxTransactionLimit": "100000000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "200000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "200000"
-                        }
-                    ]
-                },
-                {
-                    "correspondent": "ORANGE_SEN",
-                    "currency": "XOF",
-                    "ownerName": "KERRY PAYMENT",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "2",
-                            "maxTransactionLimit": "100000000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "200000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "200000"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "country": "SLE",
-            "correspondents": [
-                {
-                    "correspondent": "ORANGE_SLE",
-                    "currency": "SLE",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "15000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "15000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "15000"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "country": "TZA",
-            "correspondents": [
-                {
-                    "correspondent": "AIRTEL_TZA",
-                    "currency": "TZS",
-                    "ownerName": "PawaPay",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "100",
-                            "maxTransactionLimit": "3000000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "100",
-                            "maxTransactionLimit": "3000000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "100",
-                            "maxTransactionLimit": "3000000"
-                        }
-                    ]
-                },
-                {
-                    "correspondent": "HALOTEL_TZA",
-                    "currency": "TZS",
-                    "ownerName": "Pawapay",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "100",
-                            "maxTransactionLimit": "5000000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "100",
-                            "maxTransactionLimit": "5000000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "100",
-                            "maxTransactionLimit": "5000000"
-                        }
-                    ]
-                },
-                {
-                    "correspondent": "TIGO_TZA",
-                    "currency": "TZS",
-                    "ownerName": "Madina Tech",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "100",
-                            "maxTransactionLimit": "5000000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "5000000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "5000000"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "country": "UGA",
-            "correspondents": [
-                {
-                    "correspondent": "AIRTEL_OAPI_UGA",
-                    "currency": "UGX",
-                    "ownerName": "QUIDEXPLUS UGANDA LIMITED",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "500",
-                            "maxTransactionLimit": "5000000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "500",
-                            "maxTransactionLimit": "5000000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "500",
-                            "maxTransactionLimit": "5000000"
-                        }
-                    ]
-                },
-                {
-                    "correspondent": "MTN_MOMO_UGA",
-                    "currency": "UGX",
-                    "ownerName": "QUIDEXPLUS UGANDA LIMITED",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "500",
-                            "maxTransactionLimit": "5000000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "500",
-                            "maxTransactionLimit": "5000000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "500",
-                            "maxTransactionLimit": "5000000"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "country": "ZMB",
-            "correspondents": [
-                {
-                    "correspondent": "AIRTEL_OAPI_ZMB",
-                    "currency": "ZMW",
-                    "ownerName": "PAWA PAY SMART PAY SOLUTIONS",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "20000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "20000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "20000"
-                        }
-                    ]
-                },
-                {
-                    "correspondent": "MTN_MOMO_ZMB",
-                    "currency": "ZMW",
-                    "ownerName": "Pawapay",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "20000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "20000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "20000"
-                        }
-                    ]
-                },
-                {
-                    "correspondent": "ZAMTEL_ZMB",
-                    "currency": "ZMW",
-                    "ownerName": "pawaPay",
-                    "operationTypes": [
-                        {
-                            "operationType": "DEPOSIT",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "20000"
-                        },
-                        {
-                            "operationType": "PAYOUT",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "20000"
-                        },
-                        {
-                            "operationType": "REFUND",
-                            "minTransactionLimit": "1",
-                            "maxTransactionLimit": "20000"
-                        }
-                    ]
-                }
-            ]
+          "correspondent": "MTN_MOMO_BEN",
+          "currency": "XOF",
+          "ownerName": "PAWAPAY",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "2000000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "2000000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "2000000"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "country": "BFA",
+      "correspondents": [
+        {
+          "correspondent": "MOOV_BFA",
+          "currency": "XOF",
+          "ownerName": "PAWAPAY SARL",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "100",
+              "maxTransactionLimit": "2000000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "100",
+              "maxTransactionLimit": "2000000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "100",
+              "maxTransactionLimit": "2000000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "country": "CIV",
+      "correspondents": [
+        {
+          "correspondent": "MTN_MOMO_CIV",
+          "currency": "XOF",
+          "ownerName": "PAWAPAY CDI",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "2000000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "2000000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "2000000"
+            }
+          ]
+        },
+        {
+          "correspondent": "ORANGE_CIV",
+          "currency": "XOF",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "2000000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "2000000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "2000000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "country": "CMR",
+      "correspondents": [
+        {
+          "correspondent": "MTN_MOMO_CMR",
+          "currency": "XAF",
+          "ownerName": "Pawapay (Kerry Payment)",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "1000000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "1000000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "1000000"
+            }
+          ]
+        },
+        {
+          "correspondent": "ORANGE_CMR",
+          "currency": "XAF",
+          "ownerName": "KERRY PAY MERE",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "500000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "500000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "500000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "country": "COD",
+      "correspondents": [
+        {
+          "correspondent": "AIRTEL_COD",
+          "currency": "CDF",
+          "ownerName": "PAWAPAY",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "100",
+              "maxTransactionLimit": "6250000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "100",
+              "maxTransactionLimit": "6250000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "100",
+              "maxTransactionLimit": "6250000"
+            }
+          ]
+        },
+        {
+          "correspondent": "ORANGE_COD",
+          "currency": "CDF",
+          "ownerName": "PAWAPAY",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "10",
+              "maxTransactionLimit": "1000000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "10",
+              "maxTransactionLimit": "1000000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "10",
+              "maxTransactionLimit": "1000000"
+            }
+          ]
+        },
+        {
+          "correspondent": "VODACOM_MPESA_COD",
+          "currency": "CDF",
+          "ownerName": "Name of merchant",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "500",
+              "maxTransactionLimit": "1000000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "1000",
+              "maxTransactionLimit": "1000000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "1000",
+              "maxTransactionLimit": "1000000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "country": "COG",
+      "correspondents": [
+        {
+          "correspondent": "AIRTEL_COG",
+          "currency": "XAF",
+          "ownerName": "PAWAPAY",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "10",
+              "maxTransactionLimit": "1500000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "10",
+              "maxTransactionLimit": "1500000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "10",
+              "maxTransactionLimit": "1500000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "country": "GHA",
+      "correspondents": [
+        {
+          "correspondent": "AIRTELTIGO_GHA",
+          "currency": "GHS",
+          "ownerName": "Pawapay",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "10000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "10000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "10000"
+            }
+          ]
+        },
+        {
+          "correspondent": "MTN_MOMO_GHA",
+          "currency": "GHS",
+          "ownerName": "pawaPay",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "15000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "15000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "15000"
+            }
+          ]
+        },
+        {
+          "correspondent": "VODAFONE_GHA",
+          "currency": "GHS",
+          "ownerName": "PawaPay",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "15000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "15000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "15000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "country": "KEN",
+      "correspondents": [
+        {
+          "correspondent": "MPESA_KEN",
+          "currency": "KES",
+          "ownerName": "CYN PAWAPAY",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "250000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "10",
+              "maxTransactionLimit": "250000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "10",
+              "maxTransactionLimit": "250000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "country": "MWI",
+      "correspondents": [
+        {
+          "correspondent": "AIRTEL_MWI",
+          "currency": "MWK",
+          "ownerName": "PAWAPAY PAYMENTS",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "50",
+              "maxTransactionLimit": "750000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "50",
+              "maxTransactionLimit": "750000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "50",
+              "maxTransactionLimit": "750000"
+            }
+          ]
+        },
+        {
+          "correspondent": "TNM_MWI",
+          "currency": "MWK",
+          "ownerName": "PAWAPAY MALAWI",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "50",
+              "maxTransactionLimit": "750000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "50",
+              "maxTransactionLimit": "750000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "50",
+              "maxTransactionLimit": "750000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "country": "RWA",
+      "correspondents": [
+        {
+          "correspondent": "AIRTEL_RWA",
+          "currency": "RWF",
+          "ownerName": "pawaPay RW",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "100",
+              "maxTransactionLimit": "1500000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "100",
+              "maxTransactionLimit": "1500000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "100",
+              "maxTransactionLimit": "1500000"
+            }
+          ]
+        },
+        {
+          "correspondent": "MTN_MOMO_RWA",
+          "currency": "RWF",
+          "ownerName": "pawaPay",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "5",
+              "maxTransactionLimit": "2000000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "5",
+              "maxTransactionLimit": "2000000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "5",
+              "maxTransactionLimit": "2000000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "country": "SEN",
+      "correspondents": [
+        {
+          "correspondent": "FREE_SEN",
+          "currency": "XOF",
+          "ownerName": "KERRY PAYMENT",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "5",
+              "maxTransactionLimit": "100000000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "200000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "200000"
+            }
+          ]
+        },
+        {
+          "correspondent": "ORANGE_SEN",
+          "currency": "XOF",
+          "ownerName": "KERRY PAYMENT",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "2",
+              "maxTransactionLimit": "100000000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "200000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "200000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "country": "SLE",
+      "correspondents": [
+        {
+          "correspondent": "ORANGE_SLE",
+          "currency": "SLE",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "15000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "15000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "15000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "country": "TZA",
+      "correspondents": [
+        {
+          "correspondent": "AIRTEL_TZA",
+          "currency": "TZS",
+          "ownerName": "PawaPay",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "100",
+              "maxTransactionLimit": "3000000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "100",
+              "maxTransactionLimit": "3000000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "100",
+              "maxTransactionLimit": "3000000"
+            }
+          ]
+        },
+        {
+          "correspondent": "HALOTEL_TZA",
+          "currency": "TZS",
+          "ownerName": "Pawapay",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "100",
+              "maxTransactionLimit": "5000000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "100",
+              "maxTransactionLimit": "5000000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "100",
+              "maxTransactionLimit": "5000000"
+            }
+          ]
+        },
+        {
+          "correspondent": "TIGO_TZA",
+          "currency": "TZS",
+          "ownerName": "Madina Tech",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "100",
+              "maxTransactionLimit": "5000000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "5000000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "5000000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "country": "UGA",
+      "correspondents": [
+        {
+          "correspondent": "AIRTEL_OAPI_UGA",
+          "currency": "UGX",
+          "ownerName": "QUIDEXPLUS UGANDA LIMITED",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "500",
+              "maxTransactionLimit": "5000000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "500",
+              "maxTransactionLimit": "5000000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "500",
+              "maxTransactionLimit": "5000000"
+            }
+          ]
+        },
+        {
+          "correspondent": "MTN_MOMO_UGA",
+          "currency": "UGX",
+          "ownerName": "QUIDEXPLUS UGANDA LIMITED",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "500",
+              "maxTransactionLimit": "5000000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "500",
+              "maxTransactionLimit": "5000000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "500",
+              "maxTransactionLimit": "5000000"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "country": "ZMB",
+      "correspondents": [
+        {
+          "correspondent": "AIRTEL_OAPI_ZMB",
+          "currency": "ZMW",
+          "ownerName": "PAWA PAY SMART PAY SOLUTIONS",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "20000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "20000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "20000"
+            }
+          ]
+        },
+        {
+          "correspondent": "MTN_MOMO_ZMB",
+          "currency": "ZMW",
+          "ownerName": "Pawapay",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "20000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "20000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "20000"
+            }
+          ]
+        },
+        {
+          "correspondent": "ZAMTEL_ZMB",
+          "currency": "ZMW",
+          "ownerName": "pawaPay",
+          "operationTypes": [
+            {
+              "operationType": "DEPOSIT",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "20000"
+            },
+            {
+              "operationType": "PAYOUT",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "20000"
+            },
+            {
+              "operationType": "REFUND",
+              "minTransactionLimit": "1",
+              "maxTransactionLimit": "20000"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 }
