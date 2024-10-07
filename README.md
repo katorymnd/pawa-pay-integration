@@ -10,12 +10,12 @@ The pawaPay PHP SDK includes a comprehensive set of features designed to facilit
   ![Mobile Money Deposit](https://katorymnd.com/tqc_images/pawaPayDeposit.png)  
   The SDK allows for making deposit request to mobile money accounts with built-in real-time transaction verification. Each deposit request is processed and validated immediately to ensure its status is current and accurate.
 
-- **Mobile Money Refund Request**  
-  ![Mobile Money Refund](https://katorymnd.com/tqc_images/pawaPayRefund.png)  
+- **Mobile Money Refund Request**
+- ![Mobile Money Refund](https://katorymnd.com/tqc_images/pawaPayRefund.png)  
   Supports initiating refunds for previous `depositId` transactions. Refund requests are validated in real time, allowing you to check the status of each refund as soon as it’s submitted. However, availability of refund functionality depends on your account configuration.
 
-- **Mobile Money Payout Request**  
-  ![Mobile Money Payout](https://katorymnd.com/tqc_images/pawaPayPayout.png)  
+- **Mobile Money Payout Request**
+- ![Mobile Money Payout](https://katorymnd.com/tqc_images/pawaPayPayout.png)  
   Enables payouts to one or more recipients in a single transaction, with real-time verification of the payout status. This feature streamlines bulk payments and ensures all payout transactions are tracked in real time.
 
 - **Real-Time Verification for All Transactions**  
@@ -62,7 +62,7 @@ The pawaPay PHP SDK provides a seamless integration of pawaPay's payment process
 
 Please note that the availability of certain features, such as country-specific payment options and refund capabilities, depends on the configuration of your merchant account. These settings may vary between sandbox and live environments.
 
-> Requires PHP versions: >= 7.4.0.
+> Requires PHP versions: >= 8.0.0.
 
 ## Installation
 
