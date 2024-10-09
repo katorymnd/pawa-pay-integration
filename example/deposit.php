@@ -50,7 +50,7 @@ $depositId = Helpers::generateUniqueId();
 $amount = '690'; // Amount in UGX or another currency (should be validated)
 $currency = 'XOF'; // Currency code
 $correspondent = 'MTN_MOMO_BEN'; // Correspondent ID (MTN Uganda)
-$payerMsisdn = '22951345069'; // Payer's phone number
+$payerMsisdn = '22951345789'; // Payer's phone number
 
 // Custom statement description (should be validated)
 $customDescription = 'Payment for order 4566'; // update this desc

@@ -19,10 +19,10 @@ class Config
 {
     public static $settings = [
         'sandbox' => [
-            'api_url' => 'https://api.sandbox.pawapay.cloud'  // Sandbox URL for testing
+            'api_url' => 'https://api.sandbox.pawapay.io'  // Sandbox URL for testing
         ],
         'production' => [
-            'api_url' => 'https://api.pawapay.cloud'  // Production URL for live transactions
+            'api_url' => 'https://api.pawapay.io'  // Production URL for live transactions
         ]
     ];
 }

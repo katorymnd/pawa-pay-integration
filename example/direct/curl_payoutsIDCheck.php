@@ -3,11 +3,11 @@
 // Configuration for the environment (sandbox or production)
 $config = [
     'sandbox' => [
-        'api_url' => 'https://api.sandbox.pawapay.cloud/payouts/',
+        'api_url' => 'https://api.sandbox.pawapay.io/payouts/',
         'api_token' => 'your_sandbox_api_token_here' // Replace with your real sandbox token
     ],
     'production' => [
-        'api_url' => 'https://api.pawapay.cloud/payouts/',
+        'api_url' => 'https://api.pawapay.io/payouts/',
         'api_token' => 'your_production_api_token' // Replace with your real production token
     ]
 ];

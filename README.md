@@ -221,7 +221,7 @@ To test different functionalities of the pawaPay SDK, follow these steps:
 
 For testing, please use the provided test phone numbers (MSISDNs) available in the official pawaPay documentation:
 
-[Testing Phone Numbers](<https://docs.pawapay.co.uk/#section/Testing-the-API/Test-phone-numbers-(MSISDNs)>)
+[Testing Phone Numbers](https://docs.pawapay.io/testing_the_api)
 
 > **Important**: Refunds can only be submitted once per deposit ID. Attempting to refund the same deposit ID multiple times will result in an error.
 
