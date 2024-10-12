@@ -22,14 +22,17 @@ $whoops->register();
 $dotenv = Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
-// Set the environment (sandbox or production)
-$environment = 'sandbox'; // Change to 'production' when needed
+
+// Set the environment and SSL verification based on the production status
+$environment = getenv('ENVIRONMENT') ?: 'sandbox'; // Default to sandbox if not specified
 $sslVerify = $environment === 'production';  // SSL verification true in production
 
+// Dynamically construct the API token key
+$apiTokenKey = 'PAWAPAY_' . strtoupper($environment) . '_API_TOKEN';
+
 // Get the API token based on the environment
-$apiToken = $environment === 'sandbox'
-    ? $_ENV['PAWAPAY_SANDBOX_API_TOKEN']
-    : $_ENV['PAWAPAY_PRODUCTION_API_TOKEN'];
+$apiToken = $_ENV[$apiTokenKey] ?? null;
+
 
 if (!$apiToken) {
     throw new Exception("API token not found for the selected environment");
@@ -47,7 +50,7 @@ $pawaPayClient = new ApiClient($apiToken, $environment, $sslVerify);
 $depositId = Helpers::generateUniqueId();
 
 // Prepare request details
-$amount = '690'; // Amount in UGX or another currency (should be validated)
+$amount = '692'; // Amount in UGX or another currency (should be validated)
 $currency = 'XOF'; // Currency code
 $correspondent = 'MTN_MOMO_BEN'; // Correspondent ID (MTN Uganda)
 $payerMsisdn = '22951345789'; // Payer's phone number

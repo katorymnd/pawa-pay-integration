@@ -32,12 +32,13 @@ The pawaPay PHP SDK includes a comprehensive set of features designed to facilit
 
   ```php
   // Set the environment (sandbox or production)
-  $environment = 'sandbox'; // Change to 'production' when needed
-  $sslVerify = $environment === 'production';  // SSL verification is enabled in production
+  $environment = getenv('ENVIRONMENT') ?: 'sandbox'; // Default to sandbox if not specified
+  $sslVerify = $environment === 'production';  // SSL verification true in production
 
-  $apiToken = $environment === 'sandbox'
-   ? $_ENV['PAWAPAY_SANDBOX_API_TOKEN']
-   : $_ENV['PAWAPAY_PRODUCTION_API_TOKEN'];
+  // Dynamically construct the API token key
+  $apiTokenKey = 'PAWAPAY_' . strtoupper($environment) . '_API_TOKEN';
+  // Get the API token based on the environment
+  $apiToken = $_ENV[$apiTokenKey] ?? null;
   ```
 
 ## Table of Contents

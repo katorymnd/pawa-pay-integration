@@ -30,14 +30,17 @@ $whoops->register();
 $dotenv = Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
-// Set the environment (sandbox or production)
-$environment = 'sandbox'; // Change to 'production' when needed
+
+// Set the environment and SSL verification based on the production status
+$environment = getenv('ENVIRONMENT') ?: 'sandbox'; // Default to sandbox if not specified
 $sslVerify = $environment === 'production';  // SSL verification true in production
 
+// Dynamically construct the API token key
+$apiTokenKey = 'PAWAPAY_' . strtoupper($environment) . '_API_TOKEN';
+
 // Get the API token based on the environment
-$apiToken = $environment === 'sandbox'
-    ? ($_ENV['PAWAPAY_SANDBOX_API_TOKEN'] ?? null)
-    : ($_ENV['PAWAPAY_PRODUCTION_API_TOKEN'] ?? null);
+$apiToken = $_ENV[$apiTokenKey] ?? null;
+
 
 if (!$apiToken) {
     echo json_encode([
