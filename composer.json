@@ -2,7 +2,7 @@
   "name": "katorymnd/pawa-pay-integration",
   "description": "A PHP SDK for seamless integration with the pawaPay API, supporting payment processing and transaction management.",
   "type": "library",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "keywords": [
     "pawaPay",
     "payment",
@@ -17,7 +17,7 @@
     "integration",
     "deposit"
   ],
-  "homepage": "https://github.com/katorymnd/pawa-pay-integration",
+  "homepage": "https://katorymnd.com/pawapay-payment-sdk",
   "require": {
     "php": ">=8.0.0",
     "guzzlehttp/guzzle": "^7.9",

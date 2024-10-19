@@ -54,6 +54,7 @@ The pawaPay PHP SDK includes a comprehensive set of features designed to facilit
       - [1. Update the Country Dropdown in Your HTML](#1-update-the-country-dropdown-in-your-html)
       - [2. Configure the MNO Correspondents in JavaScript](#2-configure-the-mno-correspondents-in-javascript)
     - [Sending API Requests](#sending-api-requests)
+  - [Tutorials and Guides](#tutorials-and-guides)
   - [Need Help?](#need-help)
   - [License](#license)
 
@@ -227,6 +228,16 @@ For testing, please use the provided test phone numbers (MSISDNs) available in t
 > **Important**: Refunds can only be submitted once per deposit ID. Attempting to refund the same deposit ID multiple times will result in an error.
 
 > Additionally, every transaction—whether successful or not—will be logged in detail in the `log` files. You can refer to these log files for an in-depth analysis of any transaction, ensuring you have a complete record for debugging and auditing purposes.
+
+## Tutorials and Guides
+
+Explore these resources to get started and make the most of the pawaPay Payment SDK:
+
+1. **[Getting Started With the pawaPay SDK: Installation and Setup](https://katorymnd.com/article/getting-started-with-the-pawapay-sdk-installation-and-setup)**  
+   A beginner's guide to installing and setting up the SDK.
+
+2. **[How to Configure and Integrate pawaPay SDK: A Step-by-Step Guide](https://katorymnd.com/article/how-to-configure-pawapay-sdk-a-step-by-step-guide)**  
+   Detailed instructions on configuring and integrating the SDK into your PHP application.
 
 ## Need Help?
 
