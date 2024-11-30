@@ -4,3 +4,6 @@ vendor/
 # Ignore environment files
 .env
 
+# Ignore specific HTML files
+example/initiate-test-no-design.html
+

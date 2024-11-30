@@ -27,6 +27,10 @@ The pawaPay PHP SDK includes a comprehensive set of features designed to facilit
 - **Mobile Network Operator (MNO) Status Check**  
   Provides a real-time check on MNO availability, ensuring that deposits are only attempted when the operator is active. This helps avoid failed transactions due to inactive MNOs.
 
+- **Owner Name Notification**  
+  ![Owner Name Notification](https://katorymnd.com/tqc_images/pay-request-from.png)  
+  The SDK now supports displaying notifications with the owner name for transactions, helping users identify payment requests sent on behalf of your organization.
+
 - **Sandbox and Live Environments**  
   The SDK supports both sandbox and live environments, allowing for testing in a sandbox before moving to live transactions. You can easily switch between the two environments by setting the appropriate API tokens and SSL verification logic. Here’s an example:
 
@@ -238,6 +242,9 @@ Explore these resources to get started and make the most of the pawaPay Payment 
 
 2. **[How to Configure and Integrate pawaPay SDK: A Step-by-Step Guide](https://katorymnd.com/article/how-to-configure-pawapay-sdk-a-step-by-step-guide)**  
    Detailed instructions on configuring and integrating the SDK into your PHP application.
+
+3. **[Transparency in Payments: Owner Name Alerts in Pawapay Sdk](https://katorymnd.com/article/transparency-in-payments-owner-name-alerts-in-pawapay-sdk)**  
+   Explore how the pawaPay PHP SDK enhances transparency in mobile payments with Owner Name notifications, ensuring user confidence and clarity.
 
 ## Need Help?
 

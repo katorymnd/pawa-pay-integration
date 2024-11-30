@@ -1062,12 +1062,19 @@
       // Function to load the availability data
       async function loadAvailabilityData() {
         try {
-          const response = await fetch("../data/mno_availability.json");
-          if (!response.ok) {
+          const [availabilityResponse, activeConfResponse] = await Promise.all([
+            fetch("../data/mno_availability.json"),
+            fetch("../data/active_conf.json"),
+          ]);
+
+          if (!availabilityResponse.ok || !activeConfResponse.ok) {
             throw new Error("Network response was not ok");
           }
-          const availabilityData = await response.json();
-          return availabilityData;
+
+          const availabilityData = await availabilityResponse.json();
+          const activeConfData = await activeConfResponse.json();
+
+          return { availabilityData, activeConfData };
         } catch (error) {
           console.error("Error loading availability data:", error);
           return null;
@@ -1075,25 +1082,36 @@
       }
 
       // Function to update the availability in mnoCorrespondents
-      function updateMnoAvailability(availabilityData) {
-        if (!availabilityData) {
-          console.error("No availability data to process.");
+      function updateMnoAvailability(availabilityData, activeConfData) {
+        if (!availabilityData || !activeConfData) {
+          console.error(
+            "No availability or active configuration data to process."
+          );
           return;
         }
 
-        // Create a mapping from MNO apiCode/correspondent to their availability status
+        // Create a mapping from MNO apiCode to availability status and ownerName
         const availabilityMap = {};
+        const ownerNameMap = {};
 
+        // Build the ownerNameMap from activeConfData
+        if (activeConfData.countries) {
+          activeConfData.countries.forEach((countryData) => {
+            countryData.correspondents.forEach((correspondentData) => {
+              const apiCode = correspondentData.correspondent;
+              const ownerName = correspondentData.ownerName;
+              ownerNameMap[apiCode] = ownerName;
+            });
+          });
+        }
+
+        // Build the availabilityMap from availabilityData
         availabilityData.forEach((countryData) => {
           countryData.correspondents.forEach((correspondentData) => {
             const apiCode = correspondentData.correspondent;
-
-            // Check if all operationTypes are OPERATIONAL
             const allOperational = correspondentData.operationTypes.every(
               (op) => op.status === "OPERATIONAL"
             );
-
-            // Map the apiCode to its availability status
             availabilityMap[apiCode] = allOperational;
           });
         });
@@ -1101,11 +1119,20 @@
         // Now update the mnoCorrespondents object
         for (const country in mnoCorrespondents) {
           mnoCorrespondents[country].forEach((mno) => {
-            if (availabilityMap.hasOwnProperty(mno.apiCode)) {
-              mno.available = availabilityMap[mno.apiCode];
+            const apiCode = mno.apiCode;
+
+            // Update availability
+            if (availabilityMap.hasOwnProperty(apiCode)) {
+              mno.available = availabilityMap[apiCode];
             } else {
-              // If the MNO is not found in the availability data, you can decide to set it to false or true
-              mno.available = false; // Or true, depending on your preference
+              mno.available = false;
+            }
+
+            // Update ownerName
+            if (ownerNameMap.hasOwnProperty(apiCode)) {
+              mno.ownerName = ownerNameMap[apiCode];
+            } else {
+              mno.ownerName = "N/A";
             }
           });
         }
@@ -1145,14 +1172,15 @@
         // Get the selected MNO code
         const selectedMnoCode = document.getElementById("selectedMno").value;
 
-        // Get the MNO name
+        // Get the MNO details
         let selectedMnoName = "";
-        // We need to find the MNO name from the mnoCorrespondents data
+        let ownerName = "";
         const mnos = mnoCorrespondents[country];
         if (mnos) {
           for (let i = 0; i < mnos.length; i++) {
             if (mnos[i].apiCode === selectedMnoCode) {
               selectedMnoName = mnos[i].name;
+              ownerName = mnos[i].ownerName || "N/A";
               break;
             }
           }
@@ -1181,14 +1209,22 @@
     <ul class="list-group">
       <li class="list-group-item"><strong>Country:</strong> ${country}</li>
       <li class="list-group-item"><strong>Operator:</strong> ${selectedMnoName}</li>
+      <li class="list-group-item"><strong>Pay Request From:</strong> ${ownerName}</li>
       <li class="list-group-item"><strong>Amount:</strong> ${currency} ${amount}</li>
       <li class="list-group-item"><strong>Phone Number:</strong> ${countryCode}${phoneNumber}</li>
       <li class="list-group-item"><strong>Description:</strong> ${description}</li>
     </ul>
   `;
 
+        // Craft the professional notice message
+        const noticeMessage = `
+    <div class="alert alert-info mt-4" role="alert">
+      <strong>Important:</strong> You will receive a payment request from <strong>${ownerName}</strong> acting on behalf of <strong>Katorymnd Freelancer</strong>. Please confirm the payment to proceed with your transaction.
+    </div>
+  `;
         // Set the innerHTML of the confirmationSummary div
-        document.getElementById("confirmationSummary").innerHTML = summaryHTML;
+        document.getElementById("confirmationSummary").innerHTML =
+          noticeMessage + summaryHTML;
       }
 
       // Updated nextStep function to include MNO selection validation
@@ -1728,10 +1764,10 @@
       window.onload = function () {
         (async function () {
           // Load availability data
-          const availabilityData = await loadAvailabilityData();
-
+          const data = await loadAvailabilityData();
+          const { availabilityData, activeConfData } = data;
           // Update the mnoCorrespondents object based on availability data
-          updateMnoAvailability(availabilityData);
+          updateMnoAvailability(availabilityData, activeConfData);
 
           const selectedCountry = localStorage.getItem("selectedCountry");
           const selectedMno = localStorage.getItem("selectedMno");

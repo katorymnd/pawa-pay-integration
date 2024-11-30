@@ -6,9 +6,27 @@
                 "correspondent": "VODAFONE_GHA",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
+                        "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
+                    {
+                        "operationType": "PAYOUT",
+                        "status": "OPERATIONAL"
+                    }
+                ]
+            },
+            {
+                "correspondent": "BANK_GHA",
+                "operationTypes": [
+                    {
+                        "operationType": "PAYOUT",
+                        "status": "OPERATIONAL"
+                    }
+                ]
+            },
+            {
+                "correspondent": "AIRTELTIGO_GHA",
+                "operationTypes": [
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -22,88 +40,6 @@
             {
                 "correspondent": "MTN_MOMO_GHA",
                 "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
-                        "operationType": "DEPOSIT",
-                        "status": "OPERATIONAL"
-                    },
-                    {
-                        "operationType": "PAYOUT",
-                        "status": "OPERATIONAL"
-                    }
-                ]
-            },
-            {
-                "correspondent": "AIRTELTIGO_GHA",
-                "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
-                        "operationType": "DEPOSIT",
-                        "status": "OPERATIONAL"
-                    },
-                    {
-                        "operationType": "PAYOUT",
-                        "status": "OPERATIONAL"
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "country": "CMR",
-        "correspondents": [
-            {
-                "correspondent": "MTN_MOMO_CMR",
-                "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
-                        "operationType": "DEPOSIT",
-                        "status": "OPERATIONAL"
-                    },
-                    {
-                        "operationType": "PAYOUT",
-                        "status": "OPERATIONAL"
-                    }
-                ]
-            },
-            {
-                "correspondent": "ORANGE_CMR",
-                "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
-                        "operationType": "DEPOSIT",
-                        "status": "OPERATIONAL"
-                    },
-                    {
-                        "operationType": "PAYOUT",
-                        "status": "OPERATIONAL"
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "country": "GAB",
-        "correspondents": [
-            {
-                "correspondent": "AIRTEL_GAB",
-                "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -123,9 +59,23 @@
                 "correspondent": "MPESA_LSO",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
+                        "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
+                    {
+                        "operationType": "PAYOUT",
+                        "status": "OPERATIONAL"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "country": "GAB",
+        "correspondents": [
+            {
+                "correspondent": "AIRTEL_GAB",
+                "operationTypes": [
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -145,10 +95,6 @@
                 "correspondent": "AIRTEL_NGA",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
@@ -161,27 +107,6 @@
             {
                 "correspondent": "MTN_MOMO_NGA",
                 "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
-                        "operationType": "DEPOSIT",
-                        "status": "OPERATIONAL"
-                    },
-                    {
-                        "operationType": "PAYOUT",
-                        "status": "OPERATIONAL"
-                    }
-                ]
-            },
-            {
-                "correspondent": "FLUTTERWAVE_NGA",
-                "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -196,9 +121,18 @@
                 "correspondent": "PALMPAY_NGA",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
+                        "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
+                    {
+                        "operationType": "PAYOUT",
+                        "status": "OPERATIONAL"
+                    }
+                ]
+            },
+            {
+                "correspondent": "FLUTTERWAVE_NGA",
+                "operationTypes": [
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -213,9 +147,18 @@
                 "correspondent": "MTN_AIRTIME_NGA",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
+                        "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
+                    {
+                        "operationType": "PAYOUT",
+                        "status": "OPERATIONAL"
+                    }
+                ]
+            },
+            {
+                "correspondent": "PAYSTACK_NGA",
+                "operationTypes": [
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -230,9 +173,23 @@
                 "correspondent": "OPAY_NGA",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
+                        "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
+                    {
+                        "operationType": "PAYOUT",
+                        "status": "OPERATIONAL"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "country": "CMR",
+        "correspondents": [
+            {
+                "correspondent": "MTN_MOMO_CMR",
+                "operationTypes": [
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -244,12 +201,8 @@
                 ]
             },
             {
-                "correspondent": "PAYSTACK_NGA",
+                "correspondent": "ORANGE_CMR",
                 "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -269,27 +222,6 @@
                 "correspondent": "SHARPVISION_MTN_MOMO_BEN",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
-                        "operationType": "DEPOSIT",
-                        "status": "OPERATIONAL"
-                    },
-                    {
-                        "operationType": "PAYOUT",
-                        "status": "OPERATIONAL"
-                    }
-                ]
-            },
-            {
-                "correspondent": "MOOV_BEN",
-                "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
@@ -302,10 +234,6 @@
             {
                 "correspondent": "MTN_MOMO_BEN",
                 "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -320,9 +248,18 @@
                 "correspondent": "SHARPVISION_MOOV_BEN",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
+                        "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
+                    {
+                        "operationType": "PAYOUT",
+                        "status": "OPERATIONAL"
+                    }
+                ]
+            },
+            {
+                "correspondent": "MOOV_BEN",
+                "operationTypes": [
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -336,10 +273,6 @@
             {
                 "correspondent": "SHARPVISION_CELTIIS_BEN",
                 "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -359,10 +292,6 @@
                 "correspondent": "SAMA_MLI",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
@@ -375,10 +304,6 @@
             {
                 "correspondent": "ORANGE_MLI",
                 "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -398,10 +323,6 @@
                 "correspondent": "ORANGE_SLE",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
@@ -420,10 +341,6 @@
                 "correspondent": "MTN_MOMO_OAPI_UGA",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
@@ -436,10 +353,6 @@
             {
                 "correspondent": "MTN_MOMO_UGA",
                 "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -454,10 +367,6 @@
                 "correspondent": "AIRTEL_OAPI_UGA",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
@@ -470,10 +379,6 @@
             {
                 "correspondent": "AIRTEL_UGA",
                 "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -490,12 +395,34 @@
         "country": "ZMB",
         "correspondents": [
             {
+                "correspondent": "TILT_ZANACO_ZMB",
+                "operationTypes": [
+                    {
+                        "operationType": "DEPOSIT",
+                        "status": "OPERATIONAL"
+                    },
+                    {
+                        "operationType": "PAYOUT",
+                        "status": "OPERATIONAL"
+                    }
+                ]
+            },
+            {
                 "correspondent": "ZAMTEL_ZMB",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
+                        "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
+                    {
+                        "operationType": "PAYOUT",
+                        "status": "OPERATIONAL"
+                    }
+                ]
+            },
+            {
+                "correspondent": "TILT_FNB_ZMB",
+                "operationTypes": [
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -510,9 +437,18 @@
                 "correspondent": "MTN_MOMO_NFS_ZMB",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
+                        "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
+                    {
+                        "operationType": "PAYOUT",
+                        "status": "OPERATIONAL"
+                    }
+                ]
+            },
+            {
+                "correspondent": "TILT_STANBIC_ZMB",
+                "operationTypes": [
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -527,10 +463,6 @@
                 "correspondent": "ZAMTEL_NFS_ZMB",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
@@ -543,27 +475,6 @@
             {
                 "correspondent": "DIGMO_ZMB",
                 "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
-                        "operationType": "DEPOSIT",
-                        "status": "OPERATIONAL"
-                    },
-                    {
-                        "operationType": "PAYOUT",
-                        "status": "OPERATIONAL"
-                    }
-                ]
-            },
-            {
-                "correspondent": "MTN_MOMO_ZMB",
-                "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -578,9 +489,18 @@
                 "correspondent": "NFS_ZMB",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
+                        "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
+                    {
+                        "operationType": "PAYOUT",
+                        "status": "OPERATIONAL"
+                    }
+                ]
+            },
+            {
+                "correspondent": "MTN_MOMO_ZMB",
+                "operationTypes": [
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -595,10 +515,6 @@
                 "correspondent": "AIRTEL_OAPI_ZMB",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
@@ -612,10 +528,6 @@
                 "correspondent": "AIRTEL_ZMB",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
@@ -628,10 +540,6 @@
             {
                 "correspondent": "AIRTEL_NFS_ZMB",
                 "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -648,12 +556,8 @@
         "country": "CIV",
         "correspondents": [
             {
-                "correspondent": "ORANGE_CIV",
+                "correspondent": "MOOV_CIV",
                 "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -665,12 +569,8 @@
                 ]
             },
             {
-                "correspondent": "MOOV_CIV",
+                "correspondent": "ORANGE_CIV",
                 "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -685,10 +585,6 @@
                 "correspondent": "MTN_MOMO_CIV",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
@@ -701,10 +597,6 @@
             {
                 "correspondent": "WAVE_CIV",
                 "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -723,10 +615,6 @@
             {
                 "correspondent": "MPESA_KEN",
                 "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -759,10 +647,6 @@
                 "correspondent": "MOVITEL_MOZ",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
@@ -776,9 +660,18 @@
                 "correspondent": "VODACOM_MOZ",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
+                        "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
+                    {
+                        "operationType": "PAYOUT",
+                        "status": "OPERATIONAL"
+                    }
+                ]
+            },
+            {
+                "correspondent": "SISLOG_MOVITEL_MOZ",
+                "operationTypes": [
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -798,10 +691,6 @@
                 "correspondent": "VODACOM_MPESA_COD",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
@@ -815,10 +704,6 @@
                 "correspondent": "AIRTEL_COD",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
@@ -831,83 +716,6 @@
             {
                 "correspondent": "ORANGE_COD",
                 "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
-                        "operationType": "DEPOSIT",
-                        "status": "OPERATIONAL"
-                    },
-                    {
-                        "operationType": "PAYOUT",
-                        "status": "OPERATIONAL"
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "country": "TZA",
-        "correspondents": [
-            {
-                "correspondent": "HALOTEL_TZA",
-                "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
-                        "operationType": "DEPOSIT",
-                        "status": "OPERATIONAL"
-                    },
-                    {
-                        "operationType": "PAYOUT",
-                        "status": "OPERATIONAL"
-                    }
-                ]
-            },
-            {
-                "correspondent": "AIRTEL_TZA",
-                "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
-                        "operationType": "DEPOSIT",
-                        "status": "OPERATIONAL"
-                    },
-                    {
-                        "operationType": "PAYOUT",
-                        "status": "OPERATIONAL"
-                    }
-                ]
-            },
-            {
-                "correspondent": "VODACOM_TZA",
-                "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
-                        "operationType": "DEPOSIT",
-                        "status": "OPERATIONAL"
-                    },
-                    {
-                        "operationType": "PAYOUT",
-                        "status": "OPERATIONAL"
-                    }
-                ]
-            },
-            {
-                "correspondent": "TIGO_TZA",
-                "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -927,10 +735,6 @@
                 "correspondent": "AIRTEL_COG",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
@@ -944,9 +748,62 @@
                 "correspondent": "MTN_MOMO_COG",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
+                        "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
+                    {
+                        "operationType": "PAYOUT",
+                        "status": "OPERATIONAL"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "country": "TZA",
+        "correspondents": [
+            {
+                "correspondent": "HALOTEL_TZA",
+                "operationTypes": [
+                    {
+                        "operationType": "DEPOSIT",
+                        "status": "OPERATIONAL"
+                    },
+                    {
+                        "operationType": "PAYOUT",
+                        "status": "OPERATIONAL"
+                    }
+                ]
+            },
+            {
+                "correspondent": "AIRTEL_TZA",
+                "operationTypes": [
+                    {
+                        "operationType": "DEPOSIT",
+                        "status": "OPERATIONAL"
+                    },
+                    {
+                        "operationType": "PAYOUT",
+                        "status": "OPERATIONAL"
+                    }
+                ]
+            },
+            {
+                "correspondent": "VODACOM_TZA",
+                "operationTypes": [
+                    {
+                        "operationType": "DEPOSIT",
+                        "status": "OPERATIONAL"
+                    },
+                    {
+                        "operationType": "PAYOUT",
+                        "status": "OPERATIONAL"
+                    }
+                ]
+            },
+            {
+                "correspondent": "TIGO_TZA",
+                "operationTypes": [
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -966,10 +823,6 @@
                 "correspondent": "ORANGE_BFA",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
@@ -982,10 +835,6 @@
             {
                 "correspondent": "MOOV_BFA",
                 "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -1005,10 +854,6 @@
                 "correspondent": "AIRTEL_RWA",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
@@ -1022,10 +867,6 @@
                 "correspondent": "MTN_MOMO_RWA",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
@@ -1038,10 +879,6 @@
             {
                 "correspondent": "DIGMO_RWA",
                 "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -1074,10 +911,6 @@
                 "correspondent": "TOGOCOM_TGO",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
@@ -1096,10 +929,6 @@
                 "correspondent": "EXPRESSO_SEN",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
@@ -1112,10 +941,6 @@
             {
                 "correspondent": "FREE_SEN",
                 "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -1130,9 +955,18 @@
                 "correspondent": "WAVE_SEN",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
+                        "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
+                    {
+                        "operationType": "PAYOUT",
+                        "status": "OPERATIONAL"
+                    }
+                ]
+            },
+            {
+                "correspondent": "ORANGE_SEN",
+                "operationTypes": [
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -1159,23 +993,6 @@
             {
                 "correspondent": "AFITECH_ORANGE_SEN",
                 "operationTypes": [
-                    {
-                        "operationType": "DEPOSIT",
-                        "status": "OPERATIONAL"
-                    },
-                    {
-                        "operationType": "PAYOUT",
-                        "status": "OPERATIONAL"
-                    }
-                ]
-            },
-            {
-                "correspondent": "ORANGE_SEN",
-                "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
@@ -1260,10 +1077,6 @@
                 "correspondent": "TNM_MWI",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
@@ -1277,10 +1090,6 @@
                 "correspondent": "TNM_MPAMBA_MWI",
                 "operationTypes": [
                     {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
-                    {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
                     },
@@ -1293,10 +1102,6 @@
             {
                 "correspondent": "AIRTEL_MWI",
                 "operationTypes": [
-                    {
-                        "operationType": "NAME_LOOKUP",
-                        "status": "OPERATIONAL"
-                    },
                     {
                         "operationType": "DEPOSIT",
                         "status": "OPERATIONAL"
