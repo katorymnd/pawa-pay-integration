@@ -248,9 +248,11 @@ Explore these resources to get started and make the most of the pawaPay Payment 
 
 ## Need Help?
 
-If you need assistance integrating pawaPay into your application, or if you're not a developer but require this solution in another programming language, feel free to reach out for support. I'm available to help with custom integrations or to create versions of this SDK in other languages.
+I'm happy to provide general guidance or advice, but please note that **custom integrations**, **advanced support**, or **SDK development in other languages** are offered **for a negotiated fee**.
 
-**Contact me at:** [katorymnd@gmail.com](mailto:katorymnd@gmail.com)
+If you'd like to discuss your project needs and request a quote, feel free to reach out:
+
+**Contact:** [katorymnd@gmail.com](mailto:katorymnd@gmail.com)
 
 ## License
 

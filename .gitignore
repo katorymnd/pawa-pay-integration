@@ -6,4 +6,4 @@ vendor/
 
 # Ignore specific HTML files
 example/initiate-test-no-design.html
-
+example/shopify-ui.html
