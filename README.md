@@ -246,13 +246,49 @@ Explore these resources to get started and make the most of the pawaPay Payment 
 3. **[Transparency in Payments: Owner Name Alerts in Pawapay Sdk](https://katorymnd.com/article/transparency-in-payments-owner-name-alerts-in-pawapay-sdk)**  
    Explore how the pawaPay PHP SDK enhances transparency in mobile payments with Owner Name notifications, ensuring user confidence and clarity.
 
-## Need Help?
+## 🛠️ Need Help?
 
-I'm happy to provide general guidance or advice, but please note that **custom integrations**, **advanced support**, or **SDK development in other languages** are offered **for a negotiated fee**.
+I'm happy to provide **general guidance** or **clarity** regarding the pawaPay PHP SDK. However, please note that **custom integrations**, **advanced support**, or **SDK development in other programming languages** are offered **as a paid service**.
 
-If you'd like to discuss your project needs and request a quote, feel free to reach out:
+### ✅ Support Includes:
+
+- Installation help and usage of **this SDK**.
+- Guidance on using provided SDK methods (e.g., `initiateDeposit()`, `initiateRefund()`, `initiatePayout()`).
+- Bug reports or improvements related strictly to this repository.
+
+### ❌ Support Does NOT Include:
+
+- Errors from other SDKs or third-party codebases.
+- Debugging issues not related to this SDK.
+- Creating SDKs in other programming languages (Node.js, Python, C#, etc.) — this qualifies as **custom development**.
+
+---
+
+## 💰 Paid Support Policy
+
+- A **clear description** of your project is required before any support is provided.
+- **Full payment upfront** is required for all custom or advanced support services.
+- **No split or partial payments** are accepted for ongoing support or consultations.
+
+---
+
+### 📩 Request Paid Support or a Custom SDK
+
+To ensure fair and professional collaboration, please complete the following form **before requesting any support**:
+
+👉 [**Submit a Support Request**](https://katorymnd.com/pawapay-sdk-support-request)
+
+This form helps clarify:
+
+- What SDK or platform you're using
+- Whether you're using **this SDK**
+- Whether you're requesting free guidance or **paid custom support**
+
+After submitting the form, feel free to reach out:
 
 **Contact:** [katorymnd@gmail.com](mailto:katorymnd@gmail.com)
+
+> _Thank you for respecting these boundaries. They help me provide faster, high-quality assistance to those using this SDK for its intended purpose._
 
 ## License
 
