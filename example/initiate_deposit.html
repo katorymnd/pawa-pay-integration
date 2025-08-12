@@ -347,6 +347,27 @@
           max-width: 100px;
         }
       }
+
+      /* Pro look for USSD quick links inside the modal */
+      .ussd-link {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        border-radius: 0.375rem;
+        background: linear-gradient(180deg, #fff, #f8f9fa);
+        text-decoration: none;
+        color: inherit;
+      }
+      .ussd-link:hover {
+        background: #f1f3f5;
+        text-decoration: none;
+      }
+      #mnoPinInstructions ol {
+        padding-left: 1.2rem;
+        margin-bottom: 0.25rem;
+      }
     </style>
   </head>
 
@@ -616,6 +637,14 @@
                   your phone. Enter your PIN code when prompted to finalize the
                   payment.
                 </p>
+                
+                <!--  v2 per-MNO instructions get injected here -->
+                <div
+                  id="mnoPinInstructions"
+                  class="alert alert-secondary mt-2"
+                  style="display: none"
+                ></div>
+
                 <p>Do you wish to proceed?</p>
               </div>
 
@@ -675,6 +704,264 @@
     <script src="https://unpkg.com/libphonenumber-js@1.10.22/bundle/libphonenumber-max.js"></script>
 
     <script>
+      /* ===========================
+       * Version-aware config loader
+       * =========================== */
+      const confVersion = "v1";
+      window.confVersion = confVersion;
+
+      // expose where we stash v2 extras
+      window.__countryMeta = {};
+      window.__pinInstructions = {};
+      window.__activeConfVersion = null;
+
+      // Unified selector: URL > global > localStorage > 'auto'
+      (function () {
+        const qs = new URLSearchParams(location.search);
+        const fromUrl = (qs.get("confVersion") || "").toLowerCase();
+        const fromGlob =
+          (typeof globalThis.confVersion === "string" &&
+            globalThis.confVersion.toLowerCase()) ||
+          null;
+        const fromLocal = (
+          localStorage.getItem("confVersion") || ""
+        ).toLowerCase();
+        const valid = (v) => ["v1", "v2", "auto"].includes(v);
+
+        const chosen =
+          (valid(fromUrl) && fromUrl) ||
+          (valid(fromGlob) && fromGlob) ||
+          (valid(fromLocal) && fromLocal) ||
+          "auto";
+
+        window.CONFIG_VERSION = chosen;
+        window.setConfVersion = (v) => {
+          const val = (v || "auto").toLowerCase();
+          localStorage.setItem("confVersion", val);
+          window.confVersion = val;
+          location.reload();
+        };
+
+        console.debug("[conf] CONFIG_VERSION =", chosen);
+      })();
+
+      function candidateFiles(kind) {
+        const byKind = {
+          active: {
+            v2: ["../data/active_conf_v2.json"],
+            v1: ["../data/active_conf.json", "../data/active_conf_v1.json"],
+            auto: [
+              "../data/active_conf_v2.json",
+              "../data/active_conf.json",
+              "../data/active_conf_v1.json",
+            ],
+          },
+          availability: {
+            v2: ["../data/mno_availability_v2.json"],
+            v1: [
+              "../data/mno_availability.json",
+              "../data/mno_availability_v1.json",
+            ],
+            auto: [
+              "../data/mno_availability_v2.json",
+              "../data/mno_availability.json",
+              "../data/mno_availability_v1.json",
+            ],
+          },
+        };
+        const mode = window.CONFIG_VERSION || "auto";
+        return byKind[kind][mode] || byKind[kind].auto;
+      }
+
+      async function fetchFirstAvailable(urls) {
+        for (const u of urls) {
+          try {
+            const res = await fetch(u, { cache: "no-cache" });
+            if (res.ok) return { url: u, data: await res.json() };
+          } catch (_) {}
+        }
+        return { url: null, data: null };
+      }
+
+      const COUNTRY_TO_ISO3 = {
+        Algeria: "DZA",
+        Angola: "AGO",
+        Benin: "BEN",
+        Botswana: "BWA",
+        "Burkina Faso": "BFA",
+        Burundi: "BDI",
+        "Cabo Verde": "CPV",
+        Cameroon: "CMR",
+        "Central African Republic": "CAF",
+        Chad: "TCD",
+        Comoros: "COM",
+        Congo: "COG",
+        "Congo (DRC)": "COD",
+        "Cote D'Ivoire": "CIV",
+        Djibouti: "DJI",
+        Egypt: "EGY",
+        "Equatorial Guinea": "GNQ",
+        Eritrea: "ERI",
+        Eswatini: "SWZ",
+        Ethiopia: "ETH",
+        Gabon: "GAB",
+        Gambia: "GMB",
+        Ghana: "GHA",
+        Guinea: "GIN",
+        "Guinea-Bissau": "GNB",
+        Kenya: "KEN",
+        Lesotho: "LSO",
+        Liberia: "LBR",
+        Libya: "LBY",
+        Madagascar: "MDG",
+        Malawi: "MWI",
+        Mali: "MLI",
+        Mauritania: "MRT",
+        Mauritius: "MUS",
+        Morocco: "MAR",
+        Mozambique: "MOZ",
+        Namibia: "NAM",
+        Niger: "NER",
+        Nigeria: "NGA",
+        Rwanda: "RWA",
+        "Sao Tome and Principe": "STP",
+        Senegal: "SEN",
+        Seychelles: "SYC",
+        "Sierra Leone": "SLE",
+        Somalia: "SOM",
+        "South Africa": "ZAF",
+        "South Sudan": "SSD",
+        Sudan: "SDN",
+        Tanzania: "TZA",
+        Togo: "TGO",
+        Tunisia: "TUN",
+        Uganda: "UGA",
+        Zambia: "ZMB",
+        Zimbabwe: "ZWE",
+      };
+
+      // Normalize active_conf (supports v1 & v2)
+      function normalizeActiveConf(raw) {
+        const ownerNameMap = {};
+        const logoMap = {};
+        const countryMeta = {};
+        const pinInstructionsMap = {}; // NEW: providerCode -> string
+        let version = null;
+
+        if (!raw || !raw.countries) {
+          return {
+            ownerNameMap,
+            logoMap,
+            countryMeta,
+            pinInstructionsMap,
+            version,
+          };
+        }
+
+        // v2: countries[].providers[], plus country prefix/flag, and per-MNO instructions
+        if (raw.countries[0]?.providers) {
+          version = "v2";
+          raw.countries.forEach((c) => {
+            if (c.country) {
+              countryMeta[c.country] = {
+                prefix: c.prefix
+                  ? `+${String(c.prefix).replace(/^\+/, "")}`
+                  : null,
+                flag: c.flag || null,
+              };
+            }
+            (c.providers || []).forEach((p) => {
+              const code = p.provider;
+              if (!code) return;
+              ownerNameMap[code] =
+                p.nameDisplayedToCustomer || p.displayName || code;
+              if (p.logo) logoMap[code] = p.logo;
+
+              // pull instructions if present (v2 nests this under currencies[].operationTypes.DEPOSIT)
+              let instr = null;
+              (p.currencies || []).forEach((cur) => {
+                const dep =
+                  cur && cur.operationTypes && cur.operationTypes.DEPOSIT;
+                if (dep && dep.pinPromptInstructions && !instr) {
+                  instr = dep.pinPromptInstructions;
+                }
+              });
+
+              if (typeof instr === "string" && instr.trim()) {
+                pinInstructionsMap[code] = instr.trim();
+              } else if (instr && typeof instr === "object") {
+                // keep the full structured object; we'll render it later
+                pinInstructionsMap[code] = instr;
+              }
+            });
+          });
+          return {
+            ownerNameMap,
+            logoMap,
+            countryMeta,
+            pinInstructionsMap,
+            version,
+          };
+        }
+
+        // v1/legacy
+        version = "v1";
+        raw.countries.forEach((c) => {
+          (c.correspondents || []).forEach((co) => {
+            const code = co.correspondent;
+            if (!code) return;
+            ownerNameMap[code] = co.ownerName || code;
+          });
+        });
+        return {
+          ownerNameMap,
+          logoMap,
+          countryMeta,
+          pinInstructionsMap,
+          version,
+        };
+      }
+
+      // Normalize availability (supports v1 & v2, both shapes)
+      function normalizeAvailability(raw) {
+        const availabilityMap = {};
+        if (!raw) return availabilityMap;
+
+        const mark = (code, ops) => {
+          const ok = Array.isArray(ops)
+            ? ops.every((o) => o && o.status === "OPERATIONAL") // v1
+            : Object.values(ops || {}).every((s) => s === "OPERATIONAL"); // v2
+          availabilityMap[code] = ok;
+        };
+
+        if (Array.isArray(raw) && raw[0]?.providers) {
+          raw.forEach((c) =>
+            (c.providers || []).forEach((p) =>
+              mark(p.provider, p.operationTypes)
+            )
+          );
+          return availabilityMap;
+        }
+
+        if (raw?.countries && Array.isArray(raw.countries)) {
+          raw.countries.forEach((c) =>
+            (c.providers || []).forEach((p) =>
+              mark(p.provider, p.operationTypes)
+            )
+          );
+          return availabilityMap;
+        }
+
+        (raw || []).forEach((c) =>
+          (c.correspondents || []).forEach((co) =>
+            mark(co.correspondent, co.operationTypes)
+          )
+        );
+
+        return availabilityMap;
+      }
+
+      // =======  static model  =======
       const mnoCorrespondents = {
         Benin: [
           {
@@ -683,15 +970,15 @@
             countryCode: "+229",
             flag: "bj.png",
             available: true,
-            img: "mtn.png", // Image name for MTN Benin
+            img: "mtn.png",
           },
           {
             name: "Moov Benin",
             apiCode: "MOOV_BEN",
             countryCode: "+229",
             flag: "bj.png",
-            available: false, // Set this to false for down networks
-            img: "moov.png", // Image name for Moov Benin
+            available: false,
+            img: "moov.png",
           },
         ],
         "Burkina Faso": [
@@ -701,7 +988,7 @@
             countryCode: "+226",
             flag: "bf.png",
             available: true,
-            img: "orange-money-logo.jpg", // Image name for Orange Burkina Faso
+            img: "orange-money-logo.jpg",
           },
           {
             name: "Moov Burkina Faso",
@@ -709,7 +996,7 @@
             countryCode: "+226",
             flag: "bf.png",
             available: true,
-            img: "moov.png", // Image name for Moov Burkina Faso
+            img: "moov.png",
           },
         ],
         Cameroon: [
@@ -719,7 +1006,7 @@
             countryCode: "+237",
             flag: "cm.png",
             available: true,
-            img: "mtn.png", // Image name for MTN Cameroon
+            img: "mtn.png",
           },
           {
             name: "Orange Cameroon",
@@ -727,25 +1014,18 @@
             countryCode: "+237",
             flag: "cm.png",
             available: true,
-            img: "orange-money-logo.jpg", // Image name for Orange Cameroon
+            img: "orange-money-logo.jpg",
           },
         ],
         Congo: [
-          // {
-          //   name: "MTN Congo",
-          //   apiCode: "MTN_MOMO_COG",
-          //   countryCode: "+242",
-          //   flag: "cg.png",
-          //   available: true,
-          //   img: "mtn.png", // Image name for MTN Congo
-          // },
+          // { name: "MTN Congo", apiCode: "MTN_MOMO_COG", countryCode: "+242", flag: "cg.png", available: true, img: "mtn.png" },
           {
             name: "Airtel Congo",
             apiCode: "AIRTEL_COG",
             countryCode: "+242",
             flag: "cg.png",
             available: false,
-            img: "airtel.png", // Image name for Airtel Congo
+            img: "airtel.png",
           },
         ],
         "Congo (DRC)": [
@@ -755,7 +1035,7 @@
             countryCode: "+243",
             flag: "cd.png",
             available: true,
-            img: "vodacom.jpg", // Image name for Vodacom DRC
+            img: "vodacom.jpg",
           },
           {
             name: "Airtel DRC",
@@ -763,7 +1043,7 @@
             countryCode: "+243",
             flag: "cd.png",
             available: true,
-            img: "airtel.png", // Image name for Airtel DRC
+            img: "airtel.png",
           },
           {
             name: "Orange DRC",
@@ -771,7 +1051,7 @@
             countryCode: "+243",
             flag: "cd.png",
             available: false,
-            img: "orange-money-logo.jpg", // Image name for Orange DRC
+            img: "orange-money-logo.jpg",
           },
         ],
         "Cote D'Ivoire": [
@@ -781,7 +1061,7 @@
             countryCode: "+225",
             flag: "ci.png",
             available: true,
-            img: "mtn.png", // Image name for MTN Cote d'Ivoire
+            img: "mtn.png",
           },
           {
             name: "Orange Cote d'Ivoire",
@@ -789,7 +1069,7 @@
             countryCode: "+225",
             flag: "ci.png",
             available: true,
-            img: "orange-money-logo.jpg", // Image name for Orange Cote d'Ivoire
+            img: "orange-money-logo.jpg",
           },
           {
             name: "Moov Cote d'Ivoire",
@@ -797,7 +1077,7 @@
             countryCode: "+225",
             flag: "ci.png",
             available: true,
-            img: "moov.png", // Image name for Moov Cote d'Ivoire
+            img: "moov.png",
           },
           {
             name: "Wave Cote d'Ivoire",
@@ -815,7 +1095,7 @@
             countryCode: "+241",
             flag: "ga.png",
             available: true,
-            img: "airtel.png", // Image name for Airtel Gabon
+            img: "airtel.png",
           },
           {
             name: "Moov Gabon",
@@ -823,7 +1103,7 @@
             countryCode: "+241",
             flag: "ga.png",
             available: true,
-            img: "moov.png", // Image name for Moov Gabon
+            img: "moov.png",
           },
         ],
         Ghana: [
@@ -833,7 +1113,7 @@
             countryCode: "+233",
             flag: "gh.png",
             available: true,
-            img: "mtn.png", // Image name for MTN Ghana
+            img: "mtn.png",
           },
           {
             name: "AirtelTigo Ghana",
@@ -841,7 +1121,7 @@
             countryCode: "+233",
             flag: "gh.png",
             available: true,
-            img: "airtel-tigo.png", // Image name for AirtelTigo Ghana
+            img: "airtel-tigo.png",
           },
           {
             name: "Vodafone Ghana",
@@ -849,7 +1129,7 @@
             countryCode: "+233",
             flag: "gh.png",
             available: true,
-            img: "vodacom.jpg", // Image name for Vodafone Ghana
+            img: "vodacom.jpg",
           },
         ],
         Kenya: [
@@ -859,7 +1139,7 @@
             countryCode: "+254",
             flag: "ke.png",
             available: true,
-            img: "safaricom-logo.png", // Image name for Safaricom Kenya
+            img: "safaricom-logo.png",
           },
           {
             name: "Airtel Kenya",
@@ -867,7 +1147,7 @@
             countryCode: "+254",
             flag: "ke.png",
             available: true,
-            img: "airtel.png", // Image name for Airtel Kenya
+            img: "airtel.png",
           },
         ],
         Malawi: [
@@ -877,7 +1157,7 @@
             countryCode: "+265",
             flag: "mw.png",
             available: true,
-            img: "airtel.png", // Image name for Airtel Malawi
+            img: "airtel.png",
           },
           {
             name: "TNM Malawi",
@@ -885,7 +1165,7 @@
             countryCode: "+265",
             flag: "mw.png",
             available: true,
-            img: "mw-tnm-logo.png", // Image name for TNM Malawi
+            img: "mw-tnm-logo.png",
           },
         ],
         Mozambique: [
@@ -895,7 +1175,7 @@
             countryCode: "+258",
             flag: "mz.png",
             available: true,
-            img: "vodacom.jpg", // Image name for Vodacom Mozambique
+            img: "vodacom.jpg",
           },
           {
             name: "Movitel Mozambique",
@@ -903,10 +1183,9 @@
             countryCode: "+258",
             flag: "mz.png",
             available: true,
-            img: "movitel.png", // Image name for Movitel Mozambique
+            img: "movitel.png",
           },
         ],
-
         Nigeria: [
           {
             name: "MTN Nigeria",
@@ -914,7 +1193,7 @@
             countryCode: "+234",
             flag: "ng.png",
             available: true,
-            img: "mtn.png", // Image name for MTN Nigeria
+            img: "mtn.png",
           },
           {
             name: "Airtel Nigeria",
@@ -922,7 +1201,7 @@
             countryCode: "+234",
             flag: "ng.png",
             available: true,
-            img: "airtel.png", // Image name for Airtel Nigeria
+            img: "airtel.png",
           },
         ],
         Rwanda: [
@@ -932,7 +1211,7 @@
             countryCode: "+250",
             flag: "rw.png",
             available: true,
-            img: "mtn.png", // Image name for MTN Rwanda
+            img: "mtn.png",
           },
           {
             name: "Airtel Rwanda",
@@ -940,7 +1219,7 @@
             countryCode: "+250",
             flag: "rw.png",
             available: true,
-            img: "airtel.png", // Image name for Airtel Rwanda
+            img: "airtel.png",
           },
         ],
         Senegal: [
@@ -950,7 +1229,7 @@
             countryCode: "+221",
             flag: "sn.png",
             available: true,
-            img: "orange-money-logo.jpg", // Image name for Orange Senegal
+            img: "orange-money-logo.jpg",
           },
           {
             name: "Free Senegal",
@@ -958,7 +1237,7 @@
             countryCode: "+221",
             flag: "sn.png",
             available: true,
-            img: "free.png", // Image name for Free Senegal
+            img: "free.png",
           },
         ],
         "Sierra Leone": [
@@ -968,7 +1247,7 @@
             countryCode: "+232",
             flag: "sl.png",
             available: true,
-            img: "orange-money-logo.jpg", // Image name for Orange Sierra Leone
+            img: "orange-money-logo.jpg",
           },
           {
             name: "Africell Sierra Leone",
@@ -976,7 +1255,7 @@
             countryCode: "+232",
             flag: "sl.png",
             available: true,
-            img: "africell.png", // Image name for Africell Sierra Leone
+            img: "africell.png",
           },
         ],
         Tanzania: [
@@ -986,7 +1265,7 @@
             countryCode: "+255",
             flag: "tz.png",
             available: true,
-            img: "vodacom.jpg", // Image name for Vodacom Tanzania
+            img: "vodacom.jpg",
           },
           {
             name: "Airtel Tanzania",
@@ -994,7 +1273,7 @@
             countryCode: "+255",
             flag: "tz.png",
             available: true,
-            img: "airtel.png", // Image name for Airtel Tanzania
+            img: "airtel.png",
           },
           {
             name: "Tigo Tanzania",
@@ -1002,7 +1281,7 @@
             countryCode: "+255",
             flag: "tz.png",
             available: true,
-            img: "tigo-pesa-tanzania.png", // Image name for Tigo Tanzania
+            img: "tigo-pesa-tanzania.png",
           },
           {
             name: "Halotel Tanzania",
@@ -1010,7 +1289,7 @@
             countryCode: "+255",
             flag: "tz.png",
             available: true,
-            img: "halotel-tz.png", // Image name for Halotel Tanzania
+            img: "halotel-tz.png",
           },
         ],
         Uganda: [
@@ -1020,7 +1299,7 @@
             countryCode: "+256",
             flag: "ug.png",
             available: true,
-            img: "mtn.png", // Image name for MTN Uganda
+            img: "mtn.png",
           },
           {
             name: "Airtel Uganda",
@@ -1028,7 +1307,7 @@
             countryCode: "+256",
             flag: "ug.png",
             available: true,
-            img: "airtel.png", // Image name for Airtel Uganda
+            img: "airtel.png",
           },
         ],
         Zambia: [
@@ -1038,7 +1317,7 @@
             countryCode: "+260",
             flag: "zm.png",
             available: true,
-            img: "mtn.png", // Image name for MTN Zambia
+            img: "mtn.png",
           },
           {
             name: "Airtel Zambia",
@@ -1046,42 +1325,58 @@
             countryCode: "+260",
             flag: "zm.png",
             available: true,
-            img: "airtel.png", // Image name for Airtel Zambia
+            img: "airtel.png",
           },
           {
             name: "Zamtel Zambia",
             apiCode: "ZAMTEL_ZMB",
             countryCode: "+260",
             flag: "zm.png",
-            available: false, // This network is down
-            img: "zamtel-za.png", // Image name for Zamtel Zambia
+            available: false,
+            img: "zamtel-za.png",
           },
         ],
       };
 
-      // Function to load the availability data
+      // Load availability + active config with version fallbacks
       async function loadAvailabilityData() {
         try {
-          const [availabilityResponse, activeConfResponse] = await Promise.all([
-            fetch("../data/mno_availability.json"),
-            fetch("../data/active_conf.json"),
+          const [av, ac] = await Promise.all([
+            fetchFirstAvailable(candidateFiles("availability")),
+            fetchFirstAvailable(candidateFiles("active")),
           ]);
 
-          if (!availabilityResponse.ok || !activeConfResponse.ok) {
-            throw new Error("Network response was not ok");
-          }
+          if (!av.data && !ac.data)
+            throw new Error("No config files could be loaded.");
 
-          const availabilityData = await availabilityResponse.json();
-          const activeConfData = await activeConfResponse.json();
+          const activeNormalized = ac.data
+            ? normalizeActiveConf(ac.data)
+            : {
+                ownerNameMap: {},
+                logoMap: {},
+                countryMeta: {},
+                pinInstructionsMap: {},
+                version: null,
+              };
 
-          return { availabilityData, activeConfData };
+          const availabilityMap = av.data ? normalizeAvailability(av.data) : {};
+
+          // stash v2 meta + instructions + version for later
+          window.__countryMeta = activeNormalized.countryMeta || {};
+          window.__pinInstructions = activeNormalized.pinInstructionsMap || {};
+          window.__activeConfVersion = activeNormalized.version || null;
+
+          return {
+            availabilityData: availabilityMap,
+            activeConfData: activeNormalized,
+          };
         } catch (error) {
           console.error("Error loading availability data:", error);
           return null;
         }
       }
 
-      // Function to update the availability in mnoCorrespondents
+      // Update mnoCorrespondents availability/owner/logo using normalized or raw data
       function updateMnoAvailability(availabilityData, activeConfData) {
         if (!availabilityData || !activeConfData) {
           console.error(
@@ -1090,89 +1385,85 @@
           return;
         }
 
-        // Create a mapping from MNO apiCode to availability status and ownerName
-        const availabilityMap = {};
-        const ownerNameMap = {};
+        const availabilityMap =
+          Array.isArray(availabilityData) || availabilityData.countries
+            ? normalizeAvailability(availabilityData)
+            : availabilityData;
 
-        // Build the ownerNameMap from activeConfData
-        if (activeConfData.countries) {
-          activeConfData.countries.forEach((countryData) => {
-            countryData.correspondents.forEach((correspondentData) => {
-              const apiCode = correspondentData.correspondent;
-              const ownerName = correspondentData.ownerName;
-              ownerNameMap[apiCode] = ownerName;
-            });
-          });
+        let ownerNameMap = {};
+        let logoMap = {};
+        let countryMeta = {};
+        let pinInstructionsMap = {};
+        let version = null;
+
+        if (activeConfData.ownerNameMap) {
+          ownerNameMap = activeConfData.ownerNameMap;
+          logoMap = activeConfData.logoMap || {};
+          countryMeta = activeConfData.countryMeta || {};
+          pinInstructionsMap = activeConfData.pinInstructionsMap || {};
+          version = activeConfData.version || null;
+        } else {
+          const normalized = normalizeActiveConf(activeConfData);
+          ownerNameMap = normalized.ownerNameMap;
+          logoMap = normalized.logoMap || {};
+          countryMeta = normalized.countryMeta || {};
+          pinInstructionsMap = normalized.pinInstructionsMap || {};
+          version = normalized.version || null;
         }
 
-        // Build the availabilityMap from availabilityData
-        availabilityData.forEach((countryData) => {
-          countryData.correspondents.forEach((correspondentData) => {
-            const apiCode = correspondentData.correspondent;
-            const allOperational = correspondentData.operationTypes.every(
-              (op) => op.status === "OPERATIONAL"
-            );
-            availabilityMap[apiCode] = allOperational;
-          });
-        });
+        // refresh globals
+        window.__countryMeta = countryMeta || {};
+        window.__pinInstructions = pinInstructionsMap || {};
+        window.__activeConfVersion = version;
 
-        // Now update the mnoCorrespondents object
+        // Apply to static model
         for (const country in mnoCorrespondents) {
           mnoCorrespondents[country].forEach((mno) => {
             const apiCode = mno.apiCode;
 
-            // Update availability
-            if (availabilityMap.hasOwnProperty(apiCode)) {
-              mno.available = availabilityMap[apiCode];
+            // 1) Availability
+            if (
+              Object.prototype.hasOwnProperty.call(availabilityMap, apiCode)
+            ) {
+              mno.available = !!availabilityMap[apiCode];
             } else {
               mno.available = false;
             }
 
-            // Update ownerName
-            if (ownerNameMap.hasOwnProperty(apiCode)) {
-              mno.ownerName = ownerNameMap[apiCode];
-            } else {
-              mno.ownerName = "N/A";
+            // 2) Owner name
+            mno.ownerName = ownerNameMap[apiCode] || "N/A";
+
+            // 3) Logo
+            if (logoMap[apiCode]) {
+              mno.logoUrl = logoMap[apiCode];
             }
           });
         }
       }
 
+      // ---------------- existing UI logic  ----------------
       let currentStep = 0;
       showStep(currentStep);
 
-      // Function to show the current step
       function showStep(n) {
         const steps = document.getElementsByClassName("step");
         steps[n].classList.add("active");
 
-        // Update progress bar
         const progressBar = document.querySelectorAll(".progress-bar li");
         progressBar.forEach((li, index) => {
-          if (index <= n) {
-            li.classList.add("active");
-          } else {
-            li.classList.remove("active");
-          }
+          if (index <= n) li.classList.add("active");
+          else li.classList.remove("active");
         });
-        // If we are on the confirmation step, update the summary
-        if (n === 3) {
-          // Step index starts at 0
-          updateConfirmation();
-        }
+
+        if (n === 3) updateConfirmation();
       }
 
-      // Function to update the confirmation summary
       function updateConfirmation() {
-        // Get the selected country
         const countrySelect = document.getElementById("country");
         const country =
           countrySelect.options[countrySelect.selectedIndex].value;
-
-        // Get the selected MNO code
         const selectedMnoCode = document.getElementById("selectedMno").value;
 
-        // Get the MNO details
         let selectedMnoName = "";
         let ownerName = "";
         const mnos = mnoCorrespondents[country];
@@ -1186,92 +1477,67 @@
           }
         }
 
-        // Get the amount
         const amount = document.getElementById("amount").value;
-
-        // Get the currency
         const currency =
           countrySelect.options[countrySelect.selectedIndex].getAttribute(
             "data-currency"
           );
-
-        // Get the country code
         const countryCode = document.getElementById("countryCode").textContent;
-
-        // Get the phone number
         const phoneNumber = document.getElementById("payerMsisdn").value;
-
-        // Get the description
         const description = document.getElementById("description").value;
 
-        // Build the summary HTML
         const summaryHTML = `
-    <ul class="list-group">
-      <li class="list-group-item"><strong>Country:</strong> ${country}</li>
-      <li class="list-group-item"><strong>Operator:</strong> ${selectedMnoName}</li>
-      <li class="list-group-item"><strong>Pay Request From:</strong> ${ownerName}</li>
-      <li class="list-group-item"><strong>Amount:</strong> ${currency} ${amount}</li>
-      <li class="list-group-item"><strong>Phone Number:</strong> ${countryCode}${phoneNumber}</li>
-      <li class="list-group-item"><strong>Description:</strong> ${description}</li>
-    </ul>
-  `;
+          <ul class="list-group">
+            <li class="list-group-item"><strong>Country:</strong> ${country}</li>
+            <li class="list-group-item"><strong>Operator:</strong> ${selectedMnoName}</li>
+            <li class="list-group-item"><strong>Pay Request From:</strong> ${ownerName}</li>
+            <li class="list-group-item"><strong>Amount:</strong> ${currency} ${amount}</li>
+            <li class="list-group-item"><strong>Phone Number:</strong> ${countryCode}${phoneNumber}</li>
+            <li class="list-group-item"><strong>Description:</strong> ${description}</li>
+          </ul>
+        `;
 
-        // Craft the professional notice message
         const noticeMessage = `
-    <div class="alert alert-info mt-4" role="alert">
-      <strong>Important:</strong> You will receive a payment request from <strong>${ownerName}</strong> acting on behalf of <strong>Katorymnd Freelancer</strong>. Please confirm the payment to proceed with your transaction.
-    </div>
-  `;
-        // Set the innerHTML of the confirmationSummary div
+          <div class="alert alert-info mt-4" role="alert">
+            <strong>Important:</strong> You will receive a payment request from <strong>${ownerName}</strong> acting on behalf of <strong>Katorymnd Freelancer</strong>. Please confirm the payment to proceed with your transaction.
+          </div>
+        `;
+
         document.getElementById("confirmationSummary").innerHTML =
           noticeMessage + summaryHTML;
       }
 
-      // Updated nextStep function to include MNO selection validation
       function nextStep() {
         const steps = document.getElementsByClassName("step");
-
-        // For Step 2 (MNO Selection), check if an MNO is selected before proceeding
-        // Validate MNO selection on Step 2 before proceeding
 
         if (currentStep === 1) {
           const selectedMno = document.getElementById("selectedMno").value;
           const errorDiv = document.getElementById("mnoError");
           if (!selectedMno) {
-            // Show the error message if no MNO is selected
             errorDiv.style.display = "block";
-            return; // Stop here if no MNO is selected
+            return;
           } else {
-            // Hide the error message if an MNO is selected
             errorDiv.style.display = "none";
           }
         }
 
-        // Validation for Amount Input (Step 3)
-        // Validation for 'Your Details' (Step 3)
         if (currentStep === 2) {
-          // Validate amount
           validateAmountInput();
           const amountInput = document.getElementById("amount");
 
-          // Validate payer's phone number
           validatePhoneNumber();
           const msisdnInput = document.getElementById("payerMsisdn");
 
-          // Validate description
           validateDescriptionInput();
           const descriptionInput = document.getElementById("description");
-          // Check if inputs are valid before proceeding
+
           if (
             amountInput.classList.contains("is-invalid") ||
             msisdnInput.classList.contains("is-invalid") ||
             descriptionInput.classList.contains("is-invalid")
           ) {
-            // Prevent proceeding to the next step if any input is invalid
             return;
           }
-
-          // Additional validation for other fields can go here
         }
 
         if (currentStep < steps.length - 1) {
@@ -1283,28 +1549,17 @@
 
       function validateAmountInput() {
         const amountInput = document.getElementById("amount");
-        const amountErrorDiv = document.getElementById("amountError");
         let amountValue = amountInput.value.trim();
-
-        // Remove any non-digit characters except for the decimal point
         amountValue = amountValue.replace(/[^\d.]/g, "");
-
-        // Update the input field with the cleaned value
         amountInput.value = amountValue;
-
-        // Check if the amount is a valid number greater than zero
         let amountNumber = parseFloat(amountValue);
 
         if (isNaN(amountNumber) || amountNumber <= 0) {
-          // Invalid amount, show error
           amountInput.classList.add("is-invalid");
           amountInput.classList.remove("is-valid");
         } else {
-          // Valid amount, round off to nearest whole number if decimal
           amountNumber = Math.round(amountNumber);
-          // Update the amount input field with rounded value
           amountInput.value = amountNumber;
-          // Hide error message
           amountInput.classList.remove("is-invalid");
           amountInput.classList.add("is-valid");
         }
@@ -1315,35 +1570,24 @@
         const phoneErrorDiv = document.getElementById("payerMsisdnError");
         const countryCodeSpan = document.getElementById("countryCode");
         let phoneNumber = phoneInput.value.trim();
-
-        // Get the country code without the '+' sign
         const countryCode = countryCodeSpan.textContent.trim().replace("+", "");
-
-        // Remove any formatting or spaces from the input
         phoneNumber = phoneNumber.replace(/\s+/g, "");
-
-        // Combine country code and phone number
         const fullNumber = `+${countryCode}${phoneNumber}`;
 
         try {
-          // Parse and validate the phone number
           const phoneNumberInstance =
             libphonenumber.parsePhoneNumber(fullNumber);
-
           if (phoneNumberInstance.isValid()) {
-            // Valid phone number
             phoneInput.classList.remove("is-invalid");
             phoneInput.classList.add("is-valid");
             phoneErrorDiv.style.display = "none";
           } else {
-            // Invalid phone number
             phoneInput.classList.add("is-invalid");
             phoneInput.classList.remove("is-valid");
             phoneErrorDiv.textContent = "Please enter a valid phone number.";
             phoneErrorDiv.style.display = "block";
           }
         } catch (error) {
-          // Parsing error
           phoneInput.classList.add("is-invalid");
           phoneInput.classList.remove("is-valid");
           phoneErrorDiv.textContent = "Please enter a valid phone number.";
@@ -1351,24 +1595,17 @@
         }
       }
 
-      // Validate Description Input
       function validateDescriptionInput() {
         const descriptionInput = document.getElementById("description");
         const descriptionErrorDiv = document.getElementById("descriptionError");
         let descriptionValue = descriptionInput.value;
-
-        // Remove any invalid characters (non-alphanumeric and non-space)
         const validDescription = descriptionValue.replace(/[^a-zA-Z0-9 ]/g, "");
 
         if (descriptionValue !== validDescription) {
-          // If there were invalid characters, update the input value
           descriptionInput.value = validDescription;
           descriptionValue = validDescription;
         }
 
-        // No need to check length here, as maxlength attribute handles it
-
-        // Validate that it is not empty
         if (descriptionValue.trim() === "") {
           descriptionInput.classList.add("is-invalid");
           descriptionInput.classList.remove("is-valid");
@@ -1381,22 +1618,16 @@
         }
       }
 
-      // Attach the event listener to the description input field
       document
         .getElementById("description")
         .addEventListener("input", validateDescriptionInput);
-
-      // Attach the event listener
       document
         .getElementById("payerMsisdn")
         .addEventListener("input", validatePhoneNumber);
-
-      // Attach the event listener to the amount input field
       document
         .getElementById("amount")
         .addEventListener("input", validateAmountInput);
 
-      // Function to go to the previous step
       function prevStep() {
         const steps = document.getElementsByClassName("step");
         if (currentStep > 0) {
@@ -1406,40 +1637,32 @@
         }
       }
 
-      // Event listener for country change
       document
         .getElementById("country")
         .addEventListener("change", function () {
           const selectedOption = this.options[this.selectedIndex];
           const country = selectedOption.value;
           const currency = selectedOption.getAttribute("data-currency");
-          // Clear the selected MNO when the country changes
-          document.getElementById("selectedMno").value = "";
-          localStorage.removeItem("selectedMno"); // Clear stored MNO
 
-          // Store the selected country in localStorage
+          document.getElementById("selectedMno").value = "";
+          localStorage.removeItem("selectedMno");
           localStorage.setItem("selectedCountry", country);
 
-          // Update the currency span with the selected currency
           document.getElementById("currency").textContent = currency;
 
-          // Get the selected country's MNO correspondents, country code, and flag
           const correspondents = mnoCorrespondents[country];
           if (correspondents && correspondents.length > 0) {
             const countryCode = correspondents[0].countryCode;
             const flag = correspondents[0].flag;
-
-            // Update the payer's phone number field with the country code and flag
             document.getElementById("countryCode").textContent = countryCode;
             document.getElementById("countryFlag").src = "flags/" + flag;
             document.getElementById("countryFlag").alt = country + " flag";
           } else {
-            document.getElementById("countryCode").textContent = "+000"; // Default if no country code available
-            document.getElementById("countryFlag").src = "flags/default.png"; // Default flag if not available
+            document.getElementById("countryCode").textContent = "+000";
+            document.getElementById("countryFlag").src = "flags/default.png";
             document.getElementById("countryFlag").alt = "default flag";
           }
 
-          // Check and display the MNO cards based on the selected country
           if (correspondents) {
             displayMnoCards(correspondents);
           } else {
@@ -1447,104 +1670,176 @@
               "No MNO available for this country";
           }
 
-          // Update Step 3 details (currency and phone number country code)
           updateStep3Details(country, currency, correspondents);
         });
 
-      // Function to update Step 3 details based on the selected country
       function updateStep3Details(country, currency, correspondents) {
-        // Update currency span
         document.getElementById("currency").textContent = currency;
+
+        const iso3 = COUNTRY_TO_ISO3[country];
+        const meta =
+          iso3 && window.__countryMeta ? window.__countryMeta[iso3] : null;
+
+        if (meta && (meta.prefix || meta.flag)) {
+          if (meta.prefix)
+            document.getElementById("countryCode").textContent = meta.prefix;
+          if (meta.flag) {
+            document.getElementById("countryFlag").src = meta.flag;
+            document.getElementById("countryFlag").alt = country + " flag";
+          }
+          return;
+        }
 
         if (correspondents && correspondents.length > 0) {
           const countryCode = correspondents[0].countryCode;
           const flag = correspondents[0].flag;
-
-          // Update the phone number country code and flag
           document.getElementById("countryCode").textContent = countryCode;
           document.getElementById("countryFlag").src = "flags/" + flag;
           document.getElementById("countryFlag").alt = country + " flag";
         }
       }
 
-      // Updated displayMnoCards function to ensure proper selection handling
       function displayMnoCards(mnos) {
         const container = document.getElementById("mno-cards-container");
         container.innerHTML = "";
 
-        // Clear the selected MNO input value
         document.getElementById("selectedMno").value = "";
 
         mnos.forEach((mno) => {
           const card = document.createElement("div");
-
-          // Add 'disabled' class if the network is down
           card.className = `operator-card ${mno.available ? "" : "disabled"}`;
 
-          // Use mno.img to load the operator image and mno.flag for the country flag
           card.innerHTML = `
-      <img src="mno-img/${mno.img}" alt="${mno.name}" />
-      <p>${mno.name}</p>
-      ${
-        mno.available
-          ? ""
-          : '<span class="unavailable-text">Not available</span>'
-      }
-    `;
+            <img src="${
+              mno.logoUrl ? mno.logoUrl : "mno-img/" + mno.img
+            }" alt="${mno.name}" />
+            <p>${mno.name}</p>
+            ${
+              mno.available
+                ? ""
+                : '<span class="unavailable-text">Not available</span>'
+            }
+          `;
 
           card.onclick = function () {
             if (mno.available) {
-              // Only proceed if the network is available
               document
                 .querySelectorAll(".operator-card")
                 .forEach((c) => c.classList.remove("selected"));
               card.classList.add("selected");
-
-              // Store the selected MNO value in the hidden input and localStorage
               document.getElementById("selectedMno").value = mno.apiCode;
-              localStorage.setItem("selectedMno", mno.apiCode); // Store selected MNO
+              localStorage.setItem("selectedMno", mno.apiCode);
 
-              console.log(
-                "Selected MNO:",
-                document.getElementById("selectedMno").value
-              );
-
-              // Hide the error message when an MNO is selected
               const errorDiv = document.getElementById("mnoError");
-              if (errorDiv) {
-                errorDiv.style.display = "none";
-              }
-
-              // Log the selected MNO to the console for debugging
-              console.log("MNO Selected and Stored:", mno.name);
+              if (errorDiv) errorDiv.style.display = "none";
             }
           };
 
           container.appendChild(card);
         });
 
-        // Preselect the MNO card if a selection was previously made
         const preselectedMno = localStorage.getItem("selectedMno");
         if (preselectedMno) {
           document.querySelectorAll(".operator-card").forEach((c) => {
             if (c.querySelector("p").textContent.includes(preselectedMno)) {
               c.classList.add("selected");
               document.getElementById("selectedMno").value = preselectedMno;
-              console.log(
-                "Preselected MNO Restored:",
-                c.querySelector("p").textContent
-              );
             }
           });
         } else {
-          // No MNO was preselected; ensure the input is empty
           document.getElementById("selectedMno").value = "";
         }
       }
 
-      // Function to open the payment modal
+      function applyVars(tpl, vars) {
+        if (!tpl) return "";
+        return tpl.replace(/{{\s*([\w]+)\s*}}/g, (_, k) =>
+          vars && k in vars ? String(vars[k]) : `{{${k}}}`
+        );
+      }
+
+      function _normWS(s) {
+        return (s || "").replace(/\s+/g, " ").trim();
+      }
+      function _canonStep(s) {
+        // normalize to compare: trim, collapse ws, make 'pin' uniform, lowercase
+        return _normWS(s)
+          .replace(/\bpin\b/gi, "pin")
+          .toLowerCase();
+      }
+
+      // Turn the v2 pinPromptInstructions object into HTML (EN/FR)
+      function renderPinInstructions(pinObj, lang) {
+        try {
+          const channels = Array.isArray(pinObj?.channels)
+            ? pinObj.channels
+            : [];
+          const chosenLang = (
+            lang ||
+            document.documentElement.getAttribute("lang") ||
+            "en"
+          ).slice(0, 2);
+
+          const seenChannels = new Set();
+          const blocks = [];
+
+          for (const ch of channels) {
+            const title =
+              (ch.displayName &&
+                (ch.displayName[chosenLang] || ch.displayName.en)) ||
+              "";
+            const vars = ch.variables || {};
+            const srcSteps =
+              (ch.instructions &&
+                (ch.instructions[chosenLang] || ch.instructions.en)) ||
+              [];
+            const quick = ch.quickLink ? _normWS(ch.quickLink) : "";
+
+            // Dedupe steps within a channel
+            const stepSeen = new Set();
+            const renderedSteps = [];
+            for (const s of srcSteps) {
+              const raw = s.template
+                ? applyVars(s.template, vars)
+                : s.text || "";
+              const norm = _canonStep(raw);
+              if (!norm || stepSeen.has(norm)) continue;
+              stepSeen.add(norm);
+              renderedSteps.push(`<li>${_normWS(raw)}</li>`);
+            }
+
+            if (!renderedSteps.length) continue;
+
+            // Dedupe whole channels (same type/title/quickLink/steps)
+            const sig = JSON.stringify({
+              type: String(ch.type || "").toLowerCase(),
+              title: _normWS(title).toLowerCase(),
+              quick: quick.toLowerCase(),
+              steps: Array.from(stepSeen).join("|"),
+            });
+            if (seenChannels.has(sig)) continue;
+            seenChannels.add(sig);
+
+            blocks.push(`
+        <div class="mb-2">
+          ${title ? `<div class="fw-semibold">${title}</div>` : ""}
+          ${
+            quick
+              ? `<div class="small mb-1"><a class="ussd-link" href="tel:${quick}">${quick}</a></div>`
+              : ""
+          }
+          <ol class="mb-0">${renderedSteps.join("")}</ol>
+        </div>
+      `);
+          }
+
+          return blocks.join("") || null;
+        } catch (_) {
+          return null;
+        }
+      }
+
       function openPaymentModal() {
-        // Get the amount and phone number from the form
         const amount = document.getElementById("amount").value;
         const countrySelect = document.getElementById("country");
         const currency =
@@ -1554,7 +1849,6 @@
         const countryCode = document.getElementById("countryCode").textContent;
         const phoneNumber = document.getElementById("payerMsisdn").value;
 
-        // Update the modal content
         document.getElementById(
           "modalAmount"
         ).textContent = `${currency} ${amount}`;
@@ -1562,36 +1856,56 @@
           "modalPhoneNumber"
         ).textContent = `${countryCode}${phoneNumber}`;
 
-        // Reset the modal in case it was modified previously
+        //  inject per-MNO pin instructions for v2
+        const mnoCode = (
+          document.getElementById("selectedMno").value || ""
+        ).trim();
+        const isV2 = window.__activeConfVersion === "v2";
+        const pinData =
+          isV2 && window.__pinInstructions
+            ? window.__pinInstructions[mnoCode]
+            : null;
+
+        const pinBox = document.getElementById("mnoPinInstructions");
+        if (pinData) {
+          if (typeof pinData === "string") {
+            pinBox.innerHTML = pinData.replace(/\n/g, "<br>");
+            pinBox.style.display = "block";
+          } else {
+            // structured object → pretty HTML
+            const html = renderPinInstructions(
+              pinData,
+              document.documentElement.getAttribute("lang") || "en"
+            );
+            if (html) {
+              pinBox.innerHTML = html;
+              pinBox.style.display = "block";
+            } else {
+              pinBox.style.display = "none";
+              pinBox.innerHTML = "";
+            }
+          }
+        } else {
+          pinBox.style.display = "none";
+          pinBox.innerHTML = "";
+        }
+
         document.getElementById("paymentDetails").style.display = "block";
         document.getElementById("loadingSpinner").style.display = "none";
         const payButton = document.getElementById("payBtn");
         payButton.disabled = false;
         payButton.textContent = "Pay";
 
-        // Reset error messages
         const errorMessageDiv = document.getElementById("errorMessage");
         errorMessageDiv.style.display = "none";
         errorMessageDiv.innerHTML = "";
 
-        // Reset modal footer if it was changed
-        document.querySelector("#paymentModal .modal-footer").innerHTML = `
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-    <button type="button" class="btn btn-success" id="payBtn">Pay</button>
-  `;
-
-        // Re-attach the event listener to the new Pay button
-        document
-          .getElementById("payBtn")
-          .addEventListener("click", payButtonHandler);
-
-        // Show the modal
         const paymentModal = new bootstrap.Modal(
           document.getElementById("paymentModal")
         );
         paymentModal.show();
       }
-      // Pay button event handler
+
       function payButtonHandler() {
         const payButton = this;
         const loadingSpinner = document.getElementById("loadingSpinner");
@@ -1599,58 +1913,71 @@
         const errorMessageDiv = document.getElementById("errorMessage");
         const successMessageDiv = document.getElementById("successMessage");
 
-        // Hide any previous error messages
         errorMessageDiv.style.display = "none";
         errorMessageDiv.innerHTML = "";
         successMessageDiv.style.display = "none";
         successMessageDiv.innerHTML = "";
 
-        // Disable the Pay button to prevent multiple clicks
         payButton.disabled = true;
-
-        // Change the text to indicate processing
         payButton.textContent = "Processing...";
-
-        // Hide payment details and show loading spinner
         paymentDetails.style.display = "none";
         loadingSpinner.style.display = "block";
 
-        // Proceed to submit the form
         submitForm();
       }
 
-      // Attach the event listener to the Pay button
       document
         .getElementById("payBtn")
         .addEventListener("click", payButtonHandler);
+
+      // --- processing → info notice helper (NEW) ---
+      function showProcessingNotice(msg) {
+        const modalFooter = document.querySelector(
+          "#paymentModal .modal-footer"
+        );
+        const payButton = document.getElementById("payBtn");
+        const paymentDetails = document.getElementById("paymentDetails");
+        const loadingSpinner = document.getElementById("loadingSpinner");
+        const errorMessageDiv = document.getElementById("errorMessage");
+        const successMessageDiv = document.getElementById("successMessage");
+
+        loadingSpinner.style.display = "none";
+        paymentDetails.style.display = "none";
+        successMessageDiv.style.display = "none";
+
+        errorMessageDiv.innerHTML = `<div class="alert alert-info" role="alert">
+       <p>${
+         msg || "Payment is processing. Please wait and check your account."
+       }</p>
+     </div>`;
+        errorMessageDiv.style.display = "block";
+
+        // Prevent duplicate attempts while it’s still processing
+        payButton.disabled = true;
+        payButton.textContent = "Processing";
+        if (modalFooter) {
+          modalFooter.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>`;
+        }
+      }
 
       function submitForm() {
         const form = document.getElementById("depositForm");
         const formData = new FormData(form);
 
-        // Get the country code
         const countryCode = document
           .getElementById("countryCode")
           .textContent.trim()
           .replace("+", "");
-
-        // Prepend country code to payerMsisdn
         const payerMsisdnInput = document.getElementById("payerMsisdn");
         const payerMsisdn = countryCode + payerMsisdnInput.value.trim();
-
-        // Update formData with new payerMsisdn
         formData.set("payerMsisdn", payerMsisdn);
 
-        // Get the selected currency from the country dropdown
         const countrySelect = document.getElementById("country");
         const selectedOption =
           countrySelect.options[countrySelect.selectedIndex];
         const currency = selectedOption.getAttribute("data-currency");
-
-        // Update formData with the selected currency
         formData.set("currency", currency);
 
-        // Optional: Log formData entries for debugging
         for (var pair of formData.entries()) {
           console.log(pair[0] + ": " + pair[1]);
         }
@@ -1659,7 +1986,6 @@
         xhr.open("POST", "initiate_deposit.php", true);
 
         xhr.onload = function () {
-          const modalBody = document.querySelector("#paymentModal .modal-body");
           const modalFooter = document.querySelector(
             "#paymentModal .modal-footer"
           );
@@ -1669,7 +1995,6 @@
           const errorMessageDiv = document.getElementById("errorMessage");
           const successMessageDiv = document.getElementById("successMessage");
 
-          // Hide the loading spinner
           loadingSpinner.style.display = "none";
 
           if (xhr.status === 200) {
@@ -1677,26 +2002,31 @@
             try {
               response = JSON.parse(xhr.responseText);
             } catch (e) {
-              errorMessageDiv.innerHTML = `
-                    <div class="alert alert-danger" role="alert">
-                        <p>An error occurred: ${xhr.responseText}</p>
-                        <p>Please try again.</p>
-                    </div>`;
-              errorMessageDiv.style.display = "block";
-              payButton.disabled = false;
-              payButton.textContent = "Pay";
+              const raw = (xhr.responseText || "").trim();
+              if (/(processing|pending|in\s*progress)/i.test(raw)) {
+                showProcessingNotice(raw);
+              } else {
+                errorMessageDiv.innerHTML = `
+                  <div class="alert alert-danger" role="alert">
+                    <p>An error occurred: ${raw}</p>
+                    <p>Please try again.</p>
+                  </div>`;
+                errorMessageDiv.style.display = "block";
+                payButton.disabled = false;
+                payButton.textContent = "Pay";
+                paymentDetails.style.display = "block";
+              }
               return;
             }
 
             if (response.success) {
               successMessageDiv.innerHTML = `
-    <div class="alert alert-success" role="alert">
-        <h3 class="mb-3">Payment Successful!</h3>
-        <p>Thank you for your payment. It has been processed successfully.</p>
-        <p>Your transaction ID is: <strong>${response.transactionId}</strong>.</p>
-        <p>If you need any further assistance, please feel free to contact our support team.</p>
-    </div>`;
-
+                <div class="alert alert-success" role="alert">
+                  <h3 class="mb-3">Payment Successful!</h3>
+                  <p>Thank you for your payment. It has been processed successfully.</p>
+                  <p>Your transaction ID is: <strong>${response.transactionId}</strong>.</p>
+                  <p>If you need any further assistance, please feel free to contact our support team.</p>
+                </div>`;
               successMessageDiv.style.display = "block";
               modalFooter.innerHTML = `<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>`;
               const confirmButton = document.getElementById("submitBtn");
@@ -1705,31 +2035,35 @@
               const prevButton = document.querySelector(
                 "#step-4 .btn-secondary"
               );
-              if (prevButton) {
-                prevButton.disabled = true;
-              }
+              if (prevButton) prevButton.disabled = true;
               setTimeout(() => {
                 form.reset();
-                //window.location.href = 'thank_you.html';
               }, 3000);
             } else {
-              errorMessageDiv.innerHTML = `
-                    <div class="alert alert-danger" role="alert">
-                        <p>An error occurred: ${response.errorMessage}</p>
-                        <p>Please try again.</p>
-                    </div>`;
-              errorMessageDiv.style.display = "block";
-              successMessageDiv.style.display = "none";
-              payButton.disabled = false;
-              payButton.textContent = "Pay";
-              paymentDetails.style.display = "block";
+              const msg = String(
+                response.errorMessage || response.message || ""
+              ).trim();
+              if (/(processing|pending|in\s*progress)/i.test(msg)) {
+                showProcessingNotice(msg);
+              } else {
+                errorMessageDiv.innerHTML = `
+                  <div class="alert alert-danger" role="alert">
+                    <p>An error occurred: ${msg}</p>
+                    <p>Please try again.</p>
+                  </div>`;
+                errorMessageDiv.style.display = "block";
+                successMessageDiv.style.display = "none";
+                payButton.disabled = false;
+                payButton.textContent = "Pay";
+                paymentDetails.style.display = "block";
+              }
             }
           } else {
             errorMessageDiv.innerHTML = `
-                <div class="alert alert-danger" role="alert">
-                    <p>An error occurred while processing your payment.</p>
-                    <p>Please check your internet connection and try again.</p>
-                </div>`;
+              <div class="alert alert-danger" role="alert">
+                <p>An error occurred while processing your payment.</p>
+                <p>Please check your internet connection and try again.</p>
+              </div>`;
             errorMessageDiv.style.display = "block";
             successMessageDiv.style.display = "none";
             payButton.disabled = false;
@@ -1745,7 +2079,6 @@
           const paymentDetails = document.getElementById("paymentDetails");
 
           loadingSpinner.style.display = "none";
-
           errorMessageDiv.innerHTML = `
             <p>An error occurred while processing your payment.</p>
             <p>Please check your internet connection and try again.</p>`;
@@ -1759,15 +2092,14 @@
         xhr.send(formData);
       }
 
-      // On page load, check if a country and MNO are preselected
-
+      // On page load
       window.onload = function () {
         (async function () {
-          // Load availability data
           const data = await loadAvailabilityData();
-          const { availabilityData, activeConfData } = data;
-          // Update the mnoCorrespondents object based on availability data
-          updateMnoAvailability(availabilityData, activeConfData);
+          if (data) {
+            const { availabilityData, activeConfData } = data;
+            updateMnoAvailability(availabilityData, activeConfData);
+          }
 
           const selectedCountry = localStorage.getItem("selectedCountry");
           const selectedMno = localStorage.getItem("selectedMno");
@@ -1776,61 +2108,42 @@
             const countrySelect = document.getElementById("country");
             const options = countrySelect.options;
 
-            // Preselect the country
             for (let i = 0; i < options.length; i++) {
               if (options[i].value === selectedCountry) {
                 options[i].selected = true;
-
-                // Trigger the change event manually to load MNO cards and Step 3 details
                 const event = new Event("change");
                 countrySelect.dispatchEvent(event);
                 break;
               }
             }
 
-            // Preload the MNO cards and preselect the MNO if available
             const correspondents = mnoCorrespondents[selectedCountry];
             if (correspondents) {
               displayMnoCards(correspondents);
 
-              // Validate the MNO selection and preselect the card if it exists
               if (selectedMno) {
                 const mnoCards = document.querySelectorAll(".operator-card");
                 mnoCards.forEach((card) => {
-                  // Preselect the correct MNO card based on stored selection
                   if (
                     card.querySelector("p").textContent.includes(selectedMno)
                   ) {
                     card.classList.add("selected");
                     document.getElementById("selectedMno").value = selectedMno;
-
-                    // Log the preselected card to the console
-                    console.log(
-                      "Preselected MNO:",
-                      card.querySelector("p").textContent
-                    );
                   }
                 });
-
-                // Hide the error message if MNO is preselected
                 const errorDiv = document.getElementById("mnoError");
-                if (errorDiv) {
-                  errorDiv.style.display = "none";
-                }
+                if (errorDiv) errorDiv.style.display = "none";
               } else {
-                // No MNO was preselected; ensure the input is empty
                 document.getElementById("selectedMno").value = "";
               }
             }
           }
 
-          // Make sure the page elements are visible after preloading
           document.body.style.opacity = "1";
           document.querySelector(".preloader").style.display = "none";
         })();
       };
 
-      // Update the next button logic to handle the preselected country scenario
       function validateCountry() {
         const countrySelect = document.getElementById("country");
         const selectedCountry = countrySelect.value;
@@ -1838,26 +2151,22 @@
 
         if (!selectedCountry) {
           countrySelect.classList.add("is-invalid");
-          errorDiv.style.display = "block"; // Show error message
+          errorDiv.style.display = "block";
         } else {
           countrySelect.classList.remove("is-invalid");
           countrySelect.classList.add("is-valid");
-          errorDiv.style.display = "none"; // Hide error message
+          errorDiv.style.display = "none";
 
-          // Ensure MNO cards are displayed even on reload or manual selection
           const correspondents = mnoCorrespondents[selectedCountry];
-          if (correspondents) {
-            displayMnoCards(correspondents);
-          }
+          if (correspondents) displayMnoCards(correspondents);
 
-          // Update Step 3 details (currency and phone number country code)
           const currency =
             countrySelect.options[countrySelect.selectedIndex].getAttribute(
               "data-currency"
             );
           updateStep3Details(selectedCountry, currency, correspondents);
 
-          nextStep(); // Proceed to the next step if validation passes
+          nextStep();
         }
       }
     </script>

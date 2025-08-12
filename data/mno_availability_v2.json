@@ -1,0 +1,317 @@
+[
+    {
+        "country": "GHA",
+        "providers": [
+            {
+                "provider": "VODAFONE_GHA",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            },
+            {
+                "provider": "AIRTELTIGO_GHA",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            },
+            {
+                "provider": "MTN_MOMO_GHA",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            }
+        ]
+    },
+    {
+        "country": "CMR",
+        "providers": [
+            {
+                "provider": "MTN_MOMO_CMR",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            },
+            {
+                "provider": "ORANGE_CMR",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            }
+        ]
+    },
+    {
+        "country": "BEN",
+        "providers": [
+            {
+                "provider": "MTN_MOMO_BEN",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            },
+            {
+                "provider": "MOOV_BEN",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            }
+        ]
+    },
+    {
+        "country": "SLE",
+        "providers": [
+            {
+                "provider": "ORANGE_SLE",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            }
+        ]
+    },
+    {
+        "country": "ZMB",
+        "providers": [
+            {
+                "provider": "ZAMTEL_ZMB",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            },
+            {
+                "provider": "MTN_MOMO_ZMB",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            },
+            {
+                "provider": "AIRTEL_OAPI_ZMB",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            }
+        ]
+    },
+    {
+        "country": "UGA",
+        "providers": [
+            {
+                "provider": "MTN_MOMO_UGA",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            },
+            {
+                "provider": "AIRTEL_OAPI_UGA",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            }
+        ]
+    },
+    {
+        "country": "CIV",
+        "providers": [
+            {
+                "provider": "ORANGE_CIV",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            },
+            {
+                "provider": "MTN_MOMO_CIV",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            }
+        ]
+    },
+    {
+        "country": "KEN",
+        "providers": [
+            {
+                "provider": "MPESA_KEN",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            }
+        ]
+    },
+    {
+        "country": "COD",
+        "providers": [
+            {
+                "provider": "VODACOM_MPESA_COD",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            },
+            {
+                "provider": "AIRTEL_COD",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            },
+            {
+                "provider": "ORANGE_COD",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            }
+        ]
+    },
+    {
+        "country": "COG",
+        "providers": [
+            {
+                "provider": "AIRTEL_COG",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            }
+        ]
+    },
+    {
+        "country": "TZA",
+        "providers": [
+            {
+                "provider": "HALOTEL_TZA",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            },
+            {
+                "provider": "AIRTEL_TZA",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            },
+            {
+                "provider": "TIGO_TZA",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            }
+        ]
+    },
+    {
+        "country": "BFA",
+        "providers": [
+            {
+                "provider": "MOOV_BFA",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            }
+        ]
+    },
+    {
+        "country": "SEN",
+        "providers": [
+            {
+                "provider": "FREE_SEN",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            },
+            {
+                "provider": "ORANGE_SEN",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            }
+        ]
+    },
+    {
+        "country": "RWA",
+        "providers": [
+            {
+                "provider": "AIRTEL_RWA",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            },
+            {
+                "provider": "MTN_MOMO_RWA",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            }
+        ]
+    },
+    {
+        "country": "MWI",
+        "providers": [
+            {
+                "provider": "TNM_MWI",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            },
+            {
+                "provider": "AIRTEL_MWI",
+                "operationTypes": {
+                    "PAYOUT": "OPERATIONAL",
+                    "DEPOSIT": "OPERATIONAL",
+                    "REFUND": "OPERATIONAL"
+                }
+            }
+        ]
+    }
+]

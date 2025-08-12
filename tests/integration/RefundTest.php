@@ -4,33 +4,40 @@ namespace Tests\Integration;
 
 use PHPUnit\Framework\TestCase;
 use Katorymnd\PawaPayIntegration\Api\ApiClient;
-use Katorymnd\PawaPayIntegration\Utils\Helpers; // For generating UUIDs
+use Katorymnd\PawaPayIntegration\Utils\Helpers;
 
 class RefundTest extends TestCase
 {
+    /** @var \PHPUnit\Framework\MockObject\MockObject&ApiClient */
     protected $apiClientMock;
 
     protected function setUp(): void
     {
-        // Mock the ApiClient instead of using the real one
-        $this->apiClientMock = $this->createMock(ApiClient::class);
+        // Mock only the methods we stub; they all exist on ApiClient.
+        $this->apiClientMock = $this->getMockBuilder(ApiClient::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods([
+                'initiateRefund',              // v1
+                'initiateRefundAuto',          // v2 auto
+                'checkTransactionStatus',      // v1 status
+                'checkTransactionStatusAuto',  // v2 auto status
+            ])
+            ->getMock();
     }
 
     /**
-     * Test the refund initiation process with a mocked response
+     * V1 refund initiation (original flow).
      */
-    public function testRefundInitiationMocked()
+    public function testRefundInitiationMocked(): void
     {
-        // Generate a sample UUIDv4 for testing
-        $sampleRefundId = Helpers::generateUniqueId();
-        $sampleDepositId = Helpers::generateUniqueId(); // Simulate a valid UUID for depositId
+        $sampleRefundId  = Helpers::generateUniqueId();
+        $sampleDepositId = Helpers::generateUniqueId();
 
-        // Mock the response from initiateRefund method
         $mockResponse = [
-            'status' => 200,
+            'status'   => 200,
             'response' => [
-                'refundId' => $sampleRefundId
-            ]
+                'refundId' => $sampleRefundId,
+            ],
         ];
 
         $this->apiClientMock
@@ -38,16 +45,11 @@ class RefundTest extends TestCase
             ->method('initiateRefund')
             ->willReturn($mockResponse);
 
-        // Simulate form data
         $amount = '50.00';
         $metadata = [
-            [
-                'fieldName' => 'orderId',
-                'fieldValue' => 'ORD-123456789'
-            ]
+            ['fieldName' => 'orderId', 'fieldValue' => 'ORD-123456789'],
         ];
 
-        // Call the initiateRefund method with mocked data
         $response = $this->apiClientMock->initiateRefund(
             $sampleRefundId,
             $sampleDepositId,
@@ -55,22 +57,20 @@ class RefundTest extends TestCase
             $metadata
         );
 
-        // Assert that the mock response contains the expected data
-        $this->assertEquals(200, $response['status']);
-        $this->assertEquals($sampleRefundId, $response['response']['refundId']);
+        $this->assertSame(200, $response['status']);
+        $this->assertSame($sampleRefundId, $response['response']['refundId']);
     }
 
     /**
-     * Test refund with missing required fields (e.g., depositId)
+     * V1 refund: missing required fields (e.g. depositId).
      */
-    public function testRefundMissingFields()
+    public function testRefundMissingFields(): void
     {
-        // Mock the response from initiateRefund method to simulate failure
         $mockResponse = [
-            'status' => 400,
+            'status'   => 400,
             'response' => [
-                'message' => 'Missing required fields.'
-            ]
+                'message' => 'Missing required fields.',
+            ],
         ];
 
         $this->apiClientMock
@@ -78,55 +78,145 @@ class RefundTest extends TestCase
             ->method('initiateRefund')
             ->willReturn($mockResponse);
 
-        // Simulate incomplete data (missing depositId)
         $amount = '50.00';
         $metadata = [
-            [
-                'fieldName' => 'orderId',
-                'fieldValue' => 'ORD-123456789'
-            ]
+            ['fieldName' => 'orderId', 'fieldValue' => 'ORD-123456789'],
         ];
 
-        // Call the initiateRefund method with mocked data (missing depositId)
         $response = $this->apiClientMock->initiateRefund(
-            '', // Missing depositId
-            null,
+            '',        // refundId placeholder (not relevant for this mock)
+            null,      // Missing depositId
             $amount,
             $metadata
         );
 
-        // Assert that the mock response contains the error message
-        $this->assertEquals(400, $response['status']);
-        $this->assertEquals('Missing required fields.', $response['response']['message']);
+        $this->assertSame(400, $response['status']);
+        $this->assertSame('Missing required fields.', $response['response']['message']);
     }
 
     /**
-     * Test refund status check
+     * V1 refund status check.
      */
-    public function testRefundStatusCheck()
+    public function testRefundStatusCheckV1(): void
     {
-        // Generate a sample UUIDv4 for testing
         $sampleRefundId = Helpers::generateUniqueId();
 
-        // Mock the response from checkTransactionStatus method
         $mockResponse = [
-            'status' => 200,
+            'status'   => 200,
             'response' => [
                 'refundId' => $sampleRefundId,
-                'status' => 'COMPLETED'
-            ]
+                'status'   => 'COMPLETED',
+            ],
         ];
 
         $this->apiClientMock
             ->expects($this->once())
             ->method('checkTransactionStatus')
+            ->with($sampleRefundId, 'refund')
             ->willReturn($mockResponse);
 
-        // Call the checkTransactionStatus method with mocked data
         $response = $this->apiClientMock->checkTransactionStatus($sampleRefundId, 'refund');
 
-        // Assert that the mock response contains the expected data
-        $this->assertEquals(200, $response['status']);
-        $this->assertEquals('COMPLETED', $response['response']['status']);
+        $this->assertSame(200, $response['status']);
+        $this->assertSame('COMPLETED', $response['response']['status']);
+    }
+
+    /**
+     * V2 refund initiation via version-aware AUTO method.
+     */
+    public function testRefundInitiationV2Mocked(): void
+    {
+        $refundId  = Helpers::generateUniqueId();
+        $depositId = Helpers::generateUniqueId();
+
+        $argsV2 = [
+            'refundId'  => $refundId,
+            'depositId' => $depositId,
+            'amount'    => '50',     // string in v2
+            'currency'  => 'UGX',
+            'metadata'  => [
+                ['orderId' => 'ORD-123456789'], // already v2-like
+                // you could also pass v1-style and let SDK normalize:
+                // ['fieldName' => 'note', 'fieldValue' => 'unit-test'],
+            ],
+        ];
+
+        $mockInitiate = [
+            'status'   => 200,
+            'response' => [
+                'refundId' => $refundId,
+                'status'   => 'ACCEPTED',
+            ],
+        ];
+
+        $this->apiClientMock
+            ->expects($this->once())
+            ->method('initiateRefundAuto')
+            ->with($this->callback(function ($payload) use ($refundId, $depositId) {
+                return is_array($payload)
+                    && ($payload['refundId']  ?? null) === $refundId
+                    && ($payload['depositId'] ?? null) === $depositId
+                    && ($payload['currency']  ?? null) === 'UGX';
+            }))
+            ->willReturn($mockInitiate);
+
+        $response = $this->apiClientMock->initiateRefundAuto($argsV2);
+
+        $this->assertSame(200, $response['status']);
+        $this->assertSame($refundId, $response['response']['refundId']);
+        $this->assertSame('ACCEPTED', $response['response']['status']);
+    }
+
+    /**
+     * V2 refund initiation + mocked status poll completing.
+     */
+    public function testRefundInitiationV2ThenStatusMocked(): void
+    {
+        $refundId  = Helpers::generateUniqueId();
+        $depositId = Helpers::generateUniqueId();
+
+        $argsV2 = [
+            'refundId'  => $refundId,
+            'depositId' => $depositId,
+            'amount'    => '50',
+            'currency'  => 'UGX',
+        ];
+
+        $mockInitiate = [
+            'status'   => 200,
+            'response' => [
+                'refundId' => $refundId,
+                'status'   => 'ACCEPTED',
+            ],
+        ];
+
+        $mockStatus = [
+            'status'   => 200,
+            'response' => [
+                'refundId' => $refundId,
+                'status'   => 'COMPLETED',
+            ],
+        ];
+
+        // 1) initiate (v2 auto)
+        $this->apiClientMock
+            ->expects($this->once())
+            ->method('initiateRefundAuto')
+            ->willReturn($mockInitiate);
+
+        // 2) status check (v2 auto)
+        $this->apiClientMock
+            ->expects($this->once())
+            ->method('checkTransactionStatusAuto')
+            ->with($refundId, 'refund')
+            ->willReturn($mockStatus);
+
+        $init = $this->apiClientMock->initiateRefundAuto($argsV2);
+        $this->assertSame(200, $init['status']);
+        $this->assertSame('ACCEPTED', $init['response']['status']);
+
+        $status = $this->apiClientMock->checkTransactionStatusAuto($refundId, 'refund');
+        $this->assertSame(200, $status['status']);
+        $this->assertSame('COMPLETED', $status['response']['status']);
     }
 }

@@ -1,8 +1,17 @@
 <?php
+// File: tests/deposit_switch_example.php
 
-// Print out the path to the Composer autoloader
-$autoloadPath = __DIR__ . '/../vendor/autoload.php';
-require_once $autoloadPath;
+/**
+ * Example runner, V1 and V2 in one place
+ *
+ * How it works
+ * - ENVIRONMENT selects sandbox or production, defaults to sandbox.
+ * - PAWAPAY_{ENV}_API_TOKEN supplies the token, for example PAWAPAY_SANDBOX_API_TOKEN.
+ * - PAWAPAY_API_VERSION selects v1 or v2. Defaults to v1 to preserve old behavior.
+ * - We validate inputs, then call initiateDepositAuto which chooses V1 or V2.
+ */
+
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use Dotenv\Dotenv;
 use Katorymnd\PawaPayIntegration\Api\ApiClient;
@@ -13,185 +22,135 @@ use Monolog\Handler\StreamHandler;
 use Whoops\Run;
 use Whoops\Handler\PrettyPageHandler;
 
-// Initialize Whoops error handler for development
+// Whoops error pages for development
 $whoops = new Run();
 $whoops->pushHandler(new PrettyPageHandler());
 $whoops->register();
 
-// Load the environment variables from the .env file
+// Load .env at project root
 $dotenv = Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
+// Environment and TLS
+$environment = getenv('ENVIRONMENT') ?: 'sandbox';
+$sslVerify   = $environment === 'production';
 
-// Set the environment and SSL verification based on the production status
-$environment = getenv('ENVIRONMENT') ?: 'sandbox'; // Default to sandbox if not specified
-$sslVerify = $environment === 'production';  // SSL verification true in production
+// API version switch, default v1
+$apiVersion  = getenv('PAWAPAY_API_VERSION') ?: 'v1'; // switch v1 or v2
 
-// Dynamically construct the API token key
+// Token key by environment
 $apiTokenKey = 'PAWAPAY_' . strtoupper($environment) . '_API_TOKEN';
-
-// Get the API token based on the environment
-$apiToken = $_ENV[$apiTokenKey] ?? null;
-
-
+$apiToken    = $_ENV[$apiTokenKey] ?? null;
 if (!$apiToken) {
     throw new Exception("API token not found for the selected environment");
 }
 
-// Initialize Monolog for logging
+// Logger
 $log = new Logger('pawaPayLogger');
 $log->pushHandler(new StreamHandler(__DIR__ . '/../logs/payment_success.log', \Monolog\Level::Info));
 $log->pushHandler(new StreamHandler(__DIR__ . '/../logs/payment_failed.log', \Monolog\Level::Error));
 
-// Create a new instance of the API client with SSL verification control
-$pawaPayClient = new ApiClient($apiToken, $environment, $sslVerify);
+// Client, version aware
+$pawaPayClient = new ApiClient($apiToken, $environment, $sslVerify, $apiVersion);
 
-// Generate a unique deposit ID using a helper method (UUID v4)
+// Unique deposit id
 $depositId = Helpers::generateUniqueId();
 
-// Prepare request details
-$amount = '692'; // Amount in UGX or another currency (should be validated)
-$currency = 'XOF'; // Currency code
-$correspondent = 'MTN_MOMO_BEN'; // Correspondent ID (MTN Uganda)
-$payerMsisdn = '22951345789'; // Payer's phone number
+// Common demo inputs
+$amount      = '1000';
+$currency    = 'UGX';
+$payerMsisdn = '256783456789';
 
-// Custom statement description (should be validated)
-$customDescription = 'Payment for order 4566'; // update this desc
+// Description text
+$customDescription = 'Order 4566';
 
-// Check if metadata is defined, otherwise default to an empty array
-$metadata = isset($metadata) ? $metadata : [];
+// V1 specific fields
+$correspondent = 'MTN_MOMO_UGA';
 
+// V2 specific fields
+$provider              = 'MTN_MOMO_UGA';
+$clientReferenceId     = 'INV-123456';
+$preAuthorisationCode  = null;
 
-// Prepare metadata - up to 10 items allowed
-/**
- * You can optionally include metadata to provide additional details for the transaction.
- * This can be useful for tracking orders, customer information, product IDs, etc.
- *
- * The following example illustrates how to structure the metadata array.
- * Each metadata item consists of:
- * - 'fieldName': The name of the field (e.g., 'orderId', 'customerId').
- * - 'fieldValue': The value corresponding to the field (e.g., 'ORD-123456789', 'John Doe').
- * - 'isPII' (optional): A boolean flag to mark Personally Identifiable Information (PII).
- *
- * Ensure the metadata array contains no more than 10 items. If metadata is omitted, the request will proceed without it.
- *
- * Example structure:
- *
- * $metadata = [
- *     [
- *         'fieldName' => 'orderId',
- *         'fieldValue' => 'ORD-123456789'
- *     ],
- *     [
- *         'fieldName' => 'customerId',
- *         'fieldValue' => 'CUSTOMER-987654321',
- *         'isPII' => true  // Optional: Mark as PII
- *     ],
- *     [
- *         'fieldName' => 'transactionReference',
- *         'fieldValue' => 'TXN-67890'
- *     ],
- *     [
- *         'fieldName' => 'customerEmail',
- *         'fieldValue' => 'customer@example.com',
- *         'isPII' => true  // Optional: Mark as PII
- *     ],
- *     // Add up to 10 metadata items in total
- * ];
- *
- * You can skip metadata entirely by not defining the array, or pass an empty array:
- * $metadata = [];
- */
+// Metadata examples
+// V1 expects [{fieldName, fieldValue, isPII?}, ...]
+$metadataV1 = [
+    ['fieldName' => 'orderId',     'fieldValue' => 'ORD-123456789'],
+    ['fieldName' => 'customerId',  'fieldValue' => 'customer@example.com', 'isPII' => true],
+];
 
-// $metadata = [
-//     [
-//         'fieldName' => 'orderId',
-//         'fieldValue' => 'ORD-123456789'
-//     ],
-//     [
-//         'fieldName' => 'customerId',
-//         'fieldValue' => 'CUSTOMER-987654321',
-//         'isPII' => true
-//     ],
-//     [
-//         'fieldName' => 'transactionReference',
-//         'fieldValue' => 'TXN-67890'
-//     ],
-//     [
-//         'fieldName' => 'customerEmail',
-//         'fieldValue' => 'customer@example.com',
-//         'isPII' => true
-//     ],
-//     [
-//         'fieldName' => 'productId',
-//         'fieldValue' => 'PROD-9999'
-//     ],
-//     [
-//         'fieldName' => 'shippingAddress',
-//         'fieldValue' => '123 Main St, Kampala, Uganda',
-//         'isPII' => true
-//     ],
-//     [
-//         'fieldName' => 'paymentMethod',
-//         'fieldValue' => 'Mobile Money'
-//     ],
-//     [
-//         'fieldName' => 'customNote',
-//         'fieldValue' => 'Urgent order, handle with care'
-//     ],
-//     [
-//         'fieldName' => 'campaignCode',
-//         'fieldValue' => 'CAMPAIGN-2024'
-//     ],
-//     [
-//         'fieldName' => 'customerName',
-//         'fieldValue' => 'John Doe',
-//         'isPII' => true  // Mark as PII
-//     ],
-// ];
+// V2 expects [{ orderId: "...", isPII?: bool }, ...]
+$metadataV2 = [
+    ['orderId' => 'ORD-123456789'],
+    ['customerId' => 'customer@example.com', 'isPII' => true],
+];
 
 try {
-    // Step 1: Validate the amount using Symfony validation and custom validation
-    $validatedAmount = Validator::symfonyValidateAmount($amount);  // Symfony Validator for amount
-
-    // Step 2: Use the Validator to check if the description is valid (alphanumeric and length)
+    // Validate amount and narration
+    $validatedAmount      = Validator::symfonyValidateAmount($amount);
     $validatedDescription = Validator::validateStatementDescription($customDescription);
 
-    // Step 3: Validate the number of metadata items only if metadata is provided
-    if (!empty($metadata)) {
-        Validator::validateMetadataItemCount($metadata);
+    // Choose args per version
+    if ($apiVersion === 'v2') {
+        if (!empty($metadataV2)) {
+            Validator::validateMetadataItemCount($metadataV2);
+        }
+
+        $args = [
+            'depositId'            => $depositId,
+            'amount'               => $validatedAmount,
+            'currency'             => $currency,
+            'payerMsisdn'          => $payerMsisdn,
+            'provider'             => $provider,
+            'customerMessage'      => $validatedDescription,
+            'clientReferenceId'    => $clientReferenceId,
+            'preAuthorisationCode' => $preAuthorisationCode,
+            'metadata'             => $metadataV2,
+        ];
+    } else {
+        if (!empty($metadataV1)) {
+            Validator::validateMetadataItemCount($metadataV1);
+        }
+
+        $args = [
+            'depositId'            => $depositId,
+            'amount'               => $validatedAmount,
+            'currency'             => $currency,
+            'correspondent'        => $correspondent,
+            'payerMsisdn'          => $payerMsisdn,
+            'statementDescription' => $validatedDescription,
+            'metadata'             => $metadataV1,
+        ];
     }
 
-    // Step 4: If all valid, initiate the deposit, including metadata (only if provided)
-    $response = $pawaPayClient->initiateDeposit($depositId, $validatedAmount, $currency, $correspondent, $payerMsisdn, $validatedDescription, $metadata);
+    // Fire, version aware
+    $response = $pawaPayClient->initiateDepositAuto($args);
 
-    // Check the response status
     if ($response['status'] === 200) {
-        echo "Deposit initiated successfully!\n";
+        echo "Deposit initiated successfully, version={$apiVersion}\n";
         print_r($response['response']);
 
-        // Log success
         $log->info('Deposit initiated successfully', [
+            'version'   => $apiVersion,
             'depositId' => $depositId,
-            'response' => $response['response']
+            'response'  => $response['response'],
         ]);
     } else {
-        echo "Error: Unable to initiate deposit.\n";
+        echo "Error: Unable to initiate deposit, version={$apiVersion}\n";
         print_r($response);
 
-        // Log failure
         $log->error('Deposit initiation failed', [
+            'version'   => $apiVersion,
             'depositId' => $depositId,
-            'response' => $response
+            'response'  => $response,
         ]);
     }
 } catch (Exception $e) {
-    // Catch validation errors and display the message
-    echo "Validation Error: " . $e->getMessage() . "\n";
+    echo "Validation or Request Error: " . $e->getMessage() . "\n";
 
-    // Log the validation error
-    $log->error('Validation error occurred', [
+    $log->error('Validation or request error', [
+        'version'   => $apiVersion,
         'depositId' => $depositId,
-        'error' => $e->getMessage()
+        'error'     => $e->getMessage(),
     ]);
 }

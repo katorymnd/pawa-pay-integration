@@ -1,10 +1,7 @@
 <?php
-
 header('Content-Type: application/json');
 
-// Include Composer's autoloader
-$autoloadPath = __DIR__ . '/../vendor/autoload.php';
-require_once $autoloadPath;
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use Dotenv\Dotenv;
 use Katorymnd\PawaPayIntegration\Api\ApiClient;
@@ -16,184 +13,169 @@ use Monolog\Handler\StreamHandler;
 use Whoops\Run;
 use Whoops\Handler\PrettyPageHandler;
 
-// Initialize Whoops error handler for development
+// Dev error page
 $whoops = new Run();
 $whoops->pushHandler(new PrettyPageHandler());
 $whoops->register();
 
-// Load the environment variables from the .env file
+// .env
 $dotenv = Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->load();
 
+// Environment / token / SSL / API version
+$environment = getenv('ENVIRONMENT') ?: 'sandbox';
+$sslVerify   = ($environment === 'production');
+$apiVersion  = getenv('PAWAPAY_API_VERSION') ?: 'v1';              // <— choose v1 or v2 globally
+$apiVersion  = $_POST['apiVersion'] ?? $apiVersion;                // <— allow override per request -if provided from form data
+$apiVersion  = in_array($apiVersion, ['v1', 'v2'], true) ? $apiVersion : 'v1';
 
-// Set the environment and SSL verification based on the production status
-$environment = getenv('ENVIRONMENT') ?: 'sandbox'; // Default to sandbox if not specified
-$sslVerify = $environment === 'production';  // SSL verification true in production
-
-// Dynamically construct the API token key
 $apiTokenKey = 'PAWAPAY_' . strtoupper($environment) . '_API_TOKEN';
-
-// Get the API token based on the environment
-$apiToken = $_ENV[$apiTokenKey] ?? null;
-
+$apiToken    = $_ENV[$apiTokenKey] ?? null;
 
 if (!$apiToken) {
-    echo json_encode([
-        'success' => false,
-        'errorMessage' => 'API token not found for the selected environment.'
-    ]);
+    echo json_encode(['success' => false, 'errorMessage' => 'API token not found for the selected environment.']);
     exit;
 }
 
-// Initialize Monolog for logging
+// Logging
 $log = new Logger('pawaPayLogger');
 $log->pushHandler(new StreamHandler(__DIR__ . '/../logs/payment_success.log', \Monolog\Level::Info));
-$log->pushHandler(new StreamHandler(__DIR__ . '/../logs/payment_failed.log', \Monolog\Level::Error));
+$log->pushHandler(new StreamHandler(__DIR__ . '/../logs/payment_failed.log',  \Monolog\Level::Error));
 
-// Create a new instance of the API client with SSL verification control
-$pawaPayClient = new ApiClient($apiToken, $environment, $sslVerify);
+// Client
+$pawaPayClient = new ApiClient($apiToken, $environment, $sslVerify, $apiVersion);
 
-// Retrieve and validate form data
-$amount = isset($_POST['amount']) ? trim($_POST['amount']) : '';
-$mno = isset($_POST['mno']) ? trim($_POST['mno']) : '';
+// Inputs from UI
+$amount        = isset($_POST['amount']) ? trim($_POST['amount']) : '';
+$mno           = isset($_POST['mno']) ? trim($_POST['mno']) : '';                 // v1: correspondent, v2: provider
+$payerMsisdn   = isset($_POST['payerMsisdn']) ? preg_replace('/\D/', '', trim($_POST['payerMsisdn'])) : '';
+$description   = isset($_POST['description']) ? trim($_POST['description']) : '';
+$currency      = isset($_POST['currency']) ? strtoupper(trim($_POST['currency'])) : '';
 
-$payerMsisdn = isset($_POST['payerMsisdn']) ? preg_replace('/\D/', '', trim($_POST['payerMsisdn'])) : '';
-$description = isset($_POST['description']) ? trim($_POST['description']) : '';
-$currency = isset($_POST['currency']) ? trim($_POST['currency']) : '';
-
-// Validate input data
-if (empty($amount) || empty($mno) || empty($payerMsisdn) || empty($description) || empty($currency)) {
-    echo json_encode([
-        'success' => false,
-        'errorMessage' => 'Missing required fields.'
-    ]);
+// basic validation
+if ($amount === '' || $mno === '' || $payerMsisdn === '' || $description === '' || $currency === '') {
+    echo json_encode(['success' => false, 'errorMessage' => 'Missing required fields.']);
     exit;
 }
 
-// Generate a unique deposit ID using a helper method (UUID v4)
 $depositId = Helpers::generateUniqueId();
-
-// Prepare metadata if needed (up to 10 items allowed)
-$metadata = [];
+$metadata  = []; // fill if needed
 
 try {
-    // Step 1: Validate the amount using Symfony validation and custom validation
-    $validatedAmount = Validator::symfonyValidateAmount($amount);  // Symfony Validator for amount
-
-    // Step 2: Use the Validator to check if the description is valid (alphanumeric and length)
+    // validate fields
+    $validatedAmount      = Validator::symfonyValidateAmount($amount);
     $validatedDescription = Validator::validateStatementDescription($description);
-
-    // Step 3: Validate the number of metadata items only if metadata is provided
-    if (!empty($metadata)) {
+    if (!empty($metadata) && method_exists(Validator::class, 'validateMetadataItemCount')) {
         Validator::validateMetadataItemCount($metadata);
     }
 
-    // Step 4: Initiate the deposit using the submitted details
-    $response = $pawaPayClient->initiateDeposit(
-        $depositId,
-        $validatedAmount,
-        $currency,
-        $mno,
-        $payerMsisdn,
-        $validatedDescription,
-        $metadata
-    );
+    // ---- Initiate (version-aware) -----------------------------------
+    if ($apiVersion === 'v2') {
+        // V2: provider + MMO structure, description → customerMessage
+        $resp = $pawaPayClient->initiateDepositV2(
+            $depositId,
+            $validatedAmount,
+            $currency,
+            $payerMsisdn,
+            $mno,                        // provider
+            $validatedDescription,       // customerMessage
+            null,                        // clientReferenceId (optional)
+            null,                        // preAuthorisationCode (optional)
+            $metadata
+        );
+    } else {
+        // V1: correspondent + MSISDN structure, description → statementDescription
+        $resp = $pawaPayClient->initiateDeposit(
+            $depositId,
+            $validatedAmount,
+            $currency,
+            $mno,                        // correspondent
+            $payerMsisdn,                // payer.address.value
+            $validatedDescription,
+            $metadata
+        );
+    }
 
-    if ($response['status'] === 200) {
-        // Log initiation success
-        $log->info('Deposit initiated successfully', [
-            'depositId' => $depositId,
-            'response' => $response['response']
-        ]);
+    if (($resp['status'] ?? 0) !== 200) {
+        // Initiation rejected at gateway — try to surface a friendly message
+        $msg = 'Payment initiation failed.';
+        if (!empty($resp['response']['rejectionReason']['rejectionMessage'])) {
+            $msg = 'Payment initiation failed: ' . $resp['response']['rejectionReason']['rejectionMessage'];
+        } elseif (!empty($resp['response']['failureReason']['failureCode'])) {
+            $msg = 'Payment initiation failed: ' . FailureCodeHelper::getFailureMessage($resp['response']['failureReason']['failureCode']);
+        }
+        $log->error('Deposit initiation failed', ['depositId' => $depositId, 'response' => $resp]);
+        echo json_encode(['success' => false, 'errorMessage' => $msg, 'version' => $apiVersion]);
+        exit;
+    }
 
-        // Proceed to check the transaction status
-        $statusResponse = $pawaPayClient->checkTransactionStatus($depositId, 'deposit');
+    // ---- Check status (version-aware) --------------------------------
+    $statusResponse = $pawaPayClient->checkTransactionStatusAuto($depositId, 'deposit');
 
-        if ($statusResponse['status'] === 200) {
-            $depositInfo = $statusResponse['response'][0]; // Get the deposit info
-            $depositStatus = $depositInfo['status'];
+    if (($statusResponse['status'] ?? 0) !== 200) {
+        $log->error('Failed to retrieve deposit status', ['depositId' => $depositId, 'response' => $statusResponse]);
+        echo json_encode(['success' => false, 'errorMessage' => 'Unable to retrieve deposit status.', 'version' => $apiVersion]);
+        exit;
+    }
 
-            if ($depositStatus === 'COMPLETED') {
-                // Log successful deposit
-                $log->info('Deposit completed successfully', [
-                    'depositId' => $depositId,
-                    'response' => $depositInfo
-                ]);
-
-                // Send success response back to JavaScript
-                echo json_encode([
-                    'success' => true,
-                    'transactionId' => $depositId,
-                    'message' => 'Payment processed successfully.'
-                ]);
-            } elseif ($depositStatus === 'FAILED') {
-                // Deposit failed
-                $failureReason = $depositInfo['failureReason'];
-                $failureCode = $failureReason['failureCode'];
-                $failureMessage = FailureCodeHelper::getFailureMessage($failureCode);
-
-                $log->error('Deposit failed', [
-                    'depositId' => $depositId,
-                    'failureCode' => $failureCode,
-                    'failureMessage' => $failureMessage,
-                    'response' => $depositInfo
-                ]);
-
-                // Send error response back to JavaScript
-                echo json_encode([
-                    'success' => false,
-                    'errorMessage' => 'Payment failed: ' . $failureMessage
-                ]);
-            } else {
-                // Deposit is pending or in another state
-                $log->info('Deposit is in state: ' . $depositStatus, [
-                    'depositId' => $depositId,
-                    'response' => $depositInfo
-                ]);
-
-                // Send pending response back to JavaScript
-                echo json_encode([
-                    'success' => false,
-                    'errorMessage' => 'Payment is processing. Please wait and check your account.'
-                ]);
-            }
-        } else {
-            // Failed to retrieve deposit status
-            $log->error('Failed to retrieve deposit status', [
-                'depositId' => $depositId,
-                'response' => $statusResponse
-            ]);
+    // Normalize v1/v2 payloads
+    if ($apiVersion === 'v2') {
+        // v2: { status: FOUND|NOT_FOUND, data: {...} }
+        if (($statusResponse['response']['status'] ?? '') !== 'FOUND') {
+            // not found yet ⇒ treat as processing/pending
+            $log->info('Deposit not yet found (v2)', ['depositId' => $depositId, 'response' => $statusResponse['response']]);
             echo json_encode([
                 'success' => false,
-                'errorMessage' => 'Unable to retrieve deposit status.'
+                'errorMessage' => 'Payment is processing. Please wait and check your account.',
+                'version' => $apiVersion
             ]);
+            exit;
         }
+        $depositInfo   = $statusResponse['response']['data'];
+        $depositStatus = $depositInfo['status'] ?? 'PROCESSING';
     } else {
-        // Log initiation failure
-        $log->error('Deposit initiation failed', [
-            'depositId' => $depositId,
-            'response' => $response
-        ]);
-
-        // Send error response back to JavaScript
-        echo json_encode([
-            'success' => false,
-            'errorMessage' => 'Payment initiation failed: ' . $response['response']['message']
-        ]);
+        // v1: array of deposits with at most one entry
+        $depositInfo   = $statusResponse['response'][0] ?? [];
+        $depositStatus = $depositInfo['status'] ?? 'PROCESSING';
     }
-} catch (Exception $e) {
-    // Catch validation errors and display the message
-    $errorMessage = "Validation Error: " . $e->getMessage();
 
-    // Log the validation error
-    $log->error('Validation error occurred', [
-        'depositId' => $depositId,
-        'error' => $errorMessage
-    ]);
+    // Final handling
+    if ($depositStatus === 'COMPLETED') {
+        $log->info('Deposit completed successfully', ['depositId' => $depositId, 'response' => $depositInfo]);
+        echo json_encode([
+            'success'        => true,
+            'transactionId'  => $depositId,
+            'message'        => 'Payment processed successfully.',
+            'version'        => $apiVersion
+        ]);
+        exit;
+    }
 
-    // Send error response back to JavaScript
+    if ($depositStatus === 'FAILED') {
+        // surface failure
+        $failureCode    = $depositInfo['failureReason']['failureCode'] ?? 'OTHER_ERROR';
+        $failureMessage = FailureCodeHelper::getFailureMessage($failureCode);
+        $log->error('Deposit failed', [
+            'depositId'      => $depositId,
+            'failureCode'    => $failureCode,
+            'failureMessage' => $failureMessage,
+            'response'       => $depositInfo
+        ]);
+        echo json_encode(['success' => false, 'errorMessage' => 'Payment failed: ' . $failureMessage, 'version' => $apiVersion]);
+        exit;
+    }
+
+    // Any other intermediate state ⇒ processing
+    $log->info('Deposit is in state: ' . $depositStatus, ['depositId' => $depositId, 'response' => $depositInfo]);
     echo json_encode([
-        'success' => false,
-        'errorMessage' => $errorMessage
+        'success'      => false,
+        'errorMessage' => 'Payment is processing. Please wait and check your account.',
+        'status'       => $depositStatus,
+        'version'      => $apiVersion
     ]);
+    exit;
+} catch (\Throwable $e) {
+    $log->error('Validation/processing error', ['depositId' => $depositId, 'error' => $e->getMessage()]);
+    echo json_encode(['success' => false, 'errorMessage' => 'Validation Error: ' . $e->getMessage(), 'version' => $apiVersion]);
+    exit;
 }

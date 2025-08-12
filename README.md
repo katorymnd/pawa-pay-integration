@@ -2,6 +2,23 @@
 
 A PHP SDK for integrating with the pawaPay API, enabling seamless payment processing, transaction management, and other key functionalities such as deposit, refund and payouts handling API calls.
 
+> **Note:** V1 is the default main codebase, but V2 has also been integrated so both can work simultaneously.
+
+
+## Folder structure
+
+>example\direct
+- Contains all curl sample requests with plain json raw output
+> example
+- Contains live or demo samples for each logic like deposit, refund and more. Both fontend and backend surgical logic samples.
+> data
+- Holds the configs for `mno_availability` and `active_conf` json files.
+
+> src
+- Holds the structure skeleton for pawaPay PHP SDK.
+> tests
+- Holds the test logics for the processes provided.
+
 ## Available Features
 
 The pawaPay PHP SDK includes a comprehensive set of features designed to facilitate seamless payment integration with real-time verification:
@@ -54,6 +71,7 @@ The pawaPay PHP SDK includes a comprehensive set of features designed to facilit
   - [Installation](#installation)
   - [Usage](#usage)
     - [Initializing the SDK](#initializing-the-sdk)
+    - [Deposit via Payment Page](#deposit-via-payment-page)
     - [Update After Saving MNO Configuration](#update-after-saving-mno-configuration)
       - [1. Update the Country Dropdown in Your HTML](#1-update-the-country-dropdown-in-your-html)
       - [2. Configure the MNO Correspondents in JavaScript](#2-configure-the-mno-correspondents-in-javascript)
@@ -77,6 +95,18 @@ To install the SDK via Composer, run the following command:
 ```bash
 composer require katorymnd/pawa-pay-integration
 ```
+## Upgrading to Pawapay SDK V2
+If you  have not yet installed the  SDK, install it and run `fetch_mno_conf.php` that file or  any file that you have created that  will add this `mno_availability.json`, `active_conf.json` . In our V2 the entire logic is  surgically created to use both v1 - default and v2, by your choice.
+
+You can either use v1 or v2 but  v1 is  made default so that  your code does not break if you updated the  sdk but not  your code base.
+
+When switching  to  v2/v1 you need to re-intiate the `fetch_mno_conf.php` with v1 as your choice, then it will create  these  files in `data` folder; `active_conf_v1.json`, `mno_availability_v1.json`, and v2 will create `active_conf_v2.json`, `mno_availability_v2.json` so  you  will have 3 files.
+
+What the logic does is if  v1 is look for v1 or  our default json files and if  v2 it will load v2.
+Run this  `example/fetch_mno_conf.php` and you will see that change.
+
+Remove legacy files; the loader still works with versioned files only.
+
 
 ## Usage
 
@@ -102,7 +132,7 @@ This file will load your **MNO Availability and Active Configuration** via the A
 
 ### Update After Saving MNO Configuration
 
-Once you have saved your MNO configuration by loading `example/fetch_mno_conf.php`, you will need to update the country dropdown and MNO availability checks in your HTML files. This ensures the SDK reflects the correct configuration for processing deposits and payouts.
+Once you have saved your MNO configuration by loading `example/fetch_mno_conf.php`, you will need to update the country dropdown and MNO availability checks in your HTML files. This ensures the SDK reflects the correct configuration for processing deposits and payouts. Now V2 is enabled - you can choose V1/V2 logically.
 
 #### 1. Update the Country Dropdown in Your HTML
 
@@ -132,6 +162,18 @@ You need to update the country dropdown in the relevant HTML files (e.g., `examp
   <option value="Zambia" data-currency="ZMW">Zambia</option>
 </select>
 ```
+`example\initiate_deposit.html` we added 
+```script
+/* ===========================
+       * Version-aware config loader
+       * =========================== */
+      const confVersion = "v1";
+```
+so  you  need to change the version from v1 to v2. v1 will load the  default ui for the operator images as of `_v1.json` and v2 will load all the logics from v2, as of  `_v2.json` files in the  `data` folder.
+
+Also its  backend file is compatible with v1/v2. Change accordingly.
+
+The logic also applies to `example\payouts.html` and its backend logic too.
 
 #### 2. Configure the MNO Correspondents in JavaScript
 
@@ -196,6 +238,41 @@ const mnoCorrespondents = {
   // Add more countries and MNOs here...
 };
 ```
+#### 3. Configure ISO3 for v2 country metadata in JavaScript
+```javascript
+
+ // Map UI country names -> ISO3 for v2 country metadata
+      // Update the Map UI according to what countries your given with pawapay account
+      const COUNTRY_TO_ISO3 = {
+        Benin: "BEN",
+        "Burkina Faso": "BFA",
+        Cameroon: "CMR",
+        Congo: "COG",
+        "Congo (DRC)": "COD",
+        "Cote D'Ivoire": "CIV",
+        Gabon: "GAB",
+        Ghana: "GHA",
+        Kenya: "KEN",
+        Malawi: "MWI",
+        Mozambique: "MOZ",
+        Nigeria: "NGA",
+        Rwanda: "RWA",
+        Senegal: "SEN",
+        "Sierra Leone": "SLE",
+        Tanzania: "TZA",
+        Uganda: "UGA",
+        Zambia: "ZMB",
+      };
+
+```
+I added a version control 
+```javascript
+
+  // pick one: 'v1' | 'v2' | 'auto'  (local default)
+  const confVersion = "v2";
+  ```
+When you choose `auto` the script will decide accordingly.
+
 
 The functionaliy is:
 
@@ -225,13 +302,44 @@ To test different functionalities of the pawaPay SDK, follow these steps:
   payouts.html
   ```
 
+## Deposit via Payment Page
+
+Use the hosted widget to collect payment with a single redirect. Your app
+creates a session and receives a `redirectUrl` to send the customer to.
+
+> Make sure your `.env` has:
+> ```
+> PAWAPAY_SANDBOX_API_TOKEN=your_sandbox_api_token_here
+> PAWAPAY_PRODUCTION_API_TOKEN=your_production_api_token_here
+> ENVIRONMENT=sandbox
+> ```
+
+### Full example
+
+Find the full example here `example\deposit-via-payment-pag.php` and v1 is default. you may switch like  so
+```php
+
+// Choose API version: 'v1' or 'v2' (default to 'v1' to preserve old behavior)
+$API_VERSION = 'v1';
+```
+
+
 For testing, please use the provided test phone numbers (MSISDNs) available in the official pawaPay documentation:
+
+This is a sample page, you can add the  details from the  form data or  just add defaultly. Then create a button that has the got link so that the client is redirected to complete the peyment. 
+ 
+ 
+This `https://example.com/paymentProcessed` replace with your redirect url and the return will be like `https://example.com/paymentProcessed?depositId=c4a7a044-5ca0-415b-a236-423f11e1e1e8` where you can use the  `depositId` to verify the payment.
+
+
 
 [Testing Phone Numbers](https://docs.pawapay.io/testing_the_api)
 
 > **Important**: Refunds can only be submitted once per deposit ID. Attempting to refund the same deposit ID multiple times will result in an error.
 
 > Additionally, every transaction—whether successful or not—will be logged in detail in the `log` files. You can refer to these log files for an in-depth analysis of any transaction, ensuring you have a complete record for debugging and auditing purposes.
+
+> **Note:** Some providers are slow hence the transaction is in `processing` mode. Always check the `transactionId` before making any transaction as `completed`.
 
 ## Tutorials and Guides
 

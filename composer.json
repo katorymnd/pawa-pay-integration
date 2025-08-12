@@ -1,8 +1,8 @@
 {
   "name": "katorymnd/pawa-pay-integration",
-  "description": "A PHP SDK for seamless integration with the pawaPay API, supporting payment processing and transaction management.",
+  "description": "A PHP SDK for seamless integration with the pawaPay API, supporting payment processing and transaction management. Built with v1 (legacy, default) compatibility to ensure existing integrations keep working, and now upgraded to fully support v2 features for enhanced capabilities.",
   "type": "library",
-  "version": "3.4.0",
+  "version": "4.4.0",
   "keywords": [
     "pawaPay",
     "payment",

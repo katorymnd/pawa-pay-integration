@@ -378,18 +378,182 @@
     <script src="https://unpkg.com/libphonenumber-js@1.10.22/bundle/libphonenumber-max.js"></script>
 
     <script>
+      /* ===========================
+       * Version-aware config loader
+       * =========================== */
+      const confVersion = "v1"; // set to "v1" or "v2" to choose which JSONs to load
+
+      // Shared helpers + holders (outside DOMContentLoaded so all functions can use them)
+      const DATA_ROOT = "../data/";
+      const availabilityMap = new Map(); // provider/correspondent -> boolean
+      const providerLogoMap = new Map(); // v2 only: provider -> absolute logo URL
+      const v2CountryMeta = new Map(); // v2 only: ISO3 -> { prefix, flagUrl, displayName }
+
+      // Replace tryFetchJSON with a version-detecting loader
+      async function loadJSONWithVersion(paths) {
+        for (const p of paths) {
+          try {
+            const res = await fetch(p, { cache: "no-store" });
+            if (!res.ok) continue;
+            const data = await res.json();
+
+            // Heuristic: detect v2 vs v1
+            // availability v2: [{country:"UGA", providers:[{provider,..., operationTypes:{PAYOUT:"OPERATIONAL"}}]}]
+            // availability v1: [{country:"UGA", correspondents:[{correspondent,..., operationTypes:[{operationType:"PAYOUT",status:"OPERATIONAL"}]}]}]
+            let fmt = "unknown";
+            if (Array.isArray(data) && data.length) {
+              const sample = data[0];
+              if (
+                Array.isArray(sample?.providers) ||
+                (sample?.providers && typeof sample.providers === "object")
+              )
+                fmt = "v2";
+              else if (Array.isArray(sample?.correspondents)) fmt = "v1";
+            } else if (data && Array.isArray(data.countries)) {
+              // active_conf v2: { countries:[{ country:"UGA", prefix:"256", flag:"...", providers:[{provider,logo}]}] }
+              fmt = "v2";
+            } else if (
+              data &&
+              (Array.isArray(data) || data.country || data.correspondents)
+            ) {
+              // active_conf v1/legacy – anything not matching the v2 shape
+              fmt = "v1";
+            }
+
+            return { data, fmt, path: p };
+          } catch (_) {
+            // try next
+          }
+        }
+        return { data: null, fmt: "none", path: null };
+      }
+
+      function absorbAvailability({ isV2, data }) {
+        if (!data) return;
+        if (isV2) {
+          // v2: [{ country:"UGA", providers:[{ provider:"MTN_MOMO_UGA", operationTypes:{PAYOUT:"OPERATIONAL",...} }]}]
+          data.forEach((country) => {
+            (country.providers || []).forEach((p) => {
+              const op = p.operationTypes || {};
+              const ok =
+                String(op.PAYOUT || "").toUpperCase() === "OPERATIONAL";
+              availabilityMap.set(p.provider, ok);
+            });
+          });
+        } else {
+          // v1: [{ country:"UGA", correspondents:[{ correspondent:"MTN_MOMO_UGA", operationTypes:[{operationType:"PAYOUT",status:"OPERATIONAL"}]}]}]
+          data.forEach((country) => {
+            (country.correspondents || []).forEach((c) => {
+              const arr = c.operationTypes || [];
+              const pay = arr.find(
+                (x) => String(x.operationType).toUpperCase() === "PAYOUT"
+              );
+              const ok =
+                pay && String(pay.status || "").toUpperCase() === "OPERATIONAL";
+              availabilityMap.set(c.correspondent, !!ok);
+            });
+          });
+        }
+      }
+
+      function absorbV2ActiveConf(active) {
+        if (!active || !Array.isArray(active.countries)) return;
+        active.countries.forEach((cty) => {
+          if (cty.country) {
+            v2CountryMeta.set(cty.country, {
+              prefix: cty.prefix ? String(cty.prefix) : "",
+              flagUrl: cty.flag || "",
+              displayName:
+                (cty.displayName &&
+                  (cty.displayName.en || cty.displayName.fr)) ||
+                cty.country,
+            });
+          }
+          (cty.providers || []).forEach((p) => {
+            if (p.provider && p.logo) providerLogoMap.set(p.provider, p.logo);
+          });
+        });
+      }
+
+      async function loadConfigs({ mnoCorrespondents, countryNameToCode }) {
+        const isV2 = String(confVersion).toLowerCase() === "v2";
+
+        // Availability (prefer versioned, then legacy fallback)
+        const { data: availability, fmt: availabilityFmt } =
+          await loadJSONWithVersion(
+            isV2
+              ? [
+                  DATA_ROOT + "mno_availability_v2.json",
+                  DATA_ROOT + "mno_availability.json",
+                  DATA_ROOT + "mno_availability_v1.json",
+                ]
+              : [
+                  DATA_ROOT + "mno_availability_v1.json",
+                  DATA_ROOT + "mno_availability.json",
+                ]
+          );
+        // Use the file's actual format, not the UI toggle
+        absorbAvailability({
+          isV2: availabilityFmt === "v2",
+          data: availability,
+        });
+
+        // Active conf (for v2 logos, flags, prefixes). Fallback to legacy names.
+        const { data: active, fmt: activeFmt } = await loadJSONWithVersion(
+          isV2
+            ? [
+                DATA_ROOT + "active_conf_v2.json",
+                DATA_ROOT + "active_conf.json",
+                DATA_ROOT + "active_conf_v1.json",
+              ]
+            : [
+                DATA_ROOT + "active_conf_v1.json", // try v1 first when UI is v1
+                DATA_ROOT + "active_conf.json",
+              ]
+        );
+        // Only absorb v2 fields if the loaded file is actually v2
+        if (activeFmt === "v2") absorbV2ActiveConf(active);
+
+        // Merge availability + logos + prefixes into your in-memory operators
+        Object.keys(mnoCorrespondents).forEach((countryName) => {
+          const countryIso3 = countryNameToCode[countryName];
+          const meta = v2CountryMeta.get(countryIso3) || null;
+
+          mnoCorrespondents[countryName].forEach((mno) => {
+            // Availability
+            const status = availabilityMap.get(mno.apiCode);
+            mno.available = typeof status === "boolean" ? status : false;
+
+            // v2 logo URLs (absolute). If not found, keep local image.
+            const logo = providerLogoMap.get(mno.apiCode);
+            if (logo) mno.img = logo;
+
+            // v2 country dial prefix override (shown before phone input)
+            if (meta && meta.prefix) {
+              mno.countryCode = `+${meta.prefix}`;
+            }
+          });
+        });
+      }
+
+      function extractResponseData(r) {
+        if (!r) return {};
+        if (Array.isArray(r)) return r[0] || {};
+        if (r.data && typeof r.data === "object") return r.data; // v2 shape
+        return r;
+      }
+
       window.addEventListener("load", function () {
         document.body.style.opacity = "1";
-        document.getElementById("loader").classList.add("hidden"); // Use class to hide the loader
+        document.getElementById("loader").classList.add("hidden");
       });
 
-      // JavaScript to handle adding/removing recipients and metadata
       document.addEventListener("DOMContentLoaded", function () {
-        let recipientIndex = 1; // Start from 1 since we already have recipient 1
-        let maxRecipients = 5; // Maximum number of recipients
-        let maxMetadata = 5; // Maximum number of metadata entries per recipient
+        let recipientIndex = 1;
+        let maxRecipients = 5;
+        let maxMetadata = 5;
 
-        // MNO Correspondents Data
+        // MNO Correspondents Data (seed; availability + logos updated by loader)
         const mnoCorrespondents = {
           Benin: [
             {
@@ -398,15 +562,15 @@
               countryCode: "+229",
               flag: "bj.png",
               available: true,
-              img: "mtn.png", // Image name for MTN Benin
+              img: "mtn.png",
             },
             {
               name: "Moov Benin",
               apiCode: "MOOV_BEN",
               countryCode: "+229",
               flag: "bj.png",
-              available: false, // Set this to false for down networks
-              img: "moov.png", // Image name for Moov Benin
+              available: false,
+              img: "moov.png",
             },
           ],
           "Burkina Faso": [
@@ -416,7 +580,7 @@
               countryCode: "+226",
               flag: "bf.png",
               available: true,
-              img: "orange-money-logo.jpg", // Image name for Orange Burkina Faso
+              img: "orange-money-logo.jpg",
             },
             {
               name: "Moov Burkina Faso",
@@ -424,7 +588,7 @@
               countryCode: "+226",
               flag: "bf.png",
               available: true,
-              img: "moov.png", // Image name for Moov Burkina Faso
+              img: "moov.png",
             },
           ],
           Cameroon: [
@@ -434,7 +598,7 @@
               countryCode: "+237",
               flag: "cm.png",
               available: true,
-              img: "mtn.png", // Image name for MTN Cameroon
+              img: "mtn.png",
             },
             {
               name: "Orange Cameroon",
@@ -442,25 +606,17 @@
               countryCode: "+237",
               flag: "cm.png",
               available: true,
-              img: "orange-money-logo.jpg", // Image name for Orange Cameroon
+              img: "orange-money-logo.jpg",
             },
           ],
           Congo: [
-            // {
-            //   name: "MTN Congo",
-            //   apiCode: "MTN_MOMO_COG",
-            //   countryCode: "+242",
-            //   flag: "cg.png",
-            //   available: true,
-            //   img: "mtn.png", // Image name for MTN Congo
-            // },
             {
               name: "Airtel Congo",
               apiCode: "AIRTEL_COG",
               countryCode: "+242",
               flag: "cg.png",
               available: false,
-              img: "airtel.png", // Image name for Airtel Congo
+              img: "airtel.png",
             },
           ],
           "Congo (DRC)": [
@@ -470,7 +626,7 @@
               countryCode: "+243",
               flag: "cd.png",
               available: true,
-              img: "vodacom.jpg", // Image name for Vodacom DRC
+              img: "vodacom.jpg",
             },
             {
               name: "Airtel DRC",
@@ -478,7 +634,7 @@
               countryCode: "+243",
               flag: "cd.png",
               available: true,
-              img: "airtel.png", // Image name for Airtel DRC
+              img: "airtel.png",
             },
             {
               name: "Orange DRC",
@@ -486,7 +642,7 @@
               countryCode: "+243",
               flag: "cd.png",
               available: false,
-              img: "orange-money-logo.jpg", // Image name for Orange DRC
+              img: "orange-money-logo.jpg",
             },
           ],
           "Cote D'Ivoire": [
@@ -496,7 +652,7 @@
               countryCode: "+225",
               flag: "ci.png",
               available: true,
-              img: "mtn.png", // Image name for MTN Cote d'Ivoire
+              img: "mtn.png",
             },
             {
               name: "Orange Cote d'Ivoire",
@@ -504,7 +660,7 @@
               countryCode: "+225",
               flag: "ci.png",
               available: true,
-              img: "orange-money-logo.jpg", // Image name for Orange Cote d'Ivoire
+              img: "orange-money-logo.jpg",
             },
             {
               name: "Moov Cote d'Ivoire",
@@ -512,7 +668,7 @@
               countryCode: "+225",
               flag: "ci.png",
               available: true,
-              img: "moov.png", // Image name for Moov Cote d'Ivoire
+              img: "moov.png",
             },
             {
               name: "Wave Cote d'Ivoire",
@@ -530,7 +686,7 @@
               countryCode: "+241",
               flag: "ga.png",
               available: true,
-              img: "airtel.png", // Image name for Airtel Gabon
+              img: "airtel.png",
             },
             {
               name: "Moov Gabon",
@@ -538,7 +694,7 @@
               countryCode: "+241",
               flag: "ga.png",
               available: true,
-              img: "moov.png", // Image name for Moov Gabon
+              img: "moov.png",
             },
           ],
           Ghana: [
@@ -548,7 +704,7 @@
               countryCode: "+233",
               flag: "gh.png",
               available: true,
-              img: "mtn.png", // Image name for MTN Ghana
+              img: "mtn.png",
             },
             {
               name: "AirtelTigo Ghana",
@@ -556,7 +712,7 @@
               countryCode: "+233",
               flag: "gh.png",
               available: true,
-              img: "airtel-tigo.png", // Image name for AirtelTigo Ghana
+              img: "airtel-tigo.png",
             },
             {
               name: "Vodafone Ghana",
@@ -564,7 +720,7 @@
               countryCode: "+233",
               flag: "gh.png",
               available: true,
-              img: "vodacom.jpg", // Image name for Vodafone Ghana
+              img: "vodacom.jpg",
             },
           ],
           Kenya: [
@@ -574,7 +730,7 @@
               countryCode: "+254",
               flag: "ke.png",
               available: true,
-              img: "safaricom-logo.png", // Image name for Safaricom Kenya
+              img: "safaricom-logo.png",
             },
             {
               name: "Airtel Kenya",
@@ -582,7 +738,7 @@
               countryCode: "+254",
               flag: "ke.png",
               available: true,
-              img: "airtel.png", // Image name for Airtel Kenya
+              img: "airtel.png",
             },
           ],
           Malawi: [
@@ -592,7 +748,7 @@
               countryCode: "+265",
               flag: "mw.png",
               available: true,
-              img: "airtel.png", // Image name for Airtel Malawi
+              img: "airtel.png",
             },
             {
               name: "TNM Malawi",
@@ -600,7 +756,7 @@
               countryCode: "+265",
               flag: "mw.png",
               available: true,
-              img: "mw-tnm-logo.png", // Image name for TNM Malawi
+              img: "mw-tnm-logo.png",
             },
           ],
           Mozambique: [
@@ -610,7 +766,7 @@
               countryCode: "+258",
               flag: "mz.png",
               available: true,
-              img: "vodacom.jpg", // Image name for Vodacom Mozambique
+              img: "vodacom.jpg",
             },
             {
               name: "Movitel Mozambique",
@@ -618,10 +774,9 @@
               countryCode: "+258",
               flag: "mz.png",
               available: true,
-              img: "movitel.png", // Image name for Movitel Mozambique
+              img: "movitel.png",
             },
           ],
-
           Nigeria: [
             {
               name: "MTN Nigeria",
@@ -629,7 +784,7 @@
               countryCode: "+234",
               flag: "ng.png",
               available: true,
-              img: "mtn.png", // Image name for MTN Nigeria
+              img: "mtn.png",
             },
             {
               name: "Airtel Nigeria",
@@ -637,7 +792,7 @@
               countryCode: "+234",
               flag: "ng.png",
               available: true,
-              img: "airtel.png", // Image name for Airtel Nigeria
+              img: "airtel.png",
             },
           ],
           Rwanda: [
@@ -647,7 +802,7 @@
               countryCode: "+250",
               flag: "rw.png",
               available: true,
-              img: "mtn.png", // Image name for MTN Rwanda
+              img: "mtn.png",
             },
             {
               name: "Airtel Rwanda",
@@ -655,7 +810,7 @@
               countryCode: "+250",
               flag: "rw.png",
               available: true,
-              img: "airtel.png", // Image name for Airtel Rwanda
+              img: "airtel.png",
             },
           ],
           Senegal: [
@@ -665,7 +820,7 @@
               countryCode: "+221",
               flag: "sn.png",
               available: true,
-              img: "orange-money-logo.jpg", // Image name for Orange Senegal
+              img: "orange-money-logo.jpg",
             },
             {
               name: "Free Senegal",
@@ -673,7 +828,7 @@
               countryCode: "+221",
               flag: "sn.png",
               available: true,
-              img: "free.png", // Image name for Free Senegal
+              img: "free.png",
             },
           ],
           "Sierra Leone": [
@@ -683,7 +838,7 @@
               countryCode: "+232",
               flag: "sl.png",
               available: true,
-              img: "orange-money-logo.jpg", // Image name for Orange Sierra Leone
+              img: "orange-money-logo.jpg",
             },
             {
               name: "Africell Sierra Leone",
@@ -691,7 +846,7 @@
               countryCode: "+232",
               flag: "sl.png",
               available: true,
-              img: "africell.png", // Image name for Africell Sierra Leone
+              img: "africell.png",
             },
           ],
           Tanzania: [
@@ -701,7 +856,7 @@
               countryCode: "+255",
               flag: "tz.png",
               available: true,
-              img: "vodacom.jpg", // Image name for Vodacom Tanzania
+              img: "vodacom.jpg",
             },
             {
               name: "Airtel Tanzania",
@@ -709,7 +864,7 @@
               countryCode: "+255",
               flag: "tz.png",
               available: true,
-              img: "airtel.png", // Image name for Airtel Tanzania
+              img: "airtel.png",
             },
             {
               name: "Tigo Tanzania",
@@ -717,7 +872,7 @@
               countryCode: "+255",
               flag: "tz.png",
               available: true,
-              img: "tigo-pesa-tanzania.png", // Image name for Tigo Tanzania
+              img: "tigo-pesa-tanzania.png",
             },
             {
               name: "Halotel Tanzania",
@@ -725,7 +880,7 @@
               countryCode: "+255",
               flag: "tz.png",
               available: true,
-              img: "halotel-tz.png", // Image name for Halotel Tanzania
+              img: "halotel-tz.png",
             },
           ],
           Uganda: [
@@ -735,7 +890,7 @@
               countryCode: "+256",
               flag: "ug.png",
               available: true,
-              img: "mtn.png", // Image name for MTN Uganda
+              img: "mtn.png",
             },
             {
               name: "Airtel Uganda",
@@ -743,7 +898,7 @@
               countryCode: "+256",
               flag: "ug.png",
               available: true,
-              img: "airtel.png", // Image name for Airtel Uganda
+              img: "airtel.png",
             },
           ],
           Zambia: [
@@ -753,7 +908,7 @@
               countryCode: "+260",
               flag: "zm.png",
               available: true,
-              img: "mtn.png", // Image name for MTN Zambia
+              img: "mtn.png",
             },
             {
               name: "Airtel Zambia",
@@ -761,289 +916,126 @@
               countryCode: "+260",
               flag: "zm.png",
               available: true,
-              img: "airtel.png", // Image name for Airtel Zambia
+              img: "airtel.png",
             },
             {
               name: "Zamtel Zambia",
               apiCode: "ZAMTEL_ZMB",
               countryCode: "+260",
               flag: "zm.png",
-              available: false, // This network is down
-              img: "zamtel-za.png", // Image name for Zamtel Zambia
+              available: false,
+              img: "zamtel-za.png",
             },
           ],
         };
 
-        // Map country names to country codes
+        // Country names to ISO3
         const countryNameToCode = {
+          Algeria: "DZA",
+          Angola: "AGO",
           Benin: "BEN",
+          Botswana: "BWA",
           "Burkina Faso": "BFA",
+          Burundi: "BDI",
+          "Cabo Verde": "CPV",
           Cameroon: "CMR",
+          "Central African Republic": "CAF",
+          Chad: "TCD",
+          Comoros: "COM",
           Congo: "COG",
           "Congo (DRC)": "COD",
           "Cote D'Ivoire": "CIV",
+          Djibouti: "DJI",
+          Egypt: "EGY",
+          "Equatorial Guinea": "GNQ",
+          Eritrea: "ERI",
+          Eswatini: "SWZ",
+          Ethiopia: "ETH",
           Gabon: "GAB",
+          Gambia: "GMB",
           Ghana: "GHA",
+          Guinea: "GIN",
+          "Guinea-Bissau": "GNB",
           Kenya: "KEN",
+          Lesotho: "LSO",
+          Liberia: "LBR",
+          Libya: "LBY",
+          Madagascar: "MDG",
           Malawi: "MWI",
+          Mali: "MLI",
+          Mauritania: "MRT",
+          Mauritius: "MUS",
+          Morocco: "MAR",
           Mozambique: "MOZ",
+          Namibia: "NAM",
+          Niger: "NER",
           Nigeria: "NGA",
           Rwanda: "RWA",
+          "Sao Tome and Principe": "STP",
           Senegal: "SEN",
+          Seychelles: "SYC",
           "Sierra Leone": "SLE",
+          Somalia: "SOM",
+          "South Africa": "ZAF",
+          "South Sudan": "SSD",
+          Sudan: "SDN",
           Tanzania: "TZA",
+          Togo: "TGO",
+          Tunisia: "TUN",
           Uganda: "UGA",
           Zambia: "ZMB",
+          Zimbabwe: "ZWE",
         };
 
-        // Fetch the MNO availability data
-        fetch("../data/mno_availability.json")
-          .then((response) => response.json())
-          .then((data) => {
-            // Create a mapping from country codes to their data
-            const countryDataMap = {};
-            data.forEach((countryObj) => {
-              countryDataMap[countryObj.country] = countryObj;
-            });
-
-            // Update the 'available' field for each MNO
-            Object.keys(mnoCorrespondents).forEach((countryName) => {
-              const countryCode = countryNameToCode[countryName];
-
-              const countryData = countryDataMap[countryCode];
-
-              if (countryData) {
-                const correspondents = countryData.correspondents;
-
-                mnoCorrespondents[countryName].forEach((mno) => {
-                  const apiCode = mno.apiCode;
-
-                  // Find the corresponding MNO in the JSON data
-                  const correspondentData = correspondents.find(
-                    (correspondent) => correspondent.correspondent === apiCode
-                  );
-
-                  if (correspondentData) {
-                    // Check the 'PAYOUT' operation status
-                    const payoutOperation =
-                      correspondentData.operationTypes.find(
-                        (operation) => operation.operationType === "PAYOUT"
-                      );
-
-                    if (payoutOperation) {
-                      mno.available = payoutOperation.status === "OPERATIONAL";
-                    } else {
-                      mno.available = false; // No 'PAYOUT' operation found
-                    }
-                  } else {
-                    mno.available = false; // Correspondent not found
-                  }
-                });
-              } else {
-                // Country data not found in JSON, set all MNOs to unavailable
-                mnoCorrespondents[countryName].forEach((mno) => {
-                  mno.available = false;
-                });
-              }
-            });
-
-            // Now the mnoCorrespondents object has updated 'available' fields
-          })
-          .catch((error) => {
-            console.error("Error fetching MNO availability data:", error);
-            // Handle errors if necessary
-          });
-
-        // Function to add a new recipient
-        document
-          .getElementById("add-recipient")
-          .addEventListener("click", function () {
-            if (recipientIndex >= maxRecipients) {
-              showBootstrapAlert(
-                "You can only add up to 5 recipients.",
-                "danger"
-              );
-              return; // Stop the function if the maximum is reached
-            }
-            recipientIndex++;
-            const recipientsDiv = document.getElementById("recipients");
-
-            const recipientDiv = document.createElement("div");
-            recipientDiv.classList.add("recipient", "card", "mb-4", "p-3");
-
-            recipientDiv.innerHTML = `
-              <div class="card-body">
-                  <h4 class="card-title">Recipient ${recipientIndex}</h4>
-                  <!-- Country Selection -->
-                  <div class="mb-3">
-                      <label for="country-${recipientIndex}" class="form-label">Country:</label>
-                      <select id="country-${recipientIndex}" name="recipients[${
-              recipientIndex - 1
-            }][country]" class="form-select country-select">
-                          <option value="" disabled selected>Choose Country</option>
-                          <!-- Add countries here -->
-                         <option value="Benin" data-currency="XOF">Benin</option>
-                <option value="Burkina Faso" data-currency="XOF">
-                  Burkina Faso
-                </option>
-                <option value="Cameroon" data-currency="XAF">Cameroon</option>
-                <option value="Congo" data-currency="XAF">
-                    Congo-Brazzaville
-                  </option>
-                  <option value="Congo (DRC)" data-currency="CDF">
-                    Congo-Kinshasa (CDF)
-                  </option>
-                  <option value="Congo (DRC)" data-currency="USD">
-                    Congo-Kinshasa (USD)
-                  </option>
-                <option value="Cote D'Ivoire" data-currency="XOF">
-                  Cote D'Ivoire
-                </option>
-                <option value="Gabon" data-currency="XAF">Gabon</option>
-                <option value="Ghana" data-currency="GHS">Ghana</option>
-                <option value="Kenya" data-currency="KES">Kenya</option>
-                <option value="Malawi" data-currency="MWK">Malawi</option>
-                <option value="Mozambique" data-currency="MZN">Mozambique</option>
-                <option value="Nigeria" data-currency="NGN">Nigeria</option>
-                <option value="Rwanda" data-currency="RWF">Rwanda</option>
-                <option value="Senegal" data-currency="XOF">Senegal</option>
-                <option value="Sierra Leone" data-currency="SLE">
-                  Sierra Leone
-                </option>
-                <option value="Uganda" data-currency="UGX">Uganda</option>
-                <option value="Zambia" data-currency="ZMW">Zambia</option>
-                          <!-- Add other countries as needed -->
-                      </select>
-                  </div>
-                  <!-- MNO Selection -->
-                  <div class="mb-3">
-                      <label class="form-label mb-3">Operator</label>
-                      <div id="mno-cards-container-${recipientIndex}" class="operator-container">
-                          <!-- MNO cards dynamically generated here -->
-                      </div>
-                      <input type="hidden" id="selectedMno-${recipientIndex}" name="recipients[${
-              recipientIndex - 1
-            }][correspondent]" class="selected-mno-input" />
-                  </div>
-                  <!-- Amount with Currency Prefix -->
-                  <div class="mb-3">
-                      <label for="amount-${recipientIndex}" class="form-label">Amount:</label>
-                      <div class="input-group has-validation">
-                          <span class="input-group-text" id="currency-symbol-${recipientIndex}"></span>
-                          <input
-                              type="text"
-                              class="form-control amount-input"
-                              id="amount-${recipientIndex}"
-                              name="recipients[${recipientIndex - 1}][amount]"
-                              placeholder="Amount"
-                              aria-label="Amount"
-                              
-                          />
-                      </div>
-                  </div>
-                  <!-- Recipient's Phone Number -->
-                  <div class="mb-3">
-                      <label for="recipientMsisdn-${recipientIndex}" class="form-label">Recipient's Phone Number</label>
-                      <div class="input-group">
-                          <span class="input-group-text">
-                              <img id="countryFlag-${recipientIndex}" src="" alt="Flag" width="24" height="16" class="me-2" />
-                              <span id="countryCode-${recipientIndex}">+</span>
-                          </span>
-                          <input type="tel" class="form-control" id="recipientMsisdn-${recipientIndex}" name="recipients[${
-              recipientIndex - 1
-            }][recipientMsisdn]" >
-                      </div>
-                  </div>
-                 <!-- Statement Description -->
-                  <div class="mb-3">
-                      <label for="statementDescription-${recipientIndex}" class="form-label">Statement Description</label>
-                      <input 
-                          type="text" 
-                          class="form-control" 
-                          id="statementDescription-${recipientIndex}" 
-                          name="recipients[${
-                            recipientIndex - 1
-                          }][statementDescription]" 
-                          >
-                  </div>
-
-                  <!-- Metadata (Optional) -->
-                  <div class="mb-3">
-                      <label class="form-label">Metadata (Optional)</label>
-                      <div id="metadata-${recipientIndex}">
-                          <div class="row mb-2 metadata-item">
-                              <div class="col-md-5">
-                                  <input type="text" class="form-control" name="recipients[${
-                                    recipientIndex - 1
-                                  }][metadata][0][fieldName]" placeholder="Field Name">
-                              </div>
-                              <div class="col-md-5">
-                                  <input type="text" class="form-control" name="recipients[${
-                                    recipientIndex - 1
-                                  }][metadata][0][fieldValue]" placeholder="Field Value">
-                              </div>
-                              <div class="col-md-2 d-flex align-items-end">
-                                  <button type="button" class="btn btn-outline-danger remove-metadata w-100">Remove</button>
-                              </div>
-                          </div>
-                      </div>
-                      <button type="button" class="btn btn-outline-secondary add-metadata" data-recipient-index="${recipientIndex}">Add Metadata</button>
-                  </div>
-                  <button type="button" class="btn btn-outline-danger remove-recipient">Remove Recipient</button>
-              </div>
-          `;
-
-            recipientsDiv.appendChild(recipientDiv);
-          });
+        // Load availability + logos (v1/v2) and merge into mnoCorrespondents
+        loadConfigs({ mnoCorrespondents, countryNameToCode }).catch((err) =>
+          console.error("Config load error:", err)
+        );
 
         function showBootstrapAlert(message, type = "warning") {
           const alertPlaceholder = document.getElementById("alert-placeholder");
-          alertPlaceholder.style.display = "flex"; // Make the alert placeholder visible
-          alertPlaceholder.style.justifyContent = "center"; // Center horizontally
-          alertPlaceholder.style.alignItems = "center"; // Center vertically
-          alertPlaceholder.style.padding = "20px"; // Add padding to give space around the alert
+          alertPlaceholder.style.display = "flex";
+          alertPlaceholder.style.justifyContent = "center";
+          alertPlaceholder.style.alignItems = "center";
+          alertPlaceholder.style.padding = "20px";
 
           const wrapper = document.createElement("div");
-          wrapper.style.maxWidth = "800px"; // Increased width for better readability with multiple recipients
-          wrapper.style.width = "100%"; // Make sure it doesn't exceed the container's width
-          wrapper.style.margin = "0 auto"; // Center it
-          wrapper.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)"; // Add a subtle box-shadow for a modern look
-          wrapper.style.borderRadius = "8px"; // Round the corners for a smooth appearance
-          wrapper.style.overflowY = "auto"; // Allow scrolling if content is too long
-          wrapper.style.maxHeight = "80vh"; // Limit the height to prevent overflow
+          wrapper.style.maxWidth = "800px";
+          wrapper.style.width = "100%";
+          wrapper.style.margin = "0 auto";
+          wrapper.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
+          wrapper.style.borderRadius = "8px";
+          wrapper.style.overflowY = "auto";
+          wrapper.style.maxHeight = "80vh";
 
           wrapper.innerHTML = [
             `<div class="alert alert-${type} alert-dismissible fade show" role="alert">`,
-            `   <span>${message}</span>`, // Use span to allow HTML content
+            `   <span>${message}</span>`,
             `   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`,
             `</div>`,
           ].join("");
 
           wrapper.addEventListener("click", function () {
-            alertPlaceholder.style.display = "none"; // Hide the alert on click
+            alertPlaceholder.style.display = "none";
           });
 
-          alertPlaceholder.innerHTML = ""; // Clear previous alerts
+          alertPlaceholder.innerHTML = "";
           alertPlaceholder.append(wrapper);
         }
 
         function showSuccessAlert(message) {
-          showBootstrapAlert(message, "success");
-        }
-
-        function showSuccessAlert(message) {
           const alertPlaceholder = document.getElementById("alert-placeholder");
-          alertPlaceholder.style.display = "flex"; // Make the alert placeholder visible
-          alertPlaceholder.style.justifyContent = "center"; // Center horizontally
-          alertPlaceholder.style.alignItems = "center"; // Center vertically
-          alertPlaceholder.style.padding = "20px"; // Add padding to give space around the alert
+          alertPlaceholder.style.display = "flex";
+          alertPlaceholder.style.justifyContent = "center";
+          alertPlaceholder.style.alignItems = "center";
+          alertPlaceholder.style.padding = "20px";
 
           const wrapper = document.createElement("div");
-          wrapper.style.maxWidth = "500px"; // Set a maximum width for the alert
-          wrapper.style.width = "100%"; // Make sure it doesn't exceed the container's width
-          wrapper.style.margin = "0 auto"; // Center it
-          wrapper.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)"; // Add a subtle box-shadow for a modern look
-          wrapper.style.borderRadius = "8px"; // Round the corners for a smooth appearance
+          wrapper.style.maxWidth = "500px";
+          wrapper.style.width = "100%";
+          wrapper.style.margin = "0 auto";
+          wrapper.style.boxShadow = "0 4px 8px rgba(0, 0, 0, 0.1)";
+          wrapper.style.borderRadius = "8px";
 
           wrapper.innerHTML = [
             `<div class="alert alert-success alert-dismissible fade show" role="alert">`,
@@ -1053,14 +1045,127 @@
           ].join("");
 
           wrapper.addEventListener("click", function () {
-            alertPlaceholder.style.display = "none"; // Hide the alert on click
+            alertPlaceholder.style.display = "none";
           });
 
-          alertPlaceholder.innerHTML = ""; // Clear previous alerts
+          alertPlaceholder.innerHTML = "";
           alertPlaceholder.append(wrapper);
         }
 
-        // Function to remove a recipient
+        // Add recipient button
+        document
+          .getElementById("add-recipient")
+          .addEventListener("click", function () {
+            if (recipientIndex >= maxRecipients) {
+              showBootstrapAlert(
+                "You can only add up to 5 recipients.",
+                "danger"
+              );
+              return;
+            }
+            recipientIndex++;
+            const recipientsDiv = document.getElementById("recipients");
+
+            const recipientDiv = document.createElement("div");
+            recipientDiv.classList.add("recipient", "card", "mb-4", "p-3");
+
+            recipientDiv.innerHTML = `
+          <div class="card-body">
+              <h4 class="card-title">Recipient ${recipientIndex}</h4>
+              <!-- Country Selection -->
+              <div class="mb-3">
+                  <label for="country-${recipientIndex}" class="form-label">Country:</label>
+                  <select id="country-${recipientIndex}" name="recipients[${
+              recipientIndex - 1
+            }][country]" class="form-select country-select">
+                      <option value="" disabled selected>Choose Country</option>
+                      <option value="Benin" data-currency="XOF">Benin</option>
+                      <option value="Burkina Faso" data-currency="XOF">Burkina Faso</option>
+                      <option value="Cameroon" data-currency="XAF">Cameroon</option>
+                      <option value="Congo" data-currency="XAF">Congo-Brazzaville</option>
+                      <option value="Congo (DRC)" data-currency="CDF">Congo-Kinshasa (CDF)</option>
+                      <option value="Congo (DRC)" data-currency="USD">Congo-Kinshasa (USD)</option>
+                      <option value="Cote D'Ivoire" data-currency="XOF">Cote D'Ivoire</option>
+                      <option value="Gabon" data-currency="XAF">Gabon</option>
+                      <option value="Ghana" data-currency="GHS">Ghana</option>
+                      <option value="Kenya" data-currency="KES">Kenya</option>
+                      <option value="Malawi" data-currency="MWK">Malawi</option>
+                      <option value="Mozambique" data-currency="MZN">Mozambique</option>
+                      <option value="Nigeria" data-currency="NGN">Nigeria</option>
+                      <option value="Rwanda" data-currency="RWF">Rwanda</option>
+                      <option value="Senegal" data-currency="XOF">Senegal</option>
+                      <option value="Sierra Leone" data-currency="SLE">Sierra Leone</option>
+                      <option value="Uganda" data-currency="UGX">Uganda</option>
+                      <option value="Zambia" data-currency="ZMW">Zambia</option>
+                  </select>
+              </div>
+              <!-- MNO Selection -->
+              <div class="mb-3">
+                  <label class="form-label mb-3">Operator</label>
+                  <div id="mno-cards-container-${recipientIndex}" class="operator-container"></div>
+                  <input type="hidden" id="selectedMno-${recipientIndex}" name="recipients[${
+              recipientIndex - 1
+            }][correspondent]" class="selected-mno-input" />
+              </div>
+              <!-- Amount with Currency Prefix -->
+              <div class="mb-3">
+                  <label for="amount-${recipientIndex}" class="form-label">Amount:</label>
+                  <div class="input-group has-validation">
+                      <span class="input-group-text" id="currency-symbol-${recipientIndex}"></span>
+                      <input type="text" class="form-control amount-input" id="amount-${recipientIndex}" name="recipients[${
+              recipientIndex - 1
+            }][amount]" placeholder="Amount" aria-label="Amount" />
+                  </div>
+              </div>
+              <!-- Recipient's Phone Number -->
+              <div class="mb-3">
+                  <label for="recipientMsisdn-${recipientIndex}" class="form-label">Recipient's Phone Number</label>
+                  <div class="input-group">
+                      <span class="input-group-text">
+                          <img id="countryFlag-${recipientIndex}" src="" alt="Flag" width="24" height="16" class="me-2" />
+                          <span id="countryCode-${recipientIndex}">+</span>
+                      </span>
+                      <input type="tel" class="form-control" id="recipientMsisdn-${recipientIndex}" name="recipients[${
+              recipientIndex - 1
+            }][recipientMsisdn]" >
+                  </div>
+              </div>
+              <!-- Statement Description -->
+              <div class="mb-3">
+                  <label for="statementDescription-${recipientIndex}" class="form-label">Statement Description</label>
+                  <input type="text" class="form-control" id="statementDescription-${recipientIndex}" name="recipients[${
+              recipientIndex - 1
+            }][statementDescription]">
+              </div>
+              <!-- Metadata (Optional) -->
+              <div class="mb-3">
+                  <label class="form-label">Metadata (Optional)</label>
+                  <div id="metadata-${recipientIndex}">
+                      <div class="row mb-2 metadata-item">
+                          <div class="col-md-5">
+                              <input type="text" class="form-control" name="recipients[${
+                                recipientIndex - 1
+                              }][metadata][0][fieldName]" placeholder="Field Name">
+                          </div>
+                          <div class="col-md-5">
+                              <input type="text" class="form-control" name="recipients[${
+                                recipientIndex - 1
+                              }][metadata][0][fieldValue]" placeholder="Field Value">
+                          </div>
+                          <div class="col-md-2 d-flex align-items-end">
+                              <button type="button" class="btn btn-outline-danger remove-metadata w-100">Remove</button>
+                          </div>
+                      </div>
+                  </div>
+                  <button type="button" class="btn btn-outline-secondary add-metadata" data-recipient-index="${recipientIndex}">Add Metadata</button>
+              </div>
+              <button type="button" class="btn btn-outline-danger remove-recipient">Remove Recipient</button>
+          </div>
+        `;
+            recipientsDiv.appendChild(recipientDiv);
+          });
+
+        // Remove recipient
         document
           .getElementById("recipients")
           .addEventListener("click", function (event) {
@@ -1073,7 +1178,7 @@
             }
           });
 
-        // Function to add metadata to a recipient
+        // Add metadata
         document
           .getElementById("recipients")
           .addEventListener("click", function (event) {
@@ -1084,43 +1189,40 @@
               const recipientIndex = event.target.getAttribute(
                 "data-recipient-index"
               );
-              const metadataContainer = document.getElementById(
+              const container = document.getElementById(
                 "metadata-" + recipientIndex
               );
-              const metadataItems =
-                metadataContainer.querySelectorAll(".metadata-item");
-              if (metadataItems.length >= maxMetadata) {
+              const items = container.querySelectorAll(".metadata-item");
+              if (items.length >= maxMetadata) {
                 document.getElementById("loader").classList.add("hidden");
                 showBootstrapAlert(
                   "You can only add up to 5 metadata entries per recipient.",
                   "danger"
                 );
-                return; // Stop the function if the maximum is reached
+                return;
               }
-              const metadataIndex = metadataItems.length;
-
-              const metadataRow = document.createElement("div");
-              metadataRow.classList.add("row", "mb-2", "metadata-item");
-              metadataRow.innerHTML = `
-                  <div class="col-md-5">
-                      <input type="text" class="form-control" name="recipients[${
-                        recipientIndex - 1
-                      }][metadata][${metadataIndex}][fieldName]" placeholder="Field Name">
-                  </div>
-                  <div class="col-md-5">
-                      <input type="text" class="form-control" name="recipients[${
-                        recipientIndex - 1
-                      }][metadata][${metadataIndex}][fieldValue]" placeholder="Field Value">
-                  </div>
-                  <div class="col-md-2 d-flex align-items-end">
-                      <button type="button" class="btn btn-outline-danger remove-metadata w-100">Remove</button>
-                  </div>
-              `;
-              metadataContainer.appendChild(metadataRow);
+              const idx = items.length;
+              const row = document.createElement("div");
+              row.classList.add("row", "mb-2", "metadata-item");
+              row.innerHTML = `
+            <div class="col-md-5">
+              <input type="text" class="form-control" name="recipients[${
+                recipientIndex - 1
+              }][metadata][${idx}][fieldName]" placeholder="Field Name">
+            </div>
+            <div class="col-md-5">
+              <input type="text" class="form-control" name="recipients[${
+                recipientIndex - 1
+              }][metadata][${idx}][fieldValue]" placeholder="Field Value">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+              <button type="button" class="btn btn-outline-danger remove-metadata w-100">Remove</button>
+            </div>`;
+              container.appendChild(row);
             }
           });
 
-        // Function to remove metadata item
+        // Remove metadata
         document
           .getElementById("recipients")
           .addEventListener("click", function (event) {
@@ -1128,12 +1230,12 @@
               event.target &&
               event.target.classList.contains("remove-metadata")
             ) {
-              const metadataItem = event.target.closest(".metadata-item");
-              metadataItem.parentNode.removeChild(metadataItem);
+              const item = event.target.closest(".metadata-item");
+              item.parentNode.removeChild(item);
             }
           });
 
-        // Function to handle country change for each recipient
+        // Country change
         document
           .getElementById("recipients")
           .addEventListener("change", function (event) {
@@ -1148,53 +1250,64 @@
                 event.target.options[event.target.selectedIndex];
               const currency = selectedOption.getAttribute("data-currency");
 
-              // Update currency symbol in the amount input group
+              // Currency prefix
               const currencySymbolSpan = recipientCard.querySelector(
                 "#currency-symbol-" + recipientIndex
               );
               currencySymbolSpan.textContent = currency;
 
-              // Update country code and flag
+              // Country details + cards
               updateCountryDetails(recipientIndex, selectedCountry);
-
-              // Display MNO cards
               displayMnoCards(recipientIndex, selectedCountry);
             }
           });
 
-        // Function to get the recipient index from the recipient card
         function getRecipientIndex(recipientCard) {
           const title = recipientCard.querySelector(".card-title").textContent;
-          const indexMatch = title.match(/Recipient (\d+)/);
-          return indexMatch ? parseInt(indexMatch[1]) : 1;
+          const match = title.match(/Recipient (\d+)/);
+          return match ? parseInt(match[1]) : 1;
         }
 
-        // Function to update country code and flag
+        // Prefer v2 meta (prefix/flag), fallback to v1 data
         function updateCountryDetails(recipientIndex, country) {
-          const correspondents = mnoCorrespondents[country];
-          if (correspondents && correspondents.length > 0) {
-            const countryCode = correspondents[0].countryCode;
-            const flag = correspondents[0].flag;
-
-            // Update the phone number country code and flag
+          const countryIso3 = countryNameToCode[country];
+          const meta = v2CountryMeta.get(countryIso3);
+          if (meta) {
             document.getElementById(
               "countryCode-" + recipientIndex
-            ).textContent = countryCode;
-            document.getElementById("countryFlag-" + recipientIndex).src =
-              "flags/" + flag;
-            document.getElementById("countryFlag-" + recipientIndex).alt =
-              country + " flag";
+            ).textContent = "+" + (meta.prefix || "");
+            const flagEl = document.getElementById(
+              "countryFlag-" + recipientIndex
+            );
+            flagEl.src = meta.flagUrl || "";
+            flagEl.alt = (meta.displayName || country) + " flag";
+            return;
+          }
+          const correspondents = mnoCorrespondents[country];
+          if (correspondents && correspondents.length > 0) {
+            const cc = correspondents[0].countryCode || "+";
+            const flag = correspondents[0].flag || "";
+            document.getElementById(
+              "countryCode-" + recipientIndex
+            ).textContent = cc;
+            const flagEl = document.getElementById(
+              "countryFlag-" + recipientIndex
+            );
+            flagEl.src = flag ? "flags/" + flag : "";
+            flagEl.alt = country + " flag";
           } else {
-            // Default values if no correspondents found
             document.getElementById(
               "countryCode-" + recipientIndex
             ).textContent = "+";
-            document.getElementById("countryFlag-" + recipientIndex).src = "";
-            document.getElementById("countryFlag-" + recipientIndex).alt = "";
+            const flagEl = document.getElementById(
+              "countryFlag-" + recipientIndex
+            );
+            flagEl.src = "";
+            flagEl.alt = "";
           }
         }
 
-        // Function to display MNO cards
+        // Operator cards (absolute URLs in v2; local images in v1)
         function displayMnoCards(recipientIndex, country) {
           const container = document.getElementById(
             "mno-cards-container-" + recipientIndex
@@ -1202,86 +1315,71 @@
           container.innerHTML = "";
 
           const correspondents = mnoCorrespondents[country];
-          if (correspondents) {
-            correspondents.forEach((mno) => {
-              const card = document.createElement("div");
-
-              // Add 'disabled' class if the network is down
-              card.className = `operator-card ${
-                mno.available ? "" : "disabled"
-              }`;
-
-              // Use mno.img to load the operator image and mno.flag for the country flag
-              card.innerHTML = `
-                      <img src="mno-img/${mno.img}" alt="${mno.name}" />
-                      <p>${mno.name}</p>
-                      ${
-                        mno.available
-                          ? ""
-                          : '<span class="unavailable-text">Not available</span>'
-                      }
-                  `;
-
-              card.onclick = function () {
-                if (mno.available) {
-                  // Only proceed if the network is available
-                  container
-                    .querySelectorAll(".operator-card")
-                    .forEach((c) => c.classList.remove("selected"));
-                  card.classList.add("selected");
-
-                  // Store the selected MNO value in the hidden input
-                  document.getElementById(
-                    "selectedMno-" + recipientIndex
-                  ).value = mno.apiCode;
-
-                  // Update country code and flag (in case different MNOs have different codes)
-                  document.getElementById(
-                    "countryCode-" + recipientIndex
-                  ).textContent = mno.countryCode;
-                  document.getElementById("countryFlag-" + recipientIndex).src =
-                    "flags/" + mno.flag;
-                  document.getElementById("countryFlag-" + recipientIndex).alt =
-                    country + " flag";
-                }
-              };
-
-              container.appendChild(card);
-            });
-          } else {
-            container.innerHTML = "No MNO available for this country";
+          if (!correspondents) {
+            container.textContent = "No MNO available for this country";
+            return;
           }
+
+          correspondents.forEach((mno) => {
+            const card = document.createElement("div");
+            card.className = `operator-card ${mno.available ? "" : "disabled"}`;
+
+            const isAbsolute =
+              typeof mno.img === "string" && /^(https?:)?\/\//i.test(mno.img);
+            const logoSrc = isAbsolute ? mno.img : `mno-img/${mno.img}`;
+
+            card.innerHTML = `
+          <img src="${logoSrc}" alt="${mno.name}" />
+          <p>${mno.name}</p>
+          ${
+            mno.available
+              ? ""
+              : '<span class="unavailable-text">Not available</span>'
+          }
+        `;
+
+            card.onclick = function () {
+              if (!mno.available) return;
+
+              container
+                .querySelectorAll(".operator-card")
+                .forEach((c) => c.classList.remove("selected"));
+              card.classList.add("selected");
+
+              // Backend maps v1/v2 (correspondent <-> provider)
+              document.getElementById("selectedMno-" + recipientIndex).value =
+                mno.apiCode;
+
+              // Refresh prefix/flag (v2 meta takes precedence)
+              updateCountryDetails(recipientIndex, country);
+            };
+
+            container.appendChild(card);
+          });
         }
 
-        // Handle form submission
-
+        // Submit handler
         document
           .getElementById("payout-form")
           .addEventListener("submit", function (event) {
             event.preventDefault();
 
-            // Show the loader when the form is submitted
             const loader = document.getElementById("loader");
             loader.style.display = "flex";
             loader.classList.remove("hidden");
             loader.classList.add("visible");
 
-            // Perform validation and get the list of invalid recipients or fields
             const validationErrors = validateForm();
-
             if (validationErrors.length > 0) {
-              // Show dynamic error message with specific field issues
               const errorMessage = createDynamicErrorMessage(validationErrors);
               showBootstrapAlert(errorMessage, "warning");
               loader.style.display = "none";
               loader.classList.add("hidden");
-              return; // Stop form submission if validation fails
+              return;
             }
 
-            // Collect the form data
+            // Build JSON body
             const formData = new FormData(this);
-
-            // Convert FormData to JSON
             const formJSON = {};
             formData.forEach((value, key) => {
               const keys = key.match(/[^\[\]]+/g);
@@ -1294,26 +1392,26 @@
                   ref = ref[k];
                 } else {
                   if (k === "recipientMsisdn") {
-                    const recipientIndex = parseInt(keys[1]) + 1;
+                    const rIdx = parseInt(keys[1]) + 1;
                     const countryCodeSpan = document.getElementById(
-                      `countryCode-${recipientIndex}`
+                      `countryCode-${rIdx}`
                     );
-                    let cleanedPhoneNumber = value.replace(/\D/g, ""); // Clean phone number by removing non-numeric characters
+                    let cleaned = value.replace(/\D/g, "");
                     if (countryCodeSpan) {
                       let countryCode = countryCodeSpan.textContent
                         .trim()
                         .replace("+", "");
-                      ref[k] = countryCode + cleanedPhoneNumber;
+                      ref[k] = countryCode + cleaned;
                     } else {
-                      ref[k] = cleanedPhoneNumber; // Just clean and store if no country code found
+                      ref[k] = cleaned;
                     }
                   } else if (k === "amount") {
-                    const recipientIndex = parseInt(keys[1]) + 1;
-                    const currencySymbolSpan = document.getElementById(
-                      `currency-symbol-${recipientIndex}`
+                    const rIdx = parseInt(keys[1]) + 1;
+                    const currencySpan = document.getElementById(
+                      `currency-symbol-${rIdx}`
                     );
-                    if (currencySymbolSpan) {
-                      const currency = currencySymbolSpan.textContent.trim();
+                    if (currencySpan) {
+                      const currency = currencySpan.textContent.trim();
                       ref["currency"] = currency;
                     }
                     ref[k] = value;
@@ -1324,27 +1422,23 @@
               });
             });
 
-            console.log(formJSON);
-            // Send the form data to the PHP file using fetch
+            // Tell backend which API shape the UI intends to use
+            formJSON.apiVersion = confVersion;
+
             fetch("payouts.php", {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(formJSON), // Convert the JSON object to a string
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(formJSON),
             })
-              .then((response) => response.json()) // Handle response from the server
+              .then((response) => response.json())
               .then((data) => {
-                // Hide the loader when the response is received
                 loader.style.display = "none";
                 loader.classList.add("hidden");
-                console.log(data); // Log the response (You can handle success or errors here)
+                console.log(data);
 
-                // Initialize message containers
                 let successMessages = "";
                 let failureMessages = "";
 
-                // Check for 'successful_payouts' and 'failed_payouts'
                 if (
                   data.successful_payouts &&
                   Array.isArray(data.successful_payouts) &&
@@ -1353,13 +1447,12 @@
                   successMessages += `<h5>Successful Payouts:</h5><ul>`;
                   data.successful_payouts.forEach((payout) => {
                     successMessages += `
-              <li>
-                <strong>Recipient:</strong> ${payout.recipientMsisdn}<br>
-                <strong>Amount:</strong> ${payout.amount} ${payout.currency}<br>
-                <strong>Payout ID:</strong> ${payout.payoutId}<br>
-                <strong>Details:</strong> ${payout.details}
-              </li>
-            `;
+                  <li>
+                    <strong>Recipient:</strong> ${payout.recipientMsisdn}<br>
+                    <strong>Amount:</strong> ${payout.amount} ${payout.currency}<br>
+                    <strong>Payout ID:</strong> ${payout.payoutId}<br>
+                    <strong>Details:</strong> ${payout.details}
+                  </li>`;
                   });
                   successMessages += `</ul>`;
                 }
@@ -1372,19 +1465,19 @@
                   failureMessages += `<h5>Failed Payouts:</h5><ul>`;
                   data.failed_payouts.forEach((payout) => {
                     failureMessages += `
-              <li>
-                <strong>Recipient:</strong> ${payout.recipientMsisdn}<br>
-                <strong>Amount:</strong> ${payout.amount} ${payout.currency}<br>
-                <strong>Payout ID:</strong> ${payout.payoutId || "N/A"}<br>
-                <strong>Reason:</strong> ${payout.error}<br>
-                <strong>Details:</strong> ${payout.details}
-              </li>
-            `;
+                  <li>
+                    <strong>Recipient:</strong> ${payout.recipientMsisdn}<br>
+                    <strong>Amount:</strong> ${payout.amount} ${
+                      payout.currency
+                    }<br>
+                    <strong>Payout ID:</strong> ${payout.payoutId || "N/A"}<br>
+                    <strong>Reason:</strong> ${payout.error}<br>
+                    <strong>Details:</strong> ${payout.details}
+                  </li>`;
                   });
                   failureMessages += `</ul>`;
                 }
 
-                // If 'successful_payouts' and 'failed_payouts' are not present, fall back to 'responses' array
                 if (
                   (!data.successful_payouts ||
                     data.successful_payouts.length === 0) &&
@@ -1394,74 +1487,60 @@
                 ) {
                   data.responses.forEach((payout) => {
                     if (payout.success) {
-                      // Extract payout details from the nested 'response' array
-                      const responseData =
-                        payout.response && payout.response.length > 0
-                          ? payout.response[0]
-                          : {};
-
+                      const responseData = extractResponseData(payout.response);
                       successMessages += `
-                <h5>Successful Payout:</h5>
-                <ul>
-                  <li>
-                    <strong>Recipient:</strong> ${payout.recipientMsisdn}<br>
-                    <strong>Amount:</strong> ${responseData.amount || "N/A"} ${
-                        responseData.currency || ""
-                      }<br>
-                    <strong>Payout ID:</strong> ${
-                      responseData.payoutId || "N/A"
-                    }<br>
-                    <strong>Details:</strong> ${payout.details}
-                  </li>
-                </ul>
-              `;
+                    <h5>Successful Payout:</h5>
+                    <ul>
+                      <li>
+                        <strong>Recipient:</strong> ${
+                          payout.recipientMsisdn
+                        }<br>
+                        <strong>Amount:</strong> ${
+                          responseData.amount || "N/A"
+                        } ${responseData.currency || ""}<br>
+                        <strong>Payout ID:</strong> ${
+                          responseData.payoutId || "N/A"
+                        }<br>
+                        <strong>Details:</strong> ${payout.details}
+                      </li>
+                    </ul>`;
                     } else {
-                      // Extract payout details from the nested 'response' array if available
                       const responseData =
                         payout.response && payout.response.length > 0
                           ? payout.response[0]
                           : {};
-
                       failureMessages += `
-                <h5>Failed Payout:</h5>
-                <ul>
-                  <li>
-                    <strong>Recipient:</strong> ${payout.recipientMsisdn}<br>
-                    <strong>Amount:</strong> ${payout.amount || "N/A"} ${
+                    <h5>Failed Payout:</h5>
+                    <ul>
+                      <li>
+                        <strong>Recipient:</strong> ${
+                          payout.recipientMsisdn
+                        }<br>
+                        <strong>Amount:</strong> ${payout.amount || "N/A"} ${
                         payout.currency || ""
                       }<br>
-                    <strong>Payout ID:</strong> ${
-                      responseData.payoutId || "N/A"
-                    }<br>
-                    <strong>Reason:</strong> ${payout.error || "N/A"}<br>
-                    <strong>Details:</strong> ${payout.details}
-                  </li>
-                </ul>
-              `;
+                        <strong>Payout ID:</strong> ${
+                          responseData.payoutId || "N/A"
+                        }<br>
+                        <strong>Reason:</strong> ${payout.error || "N/A"}<br>
+                        <strong>Details:</strong> ${payout.details}
+                      </li>
+                    </ul>`;
                     }
                   });
                 }
 
-                // Combine messages
                 let combinedMessage = "";
-                if (successMessages) {
-                  combinedMessage += successMessages;
-                }
-                if (failureMessages) {
-                  combinedMessage += failureMessages;
-                }
+                if (successMessages) combinedMessage += successMessages;
+                if (failureMessages) combinedMessage += failureMessages;
 
-                // Display the combined messages
                 if (combinedMessage) {
                   if (data.success) {
-                    // All payouts succeeded
                     showSuccessAlert(combinedMessage);
                   } else {
-                    // Some payouts failed
-                    showBootstrapAlert(combinedMessage); // by default its warning
+                    showBootstrapAlert(combinedMessage);
                   }
                 } else {
-                  // No payouts processed
                   showBootstrapAlert(
                     "No payouts were processed. Please check your input.",
                     "warning"
@@ -1469,7 +1548,6 @@
                 }
               })
               .catch((error) => {
-                // Hide the loader when the response is received
                 loader.style.display = "none";
                 loader.classList.add("hidden");
                 console.error("Error:", error);
@@ -1491,9 +1569,9 @@
         }
 
         function validateForm() {
-          let valid = true;
+          const isV2 = String(confVersion).toLowerCase() === "v2";
           const recipients = document.querySelectorAll(".recipient");
-          const errors = []; // Store errors for each recipient
+          const errors = [];
 
           recipients.forEach((recipient, index) => {
             const countrySelect = recipient.querySelector(".country-select");
@@ -1507,21 +1585,19 @@
             const statementDescriptionInput = recipient.querySelector(
               "[name^='recipients'][name$='[statementDescription]']"
             );
-            const metadataItems = recipient.querySelectorAll(".metadata-item"); // Select metadata items
+            const metadataItems = recipient.querySelectorAll(".metadata-item");
 
-            const recipientErrors = [];
+            const recErrs = [];
 
-            // Validate country selection
             if (!countrySelect.value) {
-              recipientErrors.push("Country");
+              recErrs.push("Country");
               countrySelect.classList.add("is-invalid");
             } else {
               countrySelect.classList.remove("is-invalid");
             }
 
-            // Validate MNO selection
             if (!selectedMnoInput.value) {
-              recipientErrors.push("Operator");
+              recErrs.push("Operator");
               recipient
                 .querySelector(".operator-container")
                 .classList.add("border-danger");
@@ -1531,19 +1607,17 @@
                 .classList.remove("border-danger");
             }
 
-            // Validate amount (should be a positive number)
             if (
               !amountInput.value ||
               isNaN(amountInput.value) ||
               parseFloat(amountInput.value) <= 0
             ) {
-              recipientErrors.push("Amount");
+              recErrs.push("Amount");
               amountInput.classList.add("is-invalid");
             } else {
               amountInput.classList.remove("is-invalid");
             }
 
-            // Validate phone number (must only contain numbers, including country code)
             const countryCodeSpan = recipient.querySelector(
               `#countryCode-${index + 1}`
             );
@@ -1554,50 +1628,65 @@
               countryCode = countryCodeSpan.textContent.trim().replace("+", "");
               fullPhoneNumber = countryCode + fullPhoneNumber;
             }
-
-            // Remove all non-numeric characters from the phone number
             const cleanedPhoneNumber = fullPhoneNumber.replace(/\D/g, "");
 
             if (!cleanedPhoneNumber || !/^\d+$/.test(cleanedPhoneNumber)) {
-              recipientErrors.push(
+              recErrs.push(
                 "Invalid Phone Number (should contain only numbers)"
               );
               phoneNumberInput.classList.add("is-invalid");
             } else {
-              // Use libphonenumber-js to validate the cleaned phone number
               const phoneNumber = libphonenumber.parsePhoneNumberFromString(
                 `+${cleanedPhoneNumber}`
               );
-
               if (!phoneNumber || !phoneNumber.isValid()) {
-                recipientErrors.push("Invalid Phone Number");
+                recErrs.push("Invalid Phone Number");
                 phoneNumberInput.classList.add("is-invalid");
               } else {
                 phoneNumberInput.classList.remove("is-invalid");
               }
             }
 
-            // Validate statement description (ensure it's not empty, max 22 chars, and no special characters)
-            if (!statementDescriptionInput.value.trim()) {
-              recipientErrors.push("Statement Description is required");
-              statementDescriptionInput.classList.add("is-invalid");
-            } else if (statementDescriptionInput.value.length > 22) {
-              recipientErrors.push(
-                "Statement Description must be 22 characters or less"
-              );
-              statementDescriptionInput.classList.add("is-invalid");
-            } else if (
-              !/^[a-zA-Z0-9\s]+$/.test(statementDescriptionInput.value)
-            ) {
-              recipientErrors.push(
-                "Statement Description must not contain special characters"
-              );
-              statementDescriptionInput.classList.add("is-invalid");
+            // Statement description:
+            // v1: required; v2: optional (but if provided, must meet format)
+            const descVal = (statementDescriptionInput.value || "").trim();
+            if (!isV2) {
+              if (!descVal) {
+                recErrs.push("Statement Description is required");
+                statementDescriptionInput.classList.add("is-invalid");
+              } else if (descVal.length > 22) {
+                recErrs.push(
+                  "Statement Description must be 22 characters or less"
+                );
+                statementDescriptionInput.classList.add("is-invalid");
+              } else if (!/^[a-zA-Z0-9\s]+$/.test(descVal)) {
+                recErrs.push(
+                  "Statement Description must not contain special characters"
+                );
+                statementDescriptionInput.classList.add("is-invalid");
+              } else {
+                statementDescriptionInput.classList.remove("is-invalid");
+              }
+            } else if (descVal) {
+              // optional in v2, but validate when present
+              if (descVal.length > 22) {
+                recErrs.push(
+                  "Statement Description must be 22 characters or less"
+                );
+                statementDescriptionInput.classList.add("is-invalid");
+              } else if (!/^[a-zA-Z0-9\s]+$/.test(descVal)) {
+                recErrs.push(
+                  "Statement Description must not contain special characters"
+                );
+                statementDescriptionInput.classList.add("is-invalid");
+              } else {
+                statementDescriptionInput.classList.remove("is-invalid");
+              }
             } else {
               statementDescriptionInput.classList.remove("is-invalid");
             }
 
-            // Validate metadata (if any)
+            // Metadata fields (if present)
             metadataItems.forEach((metadataItem, metadataIndex) => {
               const fieldNameInput = metadataItem.querySelector(
                 "[name^='recipients'][name$='[fieldName]']"
@@ -1607,60 +1696,45 @@
               );
 
               if (!fieldNameInput.value.trim()) {
-                recipientErrors.push(
-                  `Metadata Field Name ${metadataIndex + 1}`
-                );
+                recErrs.push(`Metadata Field Name ${metadataIndex + 1}`);
                 fieldNameInput.classList.add("is-invalid");
               } else {
                 fieldNameInput.classList.remove("is-invalid");
               }
 
               if (!fieldValueInput.value.trim()) {
-                recipientErrors.push(
-                  `Metadata Field Value ${metadataIndex + 1}`
-                );
+                recErrs.push(`Metadata Field Value ${metadataIndex + 1}`);
                 fieldValueInput.classList.add("is-invalid");
               } else {
                 fieldValueInput.classList.remove("is-invalid");
               }
             });
 
-            // If there are errors for this recipient, add them to the error list
-            if (recipientErrors.length > 0) {
-              valid = false;
-              errors.push({
-                recipientIndex: index + 1,
-                fields: recipientErrors,
-              });
+            if (recErrs.length > 0) {
+              errors.push({ recipientIndex: index + 1, fields: recErrs });
             }
           });
 
-          return errors; // Return the list of errors instead of just true/false
+          return errors;
         }
 
         function createDynamicErrorMessage(errors) {
           document.getElementById("loader").classList.add("hidden");
           let errorMessage = `
-      <p><strong>Please address the following issues before proceeding:</strong></p>
-      <ul>
-    `; // Begin with a message and start the list
-
+        <p><strong>Please address the following issues before proceeding:</strong></p>
+        <ul>`;
           errors.forEach((error) => {
             const recipientNumber = error.recipientIndex;
             const invalidFields = error.fields
               .map((field) => `<li>${field}</li>`)
               .join("");
-
-            // Create a list item for each recipient with nested fields
             errorMessage += `
           <li>
             <strong>Recipient ${recipientNumber}:</strong>
             <ul>${invalidFields}</ul>
-          </li>
-        `;
+          </li>`;
           });
-
-          errorMessage += "</ul>"; // Close the unordered list
+          errorMessage += "</ul>";
           return errorMessage;
         }
       });

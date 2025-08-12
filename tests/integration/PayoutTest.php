@@ -4,32 +4,38 @@ namespace Tests\Integration;
 
 use PHPUnit\Framework\TestCase;
 use Katorymnd\PawaPayIntegration\Api\ApiClient;
-use Katorymnd\PawaPayIntegration\Utils\Helpers; // For generating UUIDs
+use Katorymnd\PawaPayIntegration\Utils\Helpers;
 
 class PayoutTest extends TestCase
 {
+    /** @var \PHPUnit\Framework\MockObject\MockObject&ApiClient */
     protected $apiClientMock;
 
     protected function setUp(): void
     {
-        // Mock the ApiClient instead of using the real one
-        $this->apiClientMock = $this->createMock(ApiClient::class);
+        // Mock ONLY the methods we’ll stub; they all exist on ApiClient.
+        $this->apiClientMock = $this->getMockBuilder(ApiClient::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods([
+                'initiatePayout',             // v1
+                'initiatePayoutAuto',         // v2 auto
+                'checkTransactionStatusAuto', // v2 auto status
+            ])
+            ->getMock();
     }
 
     /**
-     * Test the payout initiation process with a mocked response
+     * V1 / legacy payout initiation (unchanged).
      */
-    public function testPayoutInitiationMocked()
+    public function testPayoutInitiationMocked(): void
     {
-        // Generate a sample UUIDv4 for testing
         $samplePayoutId = Helpers::generateUniqueId();
 
-        // Mock the response from initiatePayout method
         $mockResponse = [
-            'status' => 200,
+            'status'   => 200,
             'response' => [
-                'payoutId' => $samplePayoutId
-            ]
+                'payoutId' => $samplePayoutId,
+            ],
         ];
 
         $this->apiClientMock
@@ -37,14 +43,12 @@ class PayoutTest extends TestCase
             ->method('initiatePayout')
             ->willReturn($mockResponse);
 
-        // Simulate recipient data
-        $recipientMsisdn = '256783456789';
-        $amount = '200.00';
-        $currency = 'UGX';
-        $correspondent = 'MTN_MOMO_UGA';
-        $statementDescription = 'Payout for service rendered';
+        $recipientMsisdn       = '256783456789';
+        $amount                = '200.00';
+        $currency              = 'UGX';
+        $correspondent         = 'MTN_MOMO_UGA';
+        $statementDescription  = 'Payout for service rendered';
 
-        // Call the initiatePayout method with mocked data
         $response = $this->apiClientMock->initiatePayout(
             $samplePayoutId,
             $amount,
@@ -54,22 +58,20 @@ class PayoutTest extends TestCase
             $statementDescription
         );
 
-        // Assert that the mock response contains the expected data
-        $this->assertEquals(200, $response['status']);
-        $this->assertEquals($samplePayoutId, $response['response']['payoutId']);
+        $this->assertSame(200, $response['status']);
+        $this->assertSame($samplePayoutId, $response['response']['payoutId']);
     }
 
     /**
-     * Test payout with missing fields
+     * V1 / legacy: missing fields error path.
      */
-    public function testPayoutMissingFields()
+    public function testPayoutMissingFields(): void
     {
-        // Mock the response from initiatePayout method to simulate failure
         $mockResponse = [
-            'status' => 400,
+            'status'   => 400,
             'response' => [
-                'message' => 'Missing required fields.'
-            ]
+                'message' => 'Missing required fields.',
+            ],
         ];
 
         $this->apiClientMock
@@ -77,24 +79,123 @@ class PayoutTest extends TestCase
             ->method('initiatePayout')
             ->willReturn($mockResponse);
 
-        // Simulate incomplete data (missing currency)
-        $recipientMsisdn = '256783456789';
-        $amount = '200.00';
-        $correspondent = 'MTN_MOMO_UGA';
-        $statementDescription = 'Payout for service rendered';
+        $recipientMsisdn       = '256783456789';
+        $amount                = '200.00';
+        $correspondent         = 'MTN_MOMO_UGA';
+        $statementDescription  = 'Payout for service rendered';
 
-        // Call the initiatePayout method with mocked data (missing currency)
         $response = $this->apiClientMock->initiatePayout(
-            Helpers::generateUniqueId(), // Generate a unique payout ID
+            Helpers::generateUniqueId(),
             $amount,
-            '', // Missing currency
+            '', // Missing currency (forces 400 in our mock)
             $correspondent,
             $recipientMsisdn,
             $statementDescription
         );
 
-        // Assert that the mock response contains the error message
-        $this->assertEquals(400, $response['status']);
-        $this->assertEquals('Missing required fields.', $response['response']['message']);
+        $this->assertSame(400, $response['status']);
+        $this->assertSame('Missing required fields.', $response['response']['message']);
+    }
+
+    /**
+     * V2 payout initiation via version-aware AUTO method (array payload).
+     */
+    public function testPayoutInitiationV2Mocked(): void
+    {
+        $payoutId = Helpers::generateUniqueId();
+
+        // v2-style args: provider + customerMessage
+        $argsV2 = [
+            'payoutId'        => $payoutId,
+            'amount'          => '200',               // string in v2
+            'currency'        => 'UGX',
+            'recipientMsisdn' => '256783456789',
+            'provider'        => 'MTN_MOMO_UGA',
+            'customerMessage' => 'Payout for service rendered',
+            'metadata'        => [
+                ['orderId' => 'ORD-98765'],
+                ['note'    => 'unit-test'],
+            ],
+        ];
+
+        $mockInitiate = [
+            'status'   => 200,
+            'response' => [
+                'payoutId' => $payoutId,
+                'status'   => 'ACCEPTED',
+            ],
+        ];
+
+        $this->apiClientMock
+            ->expects($this->once())
+            ->method('initiatePayoutAuto')
+            ->with($this->callback(function ($payload) use ($payoutId) {
+                return is_array($payload)
+                    && ($payload['payoutId']        ?? null) === $payoutId
+                    && ($payload['currency']        ?? null) === 'UGX'
+                    && ($payload['provider']        ?? null) === 'MTN_MOMO_UGA'
+                    && ($payload['recipientMsisdn'] ?? null) === '256783456789';
+            }))
+            ->willReturn($mockInitiate);
+
+        $response = $this->apiClientMock->initiatePayoutAuto($argsV2);
+
+        $this->assertSame(200, $response['status']);
+        $this->assertSame($payoutId, $response['response']['payoutId']);
+        $this->assertSame('ACCEPTED', $response['response']['status']);
+    }
+
+    /**
+     * V2 payout initiation + mocked status poll completing.
+     */
+    public function testPayoutInitiationV2ThenStatusMocked(): void
+    {
+        $payoutId = Helpers::generateUniqueId();
+
+        $argsV2 = [
+            'payoutId'        => $payoutId,
+            'amount'          => '200',
+            'currency'        => 'UGX',
+            'recipientMsisdn' => '256783456789',
+            'provider'        => 'MTN_MOMO_UGA',
+            'customerMessage' => 'Payout for service rendered',
+        ];
+
+        $mockInitiate = [
+            'status'   => 200,
+            'response' => [
+                'payoutId' => $payoutId,
+                'status'   => 'ACCEPTED',
+            ],
+        ];
+
+        $mockStatus = [
+            'status'   => 200,
+            'response' => [
+                'payoutId' => $payoutId,
+                'status'   => 'COMPLETED',
+            ],
+        ];
+
+        // 1) initiate
+        $this->apiClientMock
+            ->expects($this->once())
+            ->method('initiatePayoutAuto')
+            ->willReturn($mockInitiate);
+
+        // 2) status check (v2 auto)
+        $this->apiClientMock
+            ->expects($this->once())
+            ->method('checkTransactionStatusAuto')
+            ->with($payoutId, 'payout')
+            ->willReturn($mockStatus);
+
+        $init = $this->apiClientMock->initiatePayoutAuto($argsV2);
+        $this->assertSame(200, $init['status']);
+        $this->assertSame('ACCEPTED', $init['response']['status']);
+
+        $status = $this->apiClientMock->checkTransactionStatusAuto($payoutId, 'payout');
+        $this->assertSame(200, $status['status']);
+        $this->assertSame('COMPLETED', $status['response']['status']);
     }
 }

@@ -1,0 +1,2531 @@
+{
+    "companyName": "ss",
+    "countries": [
+        {
+            "country": "BEN",
+            "displayName": {
+                "fr": "B\u00e9nin",
+                "en": "Benin"
+            },
+            "prefix": "229",
+            "flag": "https:\/\/static-content.pawapay.io\/country_flags\/ben.svg",
+            "providers": [
+                {
+                    "provider": "MOOV_BEN",
+                    "nameDisplayedToCustomer": "PAWAPAY",
+                    "displayName": "Moov",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/moov.png",
+                    "currencies": [
+                        {
+                            "currency": "XOF",
+                            "displayName": "CFA",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "100",
+                                    "maxAmount": "2000000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "AUTOMATIC",
+                                    "pinPromptRevivable": false,
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "100",
+                                    "maxAmount": "2000000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "100",
+                                    "maxAmount": "2000000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "provider": "MTN_MOMO_BEN",
+                    "nameDisplayedToCustomer": "PAWAPAY",
+                    "displayName": "MTN",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/mtn.png",
+                    "currencies": [
+                        {
+                            "currency": "XOF",
+                            "displayName": "CFA",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "1",
+                                    "maxAmount": "2000000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "AUTOMATIC",
+                                    "pinPromptRevivable": true,
+                                    "pinPromptInstructions": {
+                                        "channels": [
+                                            {
+                                                "type": "USSD",
+                                                "displayName": {
+                                                    "en": "Did not get a PIN prompt?",
+                                                    "fr": "N\u2019avez-vous pas re\u00e7u la demande de code PIN ?"
+                                                },
+                                                "quickLink": "*840*8*2*1#",
+                                                "variables": {
+                                                    "financialApprovalOption": "1",
+                                                    "subApprovalOption": "2",
+                                                    "approvalOption": "8",
+                                                    "shortCode": "*840#"
+                                                },
+                                                "instructions": {
+                                                    "en": [
+                                                        {
+                                                            "text": "Dial *840#",
+                                                            "template": "Dial {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "Select 8 - My Approvals",
+                                                            "template": "Select {{approvalOption}} - My Approvals"
+                                                        },
+                                                        {
+                                                            "text": "Select 2 - My Sub Approvals",
+                                                            "template": "Select {{subApprovalOption}} - My Sub Approvals"
+                                                        },
+                                                        {
+                                                            "text": "Select 1 - Financial Approvals",
+                                                            "template": "Select {{financialApprovalOption}} - Financial Approvals"
+                                                        },
+                                                        {
+                                                            "text": "Enter PIN",
+                                                            "template": "Enter PIN"
+                                                        },
+                                                        {
+                                                            "text": "Select Transaction",
+                                                            "template": "Select Transaction"
+                                                        }
+                                                    ],
+                                                    "fr": [
+                                                        {
+                                                            "text": "Composez *840#",
+                                                            "template": "Composez {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 8 - Mes Validations",
+                                                            "template": "S\u00e9lectionnez {{approvalOption}} - Mes Validations"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 2 - Mes Sous-Validations",
+                                                            "template": "S\u00e9lectionnez {{subApprovalOption}} - Mes Sous-Validations"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 1 - Validations Financi\u00e8res",
+                                                            "template": "S\u00e9lectionnez {{financialApprovalOption}} - Validations Financi\u00e8res"
+                                                        },
+                                                        {
+                                                            "text": "Entrez le code PIN",
+                                                            "template": "Entrez le code PIN"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez Transaction",
+                                                            "template": "S\u00e9lectionnez Transaction"
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "type": "USSD",
+                                                "displayName": {
+                                                    "en": "Did not get a PIN prompt?",
+                                                    "fr": "N\u2019avez-vous pas re\u00e7u la demande de code PIN ?"
+                                                },
+                                                "quickLink": "*840*8*2*1#",
+                                                "variables": {
+                                                    "financialApprovalOption": "1",
+                                                    "subApprovalOption": "2",
+                                                    "approvalOption": "8",
+                                                    "shortCode": "*840#"
+                                                },
+                                                "instructions": {
+                                                    "en": [
+                                                        {
+                                                            "text": "Dial *840#",
+                                                            "template": "Dial {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "Select 8 - My Approvals",
+                                                            "template": "Select {{approvalOption}} - My Approvals"
+                                                        },
+                                                        {
+                                                            "text": "Select 2 - My Sub Approvals",
+                                                            "template": "Select {{subApprovalOption}} - My Sub Approvals"
+                                                        },
+                                                        {
+                                                            "text": "Select 1 - Financial Approvals",
+                                                            "template": "Select {{financialApprovalOption}} - Financial Approvals"
+                                                        },
+                                                        {
+                                                            "text": "Enter Pin",
+                                                            "template": "Enter Pin"
+                                                        },
+                                                        {
+                                                            "text": "Select Transaction",
+                                                            "template": "Select Transaction"
+                                                        }
+                                                    ],
+                                                    "fr": [
+                                                        {
+                                                            "text": "Composez *840#",
+                                                            "template": "Composez {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 8 - Mes Validations",
+                                                            "template": "S\u00e9lectionnez {{approvalOption}} - Mes Validations"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 2 - Mes Sous-Validations",
+                                                            "template": "S\u00e9lectionnez {{subApprovalOption}} - Mes Sous-Validations"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 1 - Validations Financi\u00e8res",
+                                                            "template": "S\u00e9lectionnez {{financialApprovalOption}} - Validations Financi\u00e8res"
+                                                        },
+                                                        {
+                                                            "text": "Entrez le code PIN",
+                                                            "template": "Entrez le code PIN"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez Transaction",
+                                                            "template": "S\u00e9lectionnez Transaction"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "1",
+                                    "maxAmount": "2000000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "1",
+                                    "maxAmount": "2000000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "country": "BFA",
+            "displayName": {
+                "fr": "Burkina Faso",
+                "en": "Burkina Faso"
+            },
+            "prefix": "226",
+            "flag": "https:\/\/static-content.pawapay.io\/country_flags\/bfa.svg",
+            "providers": [
+                {
+                    "provider": "MOOV_BFA",
+                    "nameDisplayedToCustomer": "PAWAPAY SARL",
+                    "displayName": "Moov",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/moov.png",
+                    "currencies": [
+                        {
+                            "currency": "XOF",
+                            "displayName": "CFA",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "100",
+                                    "maxAmount": "2000000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "MANUAL",
+                                    "pinPromptRevivable": false,
+                                    "pinPromptInstructions": {
+                                        "channels": [
+                                            {
+                                                "type": "USSD",
+                                                "displayName": {
+                                                    "en": "Follow the instructions to authorise the payment",
+                                                    "fr": "Veuillez suivre les instructions afin d\u2019autoriser le paiement."
+                                                },
+                                                "variables": {
+                                                    "shortCode": "*555*6#"
+                                                },
+                                                "instructions": {
+                                                    "en": [
+                                                        {
+                                                            "text": "Dial *555*6#",
+                                                            "template": "Dial {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "Enter PIN",
+                                                            "template": "Enter PIN"
+                                                        }
+                                                    ],
+                                                    "fr": [
+                                                        {
+                                                            "text": "Composez *555*6#",
+                                                            "template": "Composez {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "Entrez le code PIN",
+                                                            "template": "Entrez le code PIN"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "100",
+                                    "maxAmount": "2000000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "100",
+                                    "maxAmount": "2000000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "country": "CIV",
+            "displayName": {
+                "fr": "C\u00f4te d\u2019Ivoire",
+                "en": "Ivory Coast"
+            },
+            "prefix": "225",
+            "flag": "https:\/\/static-content.pawapay.io\/country_flags\/civ.svg",
+            "providers": [
+                {
+                    "provider": "MTN_MOMO_CIV",
+                    "nameDisplayedToCustomer": "PAWAPAY CDI",
+                    "displayName": "MTN",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/mtn.png",
+                    "currencies": [
+                        {
+                            "currency": "XOF",
+                            "displayName": "CFA",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "1",
+                                    "maxAmount": "2000000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "MANUAL",
+                                    "pinPromptRevivable": true,
+                                    "pinPromptInstructions": {
+                                        "channels": [
+                                            {
+                                                "type": "USSD",
+                                                "displayName": {
+                                                    "en": "Follow the instructions to authorise the payment",
+                                                    "fr": "Veuillez suivre les instructions afin d\u2019autoriser le paiement"
+                                                },
+                                                "variables": {
+                                                    "approvalOption": "1",
+                                                    "shortCode": "*133#",
+                                                    "pendingOption": "1"
+                                                },
+                                                "instructions": {
+                                                    "en": [
+                                                        {
+                                                            "text": "Dial *133#",
+                                                            "template": "Dial {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "Select 1 - Approve withdrawal and payment",
+                                                            "template": "Select {{approvalOption}} - Approve withdrawal and payment"
+                                                        },
+                                                        {
+                                                            "text": "Select 1 - Select your pending transaction",
+                                                            "template": "Select {{pendingOption}} - Select your pending transaction"
+                                                        },
+                                                        {
+                                                            "text": "Enter PIN",
+                                                            "template": "Enter PIN"
+                                                        }
+                                                    ],
+                                                    "fr": [
+                                                        {
+                                                            "text": "Composez *133#",
+                                                            "template": "Composez {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 1 - Valider retrait et paiement",
+                                                            "template": "S\u00e9lectionnez {{approvalOption}} - Valider retrait et paiement"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 1 - S\u00e9lectionnez votre transaction en attente",
+                                                            "template": "S\u00e9lectionnez {{pendingOption}} - S\u00e9lectionnez votre transaction en attente"
+                                                        },
+                                                        {
+                                                            "text": "Entrez le code PIN",
+                                                            "template": "Entrez le code PIN"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "1",
+                                    "maxAmount": "2000000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "1",
+                                    "maxAmount": "2000000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "provider": "ORANGE_CIV",
+                    "displayName": "Orange",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/orange.png",
+                    "currencies": [
+                        {
+                            "currency": "XOF",
+                            "displayName": "CFA",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "1",
+                                    "maxAmount": "2000000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "MANUAL",
+                                    "pinPromptRevivable": true,
+                                    "pinPromptInstructions": {
+                                        "channels": [
+                                            {
+                                                "type": "USSD",
+                                                "displayName": {
+                                                    "en": "Follow the instructions to authorise the payment",
+                                                    "fr": "Veuillez suivre les instructions afin d\u2019autoriser le paiement"
+                                                },
+                                                "variables": {
+                                                    "shortCode": "#120#"
+                                                },
+                                                "instructions": {
+                                                    "en": [
+                                                        {
+                                                            "text": "Dial #120#",
+                                                            "template": "Dial {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "Enter PIN",
+                                                            "template": "Enter PIN"
+                                                        }
+                                                    ],
+                                                    "fr": [
+                                                        {
+                                                            "text": "Composez #120#",
+                                                            "template": "Composez {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "Entrez le code PIN",
+                                                            "template": "Entrez le code PIN"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "1",
+                                    "maxAmount": "2000000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "1",
+                                    "maxAmount": "2000000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "country": "CMR",
+            "displayName": {
+                "fr": "Cameroun",
+                "en": "Cameroon"
+            },
+            "prefix": "237",
+            "flag": "https:\/\/static-content.pawapay.io\/country_flags\/cmr.svg",
+            "providers": [
+                {
+                    "provider": "MTN_MOMO_CMR",
+                    "nameDisplayedToCustomer": "Pawapay (Kerry Payment)",
+                    "displayName": "MTN",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/mtn.png",
+                    "currencies": [
+                        {
+                            "currency": "XAF",
+                            "displayName": "FCFA",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "1",
+                                    "maxAmount": "1000000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "AUTOMATIC",
+                                    "pinPromptRevivable": true,
+                                    "pinPromptInstructions": {
+                                        "channels": [
+                                            {
+                                                "type": "USSD",
+                                                "displayName": {
+                                                    "en": "Did not get a PIN prompt?",
+                                                    "fr": "N\u2019avez-vous pas re\u00e7u la demande de code PIN?"
+                                                },
+                                                "variables": {
+                                                    "shortCode": "*126#"
+                                                },
+                                                "instructions": {
+                                                    "en": [
+                                                        {
+                                                            "text": "Dial *126#",
+                                                            "template": "Dial {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "Enter PIN",
+                                                            "template": "Enter PIN"
+                                                        }
+                                                    ],
+                                                    "fr": [
+                                                        {
+                                                            "text": "Composez *126#",
+                                                            "template": "Composez {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "Entrez le code PIN",
+                                                            "template": "Entrez le code PIN"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "1",
+                                    "maxAmount": "1000000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "1",
+                                    "maxAmount": "1000000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "provider": "ORANGE_CMR",
+                    "nameDisplayedToCustomer": "KERRY PAY MERE",
+                    "displayName": "Orange",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/orange.png",
+                    "currencies": [
+                        {
+                            "currency": "XAF",
+                            "displayName": "FCFA",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "1",
+                                    "maxAmount": "500000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "AUTOMATIC",
+                                    "pinPromptRevivable": true,
+                                    "pinPromptInstructions": {
+                                        "channels": [
+                                            {
+                                                "type": "USSD",
+                                                "displayName": {
+                                                    "en": "Did not get a PIN prompt?",
+                                                    "fr": "N\u2019avez-vous pas re\u00e7u la demande de code PIN?"
+                                                },
+                                                "variables": {
+                                                    "shortCode": "#150*50#"
+                                                },
+                                                "instructions": {
+                                                    "en": [
+                                                        {
+                                                            "text": "Dial #150*50#",
+                                                            "template": "Dial {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "Enter Pin",
+                                                            "template": "Enter Pin"
+                                                        }
+                                                    ],
+                                                    "fr": [
+                                                        {
+                                                            "text": "Composez #150*50#",
+                                                            "template": "Composez {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "Entrez le code PIN",
+                                                            "template": "Entrez le code PIN"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "1",
+                                    "maxAmount": "500000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "1",
+                                    "maxAmount": "500000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "country": "COD",
+            "displayName": {
+                "fr": "R\u00e9publique d\u00e9mocratique du Congo",
+                "en": "Democratic Republic of the Congo"
+            },
+            "prefix": "243",
+            "flag": "https:\/\/static-content.pawapay.io\/country_flags\/cod.svg",
+            "providers": [
+                {
+                    "provider": "AIRTEL_COD",
+                    "nameDisplayedToCustomer": "PAWAPAY",
+                    "displayName": "Airtel",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/airtel.png",
+                    "currencies": [
+                        {
+                            "currency": "CDF",
+                            "displayName": "FC",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "100",
+                                    "maxAmount": "6250000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "AUTOMATIC",
+                                    "pinPromptRevivable": true,
+                                    "pinPromptInstructions": {
+                                        "channels": [
+                                            {
+                                                "type": "USSD",
+                                                "displayName": {
+                                                    "en": "Did not get a PIN prompt?",
+                                                    "fr": "N\u2019avez-vous pas re\u00e7u la demande de code PIN?"
+                                                },
+                                                "variables": {
+                                                    "cdfCurrencyOption": "2",
+                                                    "accountOption": "6",
+                                                    "approvalOption": "6",
+                                                    "usdCurrencyOption": "1",
+                                                    "shortCode": "*501#"
+                                                },
+                                                "instructions": {
+                                                    "en": [
+                                                        {
+                                                            "text": "Dial *501#",
+                                                            "template": "Dial {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "Select Currency - 1 USD\/2 CDF",
+                                                            "template": "Select Currency - {{usdCurrencyOption}} USD\/{{cdfCurrencyOption}} CDF"
+                                                        },
+                                                        {
+                                                            "text": "Select 6 - My Account\/PIN",
+                                                            "template": "Select {{accountOption}} - My Account\/PIN"
+                                                        },
+                                                        {
+                                                            "text": "Select 6 - My Approvals",
+                                                            "template": "Select {{approvalOption}} - My Approvals"
+                                                        },
+                                                        {
+                                                            "text": "Select transaction",
+                                                            "template": "Select transaction"
+                                                        },
+                                                        {
+                                                            "text": "Enter PIN",
+                                                            "template": "Enter PIN"
+                                                        }
+                                                    ],
+                                                    "fr": [
+                                                        {
+                                                            "text": "Composez *501#",
+                                                            "template": "Composez {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez la devise - 1 USD\/2 CDF",
+                                                            "template": "S\u00e9lectionnez la devise - {{usdCurrencyOption}} USD\/{{cdfCurrencyOption}} CDF"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 6 - Mon Compte\/PIN",
+                                                            "template": "S\u00e9lectionnez {{accountOption}} - Mon Compte\/PIN"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 6 - Mes Validations",
+                                                            "template": "S\u00e9lectionnez {{approvalOption}} - Mes Validations"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez la transaction",
+                                                            "template": "S\u00e9lectionnez la transaction"
+                                                        },
+                                                        {
+                                                            "text": "Entrez le code PIN",
+                                                            "template": "Entrez le code PIN"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "100",
+                                    "maxAmount": "6250000",
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "100",
+                                    "maxAmount": "6250000",
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "provider": "ORANGE_COD",
+                    "nameDisplayedToCustomer": "PAWAPAY",
+                    "displayName": "Orange",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/orange.png",
+                    "currencies": [
+                        {
+                            "currency": "CDF",
+                            "displayName": "FC",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "10",
+                                    "maxAmount": "1000000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "AUTOMATIC",
+                                    "pinPromptRevivable": false,
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "10",
+                                    "maxAmount": "1000000",
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "10",
+                                    "maxAmount": "1000000",
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "provider": "VODACOM_MPESA_COD",
+                    "nameDisplayedToCustomer": "Name of merchant",
+                    "displayName": "Vodacom",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/vodacom.png",
+                    "currencies": [
+                        {
+                            "currency": "CDF",
+                            "displayName": "FC",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "500",
+                                    "maxAmount": "1000000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "AUTOMATIC",
+                                    "pinPromptRevivable": false,
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "1000",
+                                    "maxAmount": "1000000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "1000",
+                                    "maxAmount": "1000000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "country": "COG",
+            "displayName": {
+                "fr": "Congo",
+                "en": "Congo"
+            },
+            "prefix": "242",
+            "flag": "https:\/\/static-content.pawapay.io\/country_flags\/cog.svg",
+            "providers": [
+                {
+                    "provider": "AIRTEL_COG",
+                    "nameDisplayedToCustomer": "PAWAPAY",
+                    "displayName": "Airtel",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/airtel.png",
+                    "currencies": [
+                        {
+                            "currency": "XAF",
+                            "displayName": "FCFA",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "10",
+                                    "maxAmount": "1500000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "AUTOMATIC",
+                                    "pinPromptRevivable": false,
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "10",
+                                    "maxAmount": "1500000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "10",
+                                    "maxAmount": "1500000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "country": "GHA",
+            "displayName": {
+                "fr": "Ghana",
+                "en": "Ghana"
+            },
+            "prefix": "233",
+            "flag": "https:\/\/static-content.pawapay.io\/country_flags\/gha.svg",
+            "providers": [
+                {
+                    "provider": "AIRTELTIGO_GHA",
+                    "nameDisplayedToCustomer": "Pawapay",
+                    "displayName": "AT",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/atmoney.png",
+                    "currencies": [
+                        {
+                            "currency": "GHS",
+                            "displayName": "GH\u00a2",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "1",
+                                    "maxAmount": "10000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "AUTOMATIC",
+                                    "pinPromptRevivable": false,
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "1",
+                                    "maxAmount": "10000",
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "1",
+                                    "maxAmount": "10000",
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "provider": "MTN_MOMO_GHA",
+                    "nameDisplayedToCustomer": "pawaPay",
+                    "displayName": "MTN",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/mtn.png",
+                    "currencies": [
+                        {
+                            "currency": "GHS",
+                            "displayName": "GH\u00a2",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "1",
+                                    "maxAmount": "15000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "AUTOMATIC",
+                                    "pinPromptRevivable": true,
+                                    "pinPromptInstructions": {
+                                        "channels": [
+                                            {
+                                                "type": "USSD",
+                                                "displayName": {
+                                                    "en": "Did not get a PIN prompt?",
+                                                    "fr": "N\u2019avez-vous pas re\u00e7u la demande de code PIN?"
+                                                },
+                                                "quickLink": "*170*6*3*1#",
+                                                "variables": {
+                                                    "accountOption": "6",
+                                                    "approvalOption": "3",
+                                                    "confirmOption": "1",
+                                                    "shortCode": "*170#"
+                                                },
+                                                "instructions": {
+                                                    "en": [
+                                                        {
+                                                            "text": "Dial *170#",
+                                                            "template": "Dial {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "Select 6 - My wallet",
+                                                            "template": "Select {{accountOption}} - My wallet"
+                                                        },
+                                                        {
+                                                            "text": "Select 3 - My approvals",
+                                                            "template": "Select {{approvalOption}} - My approvals"
+                                                        },
+                                                        {
+                                                            "text": "Select 1 - My approvals",
+                                                            "template": "Select {{confirmOption}} - My approvals"
+                                                        },
+                                                        {
+                                                            "text": "Enter Pin",
+                                                            "template": "Enter Pin"
+                                                        },
+                                                        {
+                                                            "text": "Select transaction",
+                                                            "template": "Select transaction"
+                                                        }
+                                                    ],
+                                                    "fr": [
+                                                        {
+                                                            "text": "Composez *170#",
+                                                            "template": "Composez {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 6 - Mon portefeuille",
+                                                            "template": "S\u00e9lectionnez {{accountOption}} - Mon portefeuille"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 3 - Mes validations",
+                                                            "template": "S\u00e9lectionnez {{approvalOption}} - Mes validations"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 1 - Mes validations",
+                                                            "template": "S\u00e9lectionnez {{confirmOption}} - Mes validations"
+                                                        },
+                                                        {
+                                                            "text": "Entrez le code PIN",
+                                                            "template": "Entrez le code PIN"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez la transaction",
+                                                            "template": "S\u00e9lectionnez la transaction"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "1",
+                                    "maxAmount": "15000",
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "1",
+                                    "maxAmount": "15000",
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "provider": "VODAFONE_GHA",
+                    "nameDisplayedToCustomer": "PawaPay",
+                    "displayName": "Telecel",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/telecel.png",
+                    "currencies": [
+                        {
+                            "currency": "GHS",
+                            "displayName": "GH\u00a2",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "1",
+                                    "maxAmount": "15000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "AUTOMATIC",
+                                    "pinPromptRevivable": true,
+                                    "pinPromptInstructions": {
+                                        "channels": [
+                                            {
+                                                "type": "USSD",
+                                                "displayName": {
+                                                    "en": "Did not get a PIN prompt?",
+                                                    "fr": "N\u2019avez-vous pas re\u00e7u la demande de code PIN?"
+                                                },
+                                                "quickLink": "*110*4*8#",
+                                                "variables": {
+                                                    "paymentOption": "4",
+                                                    "approvalOption": "8",
+                                                    "shortCode": "*110#"
+                                                },
+                                                "instructions": {
+                                                    "en": [
+                                                        {
+                                                            "text": "Dial *110#",
+                                                            "template": "Dial {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "Select 4 - Make Payments",
+                                                            "template": "Select {{paymentOption}} - Make Payments"
+                                                        },
+                                                        {
+                                                            "text": "Select 8 - My Approvals",
+                                                            "template": "Select {{approvalOption}} - My Approvals"
+                                                        },
+                                                        {
+                                                            "text": "Select transaction",
+                                                            "template": "Select transaction"
+                                                        },
+                                                        {
+                                                            "text": "Enter PIN",
+                                                            "template": "Enter PIN"
+                                                        }
+                                                    ],
+                                                    "fr": [
+                                                        {
+                                                            "text": "Composez *110#",
+                                                            "template": "Composez {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 4 - Effectuer des paiements",
+                                                            "template": "S\u00e9lectionnez {{paymentOption}} - Effectuer des paiements"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 8 - Mes validations",
+                                                            "template": "S\u00e9lectionnez {{approvalOption}} - Mes validations"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez la transaction",
+                                                            "template": "S\u00e9lectionnez la transaction"
+                                                        },
+                                                        {
+                                                            "text": "Entrez le code PIN",
+                                                            "template": "Entrez le code PIN"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "1",
+                                    "maxAmount": "15000",
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "1",
+                                    "maxAmount": "15000",
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "country": "KEN",
+            "displayName": {
+                "fr": "Kenya",
+                "en": "Kenya"
+            },
+            "prefix": "254",
+            "flag": "https:\/\/static-content.pawapay.io\/country_flags\/ken.svg",
+            "providers": [
+                {
+                    "provider": "MPESA_KEN",
+                    "nameDisplayedToCustomer": "CYN PAWAPAY",
+                    "displayName": "Safaricom",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/mpesa.png",
+                    "currencies": [
+                        {
+                            "currency": "KES",
+                            "displayName": "KSh",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "1",
+                                    "maxAmount": "250000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "AUTOMATIC",
+                                    "pinPromptRevivable": false,
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "10",
+                                    "maxAmount": "250000",
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "10",
+                                    "maxAmount": "250000",
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "country": "MWI",
+            "displayName": {
+                "fr": "Malawi",
+                "en": "Malawi"
+            },
+            "prefix": "265",
+            "flag": "https:\/\/static-content.pawapay.io\/country_flags\/mwi.svg",
+            "providers": [
+                {
+                    "provider": "AIRTEL_MWI",
+                    "nameDisplayedToCustomer": "PAWAPAY PAYMENTS",
+                    "displayName": "Airtel",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/airtel.png",
+                    "currencies": [
+                        {
+                            "currency": "MWK",
+                            "displayName": "MK",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "50",
+                                    "maxAmount": "750000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "AUTOMATIC",
+                                    "pinPromptRevivable": false,
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "50",
+                                    "maxAmount": "750000",
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "50",
+                                    "maxAmount": "750000",
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "provider": "TNM_MWI",
+                    "nameDisplayedToCustomer": "PAWAPAY MALAWI",
+                    "displayName": "TNM",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/tnm.png",
+                    "currencies": [
+                        {
+                            "currency": "MWK",
+                            "displayName": "MK",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "50",
+                                    "maxAmount": "750000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "AUTOMATIC",
+                                    "pinPromptRevivable": false,
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "50",
+                                    "maxAmount": "750000",
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "50",
+                                    "maxAmount": "750000",
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "country": "RWA",
+            "displayName": {
+                "fr": "Rwanda",
+                "en": "Rwanda"
+            },
+            "prefix": "250",
+            "flag": "https:\/\/static-content.pawapay.io\/country_flags\/rwa.svg",
+            "providers": [
+                {
+                    "provider": "AIRTEL_RWA",
+                    "nameDisplayedToCustomer": "pawaPay RW",
+                    "displayName": "Airtel",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/airtel.png",
+                    "currencies": [
+                        {
+                            "currency": "RWF",
+                            "displayName": "R\u20a3",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "100",
+                                    "maxAmount": "1500000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "AUTOMATIC",
+                                    "pinPromptRevivable": true,
+                                    "pinPromptInstructions": {
+                                        "channels": [
+                                            {
+                                                "type": "USSD",
+                                                "displayName": {
+                                                    "en": "Did not get a PIN prompt?",
+                                                    "fr": "N\u2019avez-vous pas re\u00e7u la demande de code PIN?"
+                                                },
+                                                "quickLink": "*182*5*6*1#",
+                                                "variables": {
+                                                    "accountOption": "5",
+                                                    "approvalOption": "1",
+                                                    "shortCode": "*182#",
+                                                    "pendingOption": "6"
+                                                },
+                                                "instructions": {
+                                                    "en": [
+                                                        {
+                                                            "text": "Dial *182#",
+                                                            "template": "Dial {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "Select 5 - Account\/PIN",
+                                                            "template": "Select {{accountOption}} - Account\/PIN"
+                                                        },
+                                                        {
+                                                            "text": "Select 6 - Pending transactions",
+                                                            "template": "Select {{pendingOption}} - Pending transactions"
+                                                        },
+                                                        {
+                                                            "text": "Select 1 - Approve transaction",
+                                                            "template": "Select {{approvalOption}} - Approve transaction"
+                                                        },
+                                                        {
+                                                            "text": "Select transaction",
+                                                            "template": "Select transaction"
+                                                        },
+                                                        {
+                                                            "text": "Enter PIN",
+                                                            "template": "Enter PIN"
+                                                        }
+                                                    ],
+                                                    "fr": [
+                                                        {
+                                                            "text": "Composez *182#",
+                                                            "template": "Composez {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 5 - Compte\/PIN",
+                                                            "template": "S\u00e9lectionnez {{accountOption}} - Compte\/PIN"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 6 - Transactions en attente",
+                                                            "template": "S\u00e9lectionnez {{pendingOption}} - Transactions en attente"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 1 - Approuver la transaction",
+                                                            "template": "S\u00e9lectionnez {{approvalOption}} - Approuver la transaction"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez la transaction",
+                                                            "template": "S\u00e9lectionnez la transaction"
+                                                        },
+                                                        {
+                                                            "text": "Entrez le code PIN",
+                                                            "template": "Entrez le code PIN"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "100",
+                                    "maxAmount": "1500000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "100",
+                                    "maxAmount": "1500000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "provider": "MTN_MOMO_RWA",
+                    "nameDisplayedToCustomer": "pawaPay",
+                    "displayName": "MTN",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/mtn.png",
+                    "currencies": [
+                        {
+                            "currency": "RWF",
+                            "displayName": "R\u20a3",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "5",
+                                    "maxAmount": "2000000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "AUTOMATIC",
+                                    "pinPromptRevivable": true,
+                                    "pinPromptInstructions": {
+                                        "channels": [
+                                            {
+                                                "type": "USSD",
+                                                "displayName": {
+                                                    "en": "Did not get a PIN prompt?",
+                                                    "fr": "N\u2019avez-vous pas re\u00e7u la demande de code PIN?"
+                                                },
+                                                "quickLink": "*182*7*1#",
+                                                "variables": {
+                                                    "approvalOption": "1",
+                                                    "confirmOption": "1",
+                                                    "shortCode": "*182#",
+                                                    "pendingOption": "7"
+                                                },
+                                                "instructions": {
+                                                    "en": [
+                                                        {
+                                                            "text": "Dial *182#",
+                                                            "template": "Dial {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "Select 7 - Pending confirmations (Ibymezo bitaranozwan)",
+                                                            "template": "Select {{pendingOption}} - Pending confirmations (Ibymezo bitaranozwan)"
+                                                        },
+                                                        {
+                                                            "text": "Select 1 - Confirm payment (Emeza kwishyura)",
+                                                            "template": "Select {{confirmOption}} - Confirm payment (Emeza kwishyura)"
+                                                        },
+                                                        {
+                                                            "text": "Enter PIN",
+                                                            "template": "Enter PIN"
+                                                        },
+                                                        {
+                                                            "text": "Select transaction",
+                                                            "template": "Select transaction"
+                                                        },
+                                                        {
+                                                            "text": "Select 1 - Yes (Yego) to approve transaction",
+                                                            "template": "Select {{approvalOption}} - Yes (Yego) to approve transaction"
+                                                        }
+                                                    ],
+                                                    "fr": [
+                                                        {
+                                                            "text": "Composez *182#",
+                                                            "template": "Composez {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 7 - Confirmations en attente (Ibymezo bitaranozwan)",
+                                                            "template": "S\u00e9lectionnez {{pendingOption}} - Confirmations en attente (Ibymezo bitaranozwan)"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 1 - Confirmer le paiement (Emeza kwishyura)",
+                                                            "template": "S\u00e9lectionnez {{confirmOption}} - Confirmer le paiement (Emeza kwishyura)"
+                                                        },
+                                                        {
+                                                            "text": "Entrez le code PIN",
+                                                            "template": "Entrez le code PIN"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez la transaction",
+                                                            "template": "S\u00e9lectionnez la transaction"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 1 - Oui (Yego) pour approuver la transaction",
+                                                            "template": "S\u00e9lectionnez {{approvalOption}} - Oui (Yego) pour approuver la transaction"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "5",
+                                    "maxAmount": "2000000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "5",
+                                    "maxAmount": "2000000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "country": "SEN",
+            "displayName": {
+                "fr": "S\u00e9n\u00e9gal",
+                "en": "Senegal"
+            },
+            "prefix": "221",
+            "flag": "https:\/\/static-content.pawapay.io\/country_flags\/sen.svg",
+            "providers": [
+                {
+                    "provider": "FREE_SEN",
+                    "nameDisplayedToCustomer": "KERRY PAYMENT",
+                    "displayName": "Free",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/free.png",
+                    "currencies": [
+                        {
+                            "currency": "XOF",
+                            "displayName": "CFA",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "5",
+                                    "maxAmount": "100000000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "MANUAL",
+                                    "pinPromptRevivable": true,
+                                    "pinPromptInstructions": {
+                                        "channels": [
+                                            {
+                                                "type": "USSD",
+                                                "displayName": {
+                                                    "en": "Follow the instructions to authorise the payment",
+                                                    "fr": "Veuillez suivre les instructions afin d\u2019autoriser le paiement"
+                                                },
+                                                "variables": {
+                                                    "shortCode": "#150#"
+                                                },
+                                                "instructions": {
+                                                    "en": [
+                                                        {
+                                                            "text": "Dial #150#",
+                                                            "template": "Dial {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "Enter PIN",
+                                                            "template": "Enter PIN"
+                                                        }
+                                                    ],
+                                                    "fr": [
+                                                        {
+                                                            "text": "Composez #150#",
+                                                            "template": "Composez {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "Entrez le code PIN",
+                                                            "template": "Entrez le code PIN"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "1",
+                                    "maxAmount": "200000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "1",
+                                    "maxAmount": "200000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "provider": "ORANGE_SEN",
+                    "nameDisplayedToCustomer": "KERRY PAYMENT",
+                    "displayName": "Orange",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/orange.png",
+                    "currencies": [
+                        {
+                            "currency": "XOF",
+                            "displayName": "CFA",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "2",
+                                    "maxAmount": "100000000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "MANUAL",
+                                    "pinPromptRevivable": true,
+                                    "pinPromptInstructions": {
+                                        "channels": [
+                                            {
+                                                "type": "USSD",
+                                                "displayName": {
+                                                    "en": "Follow the instructions to authorise the payment",
+                                                    "fr": "Veuillez suivre les instructions afin d\u2019autoriser le paiement"
+                                                },
+                                                "variables": {
+                                                    "shortCode": "#144#"
+                                                },
+                                                "instructions": {
+                                                    "en": [
+                                                        {
+                                                            "text": "Dial #144#",
+                                                            "template": "Dial {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "Enter PIN",
+                                                            "template": "Enter PIN"
+                                                        }
+                                                    ],
+                                                    "fr": [
+                                                        {
+                                                            "text": "Composez #144#",
+                                                            "template": "Composez {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "Entrez le code PIN",
+                                                            "template": "Entrez le code PIN"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "1",
+                                    "maxAmount": "200000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "1",
+                                    "maxAmount": "200000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "country": "SLE",
+            "displayName": {
+                "fr": "Sierra Leone",
+                "en": "Sierra Leone"
+            },
+            "prefix": "232",
+            "flag": "https:\/\/static-content.pawapay.io\/country_flags\/sle.svg",
+            "providers": [
+                {
+                    "provider": "ORANGE_SLE",
+                    "nameDisplayedToCustomer": "SL LIMITED",
+                    "displayName": "Orange",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/orange.png",
+                    "currencies": [
+                        {
+                            "currency": "SLE",
+                            "displayName": "Le",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "1",
+                                    "maxAmount": "15000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "MANUAL",
+                                    "pinPromptRevivable": false,
+                                    "pinPromptInstructions": {
+                                        "channels": [
+                                            {
+                                                "type": "USSD",
+                                                "displayName": {
+                                                    "en": "Follow the instructions to authorise the payment",
+                                                    "fr": "Veuillez suivre les instructions afin d\u2019autoriser le paiement"
+                                                },
+                                                "variables": {
+                                                    "shortCode": "#144#"
+                                                },
+                                                "instructions": {
+                                                    "en": [
+                                                        {
+                                                            "text": "Dial #144#",
+                                                            "template": "Dial {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "Enter PIN",
+                                                            "template": "Enter PIN"
+                                                        }
+                                                    ],
+                                                    "fr": [
+                                                        {
+                                                            "text": "Composez #144#",
+                                                            "template": "Composez {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "Entrez le code PIN",
+                                                            "template": "Entrez le code PIN"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "1",
+                                    "maxAmount": "15000",
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "1",
+                                    "maxAmount": "15000",
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "country": "TZA",
+            "displayName": {
+                "fr": "Tanzanie",
+                "en": "Tanzania"
+            },
+            "prefix": "255",
+            "flag": "https:\/\/static-content.pawapay.io\/country_flags\/tza.svg",
+            "providers": [
+                {
+                    "provider": "AIRTEL_TZA",
+                    "nameDisplayedToCustomer": "PawaPay",
+                    "displayName": "Airtel",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/airtel.png",
+                    "currencies": [
+                        {
+                            "currency": "TZS",
+                            "displayName": "TSh",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "100",
+                                    "maxAmount": "3000000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "AUTOMATIC",
+                                    "pinPromptRevivable": true,
+                                    "pinPromptInstructions": {
+                                        "channels": [
+                                            {
+                                                "type": "USSD",
+                                                "displayName": {
+                                                    "en": "Did not get a PIN prompt?",
+                                                    "fr": "N\u2019avez-vous pas re\u00e7u la demande de code PIN?"
+                                                },
+                                                "variables": {
+                                                    "nextOption": "#",
+                                                    "accountOption": "7",
+                                                    "approvalOption": "11",
+                                                    "confirmOption": "1",
+                                                    "shortCode": "*150*60#"
+                                                },
+                                                "instructions": {
+                                                    "en": [
+                                                        {
+                                                            "text": "Dial *150*60#",
+                                                            "template": "Dial {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "Select 7 - My account",
+                                                            "template": "Select {{accountOption}} - My account"
+                                                        },
+                                                        {
+                                                            "text": "Select # - Next",
+                                                            "template": "Select {{nextOption}} - Next"
+                                                        },
+                                                        {
+                                                            "text": "Select 11 - My approvals",
+                                                            "template": "Select {{approvalOption}} - My approvals"
+                                                        },
+                                                        {
+                                                            "text": "Select 1 - Approve transaction",
+                                                            "template": "Select {{confirmOption}} - Approve transaction"
+                                                        },
+                                                        {
+                                                            "text": "Select transaction",
+                                                            "template": "Select transaction"
+                                                        },
+                                                        {
+                                                            "text": "Enter PIN",
+                                                            "template": "Enter PIN"
+                                                        }
+                                                    ],
+                                                    "fr": [
+                                                        {
+                                                            "text": "Composez *150*60#",
+                                                            "template": "Composez {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 7 - Mon compte",
+                                                            "template": "S\u00e9lectionnez {{accountOption}} - Mon compte"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez # - Suivant",
+                                                            "template": "S\u00e9lectionnez {{nextOption}} - Suivant"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 11 - Mes validations",
+                                                            "template": "S\u00e9lectionnez {{approvalOption}} - Mes validations"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 1 - Approuver la transaction",
+                                                            "template": "S\u00e9lectionnez {{confirmOption}} - Approuver la transaction"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez la transaction",
+                                                            "template": "S\u00e9lectionnez la transaction"
+                                                        },
+                                                        {
+                                                            "text": "Entrez le code PIN",
+                                                            "template": "Entrez le code PIN"
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "type": "USSD",
+                                                "displayName": {
+                                                    "en": "Did not get a PIN prompt?",
+                                                    "fr": "N\u2019avez-vous pas re\u00e7u la demande de code PIN?"
+                                                },
+                                                "variables": {
+                                                    "nextOption": "#",
+                                                    "accountOption": "7",
+                                                    "approvalOption": "11",
+                                                    "confirmOption": "1",
+                                                    "shortCode": "*150*60#"
+                                                },
+                                                "instructions": {
+                                                    "en": [
+                                                        {
+                                                            "text": "Dial *150*60#",
+                                                            "template": "Dial {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "Select 7 - My account",
+                                                            "template": "Select {{accountOption}} - My account"
+                                                        },
+                                                        {
+                                                            "text": "Select # - Next",
+                                                            "template": "Select {{nextOption}} - Next"
+                                                        },
+                                                        {
+                                                            "text": "Select 11 - My approvals",
+                                                            "template": "Select {{approvalOption}} - My approvals"
+                                                        },
+                                                        {
+                                                            "text": "Select 1 - Approve transaction",
+                                                            "template": "Select {{confirmOption}} - Approve transaction"
+                                                        },
+                                                        {
+                                                            "text": "Select transaction",
+                                                            "template": "Select transaction"
+                                                        },
+                                                        {
+                                                            "text": "Enter PIN",
+                                                            "template": "Enter PIN"
+                                                        }
+                                                    ],
+                                                    "fr": [
+                                                        {
+                                                            "text": "Composez *150*60#",
+                                                            "template": "Composez {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 7 - Mon compte",
+                                                            "template": "S\u00e9lectionnez {{accountOption}} - Mon compte"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez # - Suivant",
+                                                            "template": "S\u00e9lectionnez {{nextOption}} - Suivant"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 11 - Mes validations",
+                                                            "template": "S\u00e9lectionnez {{approvalOption}} - Mes validations"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 1 - Approuver la transaction",
+                                                            "template": "S\u00e9lectionnez {{confirmOption}} - Approuver la transaction"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez la transaction",
+                                                            "template": "S\u00e9lectionnez la transaction"
+                                                        },
+                                                        {
+                                                            "text": "Entrez le code PIN",
+                                                            "template": "Entrez le code PIN"
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "type": "USSD",
+                                                "displayName": {
+                                                    "en": "Did not get a PIN prompt?",
+                                                    "fr": "N\u2019avez-vous pas re\u00e7u la demande de code PIN?"
+                                                },
+                                                "variables": {
+                                                    "nextOption": "#",
+                                                    "accountOption": "7",
+                                                    "approvalOption": "11",
+                                                    "confirmOption": "1",
+                                                    "shortCode": "*150*60#"
+                                                },
+                                                "instructions": {
+                                                    "en": [
+                                                        {
+                                                            "text": "Dial *150*60#",
+                                                            "template": "Dial {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "Select 7 - My account",
+                                                            "template": "Select {{accountOption}} - My account"
+                                                        },
+                                                        {
+                                                            "text": "Select # - Next",
+                                                            "template": "Select {{nextOption}} - Next"
+                                                        },
+                                                        {
+                                                            "text": "Select 11 - My approvals",
+                                                            "template": "Select {{approvalOption}} - My approvals"
+                                                        },
+                                                        {
+                                                            "text": "Select 1 - Approve transaction",
+                                                            "template": "Select {{confirmOption}} - Approve transaction"
+                                                        },
+                                                        {
+                                                            "text": "Select transaction",
+                                                            "template": "Select transaction"
+                                                        },
+                                                        {
+                                                            "text": "Enter PIN",
+                                                            "template": "Enter PIN"
+                                                        }
+                                                    ],
+                                                    "fr": [
+                                                        {
+                                                            "text": "Composez *150*60#",
+                                                            "template": "Composez {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 7 - Mon compte",
+                                                            "template": "S\u00e9lectionnez {{accountOption}} - Mon compte"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez # - Suivant",
+                                                            "template": "S\u00e9lectionnez {{nextOption}} - Suivant"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 11 - Mes validations",
+                                                            "template": "S\u00e9lectionnez {{approvalOption}} - Mes validations"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 1 - Approuver la transaction",
+                                                            "template": "S\u00e9lectionnez {{confirmOption}} - Approuver la transaction"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez la transaction",
+                                                            "template": "S\u00e9lectionnez la transaction"
+                                                        },
+                                                        {
+                                                            "text": "Entrez le code PIN",
+                                                            "template": "Entrez le code PIN"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "100",
+                                    "maxAmount": "3000000",
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "100",
+                                    "maxAmount": "3000000",
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "provider": "HALOTEL_TZA",
+                    "nameDisplayedToCustomer": "Pawapay",
+                    "displayName": "Halotel",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/halotel.png",
+                    "currencies": [
+                        {
+                            "currency": "TZS",
+                            "displayName": "TSh",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "100",
+                                    "maxAmount": "5000000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "AUTOMATIC",
+                                    "pinPromptRevivable": false,
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "100",
+                                    "maxAmount": "5000000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "100",
+                                    "maxAmount": "5000000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "provider": "TIGO_TZA",
+                    "nameDisplayedToCustomer": "Madina Tech",
+                    "displayName": "Tigo",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/tigo.png",
+                    "currencies": [
+                        {
+                            "currency": "TZS",
+                            "displayName": "TSh",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "100",
+                                    "maxAmount": "5000000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "AUTOMATIC",
+                                    "pinPromptRevivable": false,
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "1",
+                                    "maxAmount": "5000000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "1",
+                                    "maxAmount": "5000000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "country": "UGA",
+            "displayName": {
+                "fr": "Ouganda",
+                "en": "Uganda"
+            },
+            "prefix": "256",
+            "flag": "https:\/\/static-content.pawapay.io\/country_flags\/uga.svg",
+            "providers": [
+                {
+                    "provider": "AIRTEL_OAPI_UGA",
+                    "nameDisplayedToCustomer": "QUIDEXPLUS UGANDA LIMITED",
+                    "displayName": "Airtel",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/airtel.png",
+                    "currencies": [
+                        {
+                            "currency": "UGX",
+                            "displayName": "USh",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "500",
+                                    "maxAmount": "5000000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "AUTOMATIC",
+                                    "pinPromptRevivable": true,
+                                    "pinPromptInstructions": {
+                                        "channels": [
+                                            {
+                                                "type": "USSD",
+                                                "displayName": {
+                                                    "en": "Did not get a PIN prompt?",
+                                                    "fr": "N\u2019avez-vous pas re\u00e7u la demande de code PIN?"
+                                                },
+                                                "quickLink": "*185*10*6*2#",
+                                                "variables": {
+                                                    "accountOption": "10",
+                                                    "approvalOption": "6",
+                                                    "confirmOption": "1",
+                                                    "shortCode": "*185#",
+                                                    "pendingOption": "2"
+                                                },
+                                                "instructions": {
+                                                    "en": [
+                                                        {
+                                                            "text": "Dial *185#",
+                                                            "template": "Dial {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "Select 10 - My Account",
+                                                            "template": "Select {{accountOption}} - My Account"
+                                                        },
+                                                        {
+                                                            "text": "Select 6 - My messages and Approvals",
+                                                            "template": "Select {{approvalOption}} - My messages and Approvals"
+                                                        },
+                                                        {
+                                                            "text": "Select 2 - My Approvals",
+                                                            "template": "Select {{pendingOption}} - My Approvals"
+                                                        },
+                                                        {
+                                                            "text": "Select 1 - Approve transaction",
+                                                            "template": "Select {{confirmOption}} - Approve transaction"
+                                                        },
+                                                        {
+                                                            "text": "Select transaction",
+                                                            "template": "Select transaction"
+                                                        },
+                                                        {
+                                                            "text": "Enter PIN",
+                                                            "template": "Enter PIN"
+                                                        }
+                                                    ],
+                                                    "fr": [
+                                                        {
+                                                            "text": "Composez *185#",
+                                                            "template": "Composez {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 10 - Mon compte",
+                                                            "template": "S\u00e9lectionnez {{accountOption}} - Mon compte"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 6 - Mes messages et validations",
+                                                            "template": "S\u00e9lectionnez {{approvalOption}} - Mes messages et validations"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 2 - Mes validations",
+                                                            "template": "S\u00e9lectionnez {{pendingOption}} - Mes validations"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 1 - Approuver la transaction",
+                                                            "template": "S\u00e9lectionnez {{confirmOption}} - Approuver la transaction"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez la transaction",
+                                                            "template": "S\u00e9lectionnez la transaction"
+                                                        },
+                                                        {
+                                                            "text": "Entrez le code PIN",
+                                                            "template": "Entrez le code PIN"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "500",
+                                    "maxAmount": "5000000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "500",
+                                    "maxAmount": "5000000",
+                                    "decimalsInAmount": "NONE",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "provider": "MTN_MOMO_UGA",
+                    "nameDisplayedToCustomer": "QUIDEXPLUS UGANDA LIMITED",
+                    "displayName": "MTN",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/mtn.png",
+                    "currencies": [
+                        {
+                            "currency": "UGX",
+                            "displayName": "USh",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "500",
+                                    "maxAmount": "5000000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "AUTOMATIC",
+                                    "pinPromptRevivable": true,
+                                    "pinPromptInstructions": {
+                                        "channels": [
+                                            {
+                                                "type": "USSD",
+                                                "displayName": {
+                                                    "en": "Did not get a PIN prompt?",
+                                                    "fr": "N\u2019avez-vous pas re\u00e7u la demande de code PIN?"
+                                                },
+                                                "quickLink": "*165*8*3*1#",
+                                                "variables": {
+                                                    "accountOption": "8",
+                                                    "approvalOption": "3",
+                                                    "confirmOption": "1",
+                                                    "shortCode": "*165#"
+                                                },
+                                                "instructions": {
+                                                    "en": [
+                                                        {
+                                                            "text": "Dial *165#",
+                                                            "template": "Dial {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "Select 8 - My Account",
+                                                            "template": "Select {{accountOption}} - My Account"
+                                                        },
+                                                        {
+                                                            "text": "Select 3 - My Approvals",
+                                                            "template": "Select {{approvalOption}} - My Approvals"
+                                                        },
+                                                        {
+                                                            "text": "Select 1 - My Approvals",
+                                                            "template": "Select {{confirmOption}} - My Approvals"
+                                                        },
+                                                        {
+                                                            "text": "Enter  PIN",
+                                                            "template": "Enter  PIN"
+                                                        },
+                                                        {
+                                                            "text": "Select Yes for approving the transaction",
+                                                            "template": "Select Yes for approving the transaction"
+                                                        }
+                                                    ],
+                                                    "fr": [
+                                                        {
+                                                            "text": "Composez *165#",
+                                                            "template": "Composez {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 8 - Mon compte",
+                                                            "template": "S\u00e9lectionnez {{accountOption}} - Mon compte"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 3 - Mes validations",
+                                                            "template": "S\u00e9lectionnez {{approvalOption}} - Mes validations"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez 1 - Mes validations",
+                                                            "template": "S\u00e9lectionnez {{confirmOption}} - Mes validations"
+                                                        },
+                                                        {
+                                                            "text": "Entrez le code PIN",
+                                                            "template": "Entrez le code PIN"
+                                                        },
+                                                        {
+                                                            "text": "S\u00e9lectionnez Oui pour approuver la transaction",
+                                                            "template": "S\u00e9lectionnez Oui pour approuver la transaction"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "500",
+                                    "maxAmount": "5000000",
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "500",
+                                    "maxAmount": "5000000",
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "country": "ZMB",
+            "displayName": {
+                "fr": "Zambie",
+                "en": "Zambia"
+            },
+            "prefix": "260",
+            "flag": "https:\/\/static-content.pawapay.io\/country_flags\/zmb.svg",
+            "providers": [
+                {
+                    "provider": "AIRTEL_OAPI_ZMB",
+                    "nameDisplayedToCustomer": "PAWA PAY SMART PAY SOLUTIONS",
+                    "displayName": "Airtel",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/airtel.png",
+                    "currencies": [
+                        {
+                            "currency": "ZMW",
+                            "displayName": "ZK",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "1",
+                                    "maxAmount": "20000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "AUTOMATIC",
+                                    "pinPromptRevivable": false,
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "1",
+                                    "maxAmount": "20000",
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "1",
+                                    "maxAmount": "20000",
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "provider": "MTN_MOMO_ZMB",
+                    "nameDisplayedToCustomer": "Pawapay",
+                    "displayName": "MTN",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/mtn.png",
+                    "currencies": [
+                        {
+                            "currency": "ZMW",
+                            "displayName": "ZK",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "1",
+                                    "maxAmount": "20000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "AUTOMATIC",
+                                    "pinPromptRevivable": true,
+                                    "pinPromptInstructions": {
+                                        "channels": [
+                                            {
+                                                "type": "USSD",
+                                                "displayName": {
+                                                    "en": "Did not get a PIN prompt?",
+                                                    "fr": "N\u2019avez-vous pas re\u00e7u la demande de code PIN?"
+                                                },
+                                                "variables": {
+                                                    "shortCode": "*115#"
+                                                },
+                                                "instructions": {
+                                                    "en": [
+                                                        {
+                                                            "text": "Dial *115#",
+                                                            "template": "Dial {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "Enter PIN",
+                                                            "template": "Enter PIN"
+                                                        }
+                                                    ],
+                                                    "fr": [
+                                                        {
+                                                            "text": "Composez *115#",
+                                                            "template": "Composez {{shortCode}}"
+                                                        },
+                                                        {
+                                                            "text": "Entrez le code PIN",
+                                                            "template": "Entrez le code PIN"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "1",
+                                    "maxAmount": "20000",
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "1",
+                                    "maxAmount": "20000",
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                },
+                {
+                    "provider": "ZAMTEL_ZMB",
+                    "nameDisplayedToCustomer": "pawaPay",
+                    "displayName": "Zamtel",
+                    "logo": "https:\/\/static-content.pawapay.io\/provider_logos\/zamtel.png",
+                    "currencies": [
+                        {
+                            "currency": "ZMW",
+                            "displayName": "ZK",
+                            "operationTypes": {
+                                "DEPOSIT": {
+                                    "minAmount": "1",
+                                    "maxAmount": "20000",
+                                    "authType": "PROVIDER_AUTH",
+                                    "pinPrompt": "AUTOMATIC",
+                                    "pinPromptRevivable": false,
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "REFUND": {
+                                    "minAmount": "1",
+                                    "maxAmount": "20000",
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                },
+                                "PAYOUT": {
+                                    "minAmount": "1",
+                                    "maxAmount": "20000",
+                                    "decimalsInAmount": "TWO_PLACES",
+                                    "status": "OPERATIONAL",
+                                    "callbackUrl": "http:\/\/localhost:3000\/example\/callback.php"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "signatureConfiguration": {
+        "signedRequestsOnly": false,
+        "signedCallbacks": false
+    }
+}
